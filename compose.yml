@@ -1,0 +1,16 @@
+name: cross-stitch-dueling-bot
+services:
+  db:
+    container_name: cross-stitch-dueling-bot-db
+    image: postgres:17.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cross-stitch-dueling-bot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
