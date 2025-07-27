@@ -1,4 +1,4 @@
-import { createDbPool } from "../db.js";
+import { createDbPool } from "../database/";
 import { createDiContainer, type AwilixContainer, type Cradle } from "../di.js";
 
 export default defineNitroPlugin(async (nitroApp) => {

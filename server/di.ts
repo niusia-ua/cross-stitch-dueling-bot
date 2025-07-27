@@ -1,8 +1,8 @@
 import { asClass, createContainer } from "awilix";
 
-import type { DatabasePool } from "./db.js";
-import { UsersService } from "./services/index.js";
-import { UsersRepository } from "./repositories/index.js";
+import type { DatabasePool } from "./database/";
+import { UsersService } from "./services/";
+import { UsersRepository } from "./repositories/";
 
 export function createDiContainer(pool: DatabasePool) {
   const diContainer = createContainer<Cradle>({ strict: true });

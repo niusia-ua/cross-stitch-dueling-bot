@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "unplugin-fluent-vue/nuxt"],
+  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "@pinia/nuxt", "unplugin-fluent-vue/nuxt"],
   imports: {
     presets: [{ from: "fluent-vue", imports: ["useFluent"] }],
   },
@@ -21,6 +21,9 @@ export default defineNuxtConfig({
       title: "Cross-Stitch Dueling Bot",
       script: [{ src: "https://telegram.org/js/telegram-web-app.js" }],
     },
+  },
+  routeRules: {
+    "/": { redirect: "/rating" },
   },
 
   fluentVue: {
