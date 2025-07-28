@@ -7,7 +7,7 @@ export default defineLazyEventHandler(async () => {
   const config = useRuntimeConfig();
 
   const bot = await setupBot();
-  const callback = webhookCallback(bot, h3, { secretToken: config.BOT_SECRET_TOKEN });
+  const callback = webhookCallback(bot, h3, { secretToken: config.BOT_WEBHOOK_SECRET_TOKEN });
 
   return defineEventHandler(callback);
 });

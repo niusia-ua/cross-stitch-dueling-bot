@@ -5,26 +5,38 @@
 </template>
 
 <script setup lang="ts">
-  import { BotApi } from "~/api/";
+  import { FetchError } from "ofetch";
 
   const fluent = useFluent();
+  const toast = useToast();
 
   const userStore = useUserStore();
 
   onMounted(async () => {
-    const { valid } = await BotApi.validateWebAppData(Telegram.WebApp.initData);
-    Telegram.WebApp.ready();
+    try {
+      await userStore.authenticateUser(Telegram.WebApp.initData);
+    } catch (err) {
+      if (err instanceof FetchError) {
+        if (err.status === 400) {
+          return Telegram.WebApp.showAlert(fluent.$t("message-error-invalid-web-app-data"), () => {
+            Telegram.WebApp.close();
+          });
+        }
 
-    if (!valid) {
-      return Telegram.WebApp.showAlert(fluent.$t("message-invalid-web-app-data"), () => Telegram.WebApp.close());
+        if (err.status === 401) {
+          return navigateTo("/registration");
+        }
+      }
+
+      toast.add({ color: "error", description: fluent.$t("message-error-unknown") });
+      console.error(err);
+    } finally {
+      Telegram.WebApp.ready();
     }
-
-    const tgUser = Telegram.WebApp.initDataUnsafe.user!;
-
-    await userStore.fetchUser(tgUser.id);
   });
 </script>
 
 <fluent locale="uk">
-  message-invalid-web-app-data = Не валідні дані вебзастосунку. Ми не можемо їм довіряти. Застосунок буде закрито.
+  message-error-invalid-web-app-data = Не валідні дані вебзастосунку. Ми не можемо їм довіряти. Застосунок буде закрито.
+  message-error-unknown = Сталася невідома помилка. Будь ласка, спробуйте ще раз пізніше.
 </fluent>

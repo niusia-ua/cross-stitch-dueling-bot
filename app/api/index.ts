@@ -1,2 +1,2 @@
-export * as BotApi from "./bot.js";
+export * as AuthApi from "./auth.js";
 export * as UsersApi from "./users.js";
