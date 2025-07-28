@@ -1,4 +1,4 @@
-import { UsersApi } from "~/api/";
+import { AuthApi, UsersApi } from "~/api/";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<User | null>(null);
@@ -11,9 +11,9 @@ export const useUserStore = defineStore("user", () => {
     settings.value = settingsData;
   }
 
-  async function fetchUser(userId: number) {
-    const data = await UsersApi.getUser(userId);
-    if (data) setUser(data.user, data.settings);
+  async function authenticateUser(initData: string) {
+    const data = await AuthApi.auth(initData);
+    setUser(data.user, data.settings);
     return data;
   }
 
@@ -23,5 +23,5 @@ export const useUserStore = defineStore("user", () => {
     return data;
   }
 
-  return { user, settings, isAuthenticated, setUser, fetchUser, registerUser };
+  return { user, settings, isAuthenticated, setUser, authenticateUser, registerUser };
 });

@@ -40,6 +40,8 @@ export default defineNuxtConfig({
     BOT_WEB_APP_URL: undefined,
     BOT_SECRET_TOKEN: undefined,
 
+    JWT_SECRET: undefined,
+
     DATABASE_URL: undefined,
   },
 
