@@ -36,9 +36,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     BOT_TOKEN: undefined,
+    BOT_WEBHOOK_SECRET_TOKEN: undefined,
     BOT_INFO: undefined,
     BOT_WEB_APP_URL: undefined,
-    BOT_SECRET_TOKEN: undefined,
 
     JWT_SECRET: undefined,
 
