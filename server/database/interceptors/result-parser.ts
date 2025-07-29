@@ -6,12 +6,12 @@ export function createResultParserInterceptor(): Interceptor {
     transformRowAsync: async (context, query, row) => {
       if (!context.resultParser) return row;
 
-      const validationResult = await context.resultParser.safeParseAsync(row);
-      if (!validationResult.success) {
-        throw new SchemaValidationError(query, row, validationResult.error.issues);
+      const result = await context.resultParser["~standard"].validate(row);
+      if (result.issues) {
+        throw new SchemaValidationError(query, row, result.issues);
       }
 
-      return validationResult.data as QueryResultRow;
+      return result.value as QueryResultRow;
     },
   };
 }
