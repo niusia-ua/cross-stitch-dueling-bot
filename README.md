@@ -38,7 +38,7 @@ We prefer writing plain SQL, so we use [slonik](https://github.com/gajus/slonik)
 
 ### Prerequisites
 
-Make sure you have Node.js 22 or above, the latest Docker, and some kind of a tunnel service (e.g., [ngrok](https://ngrok.com)) installed.
+Make sure you have Node.js v24 or above, the latest Docker, and some kind of a tunnel service (e.g., [ngrok](https://ngrok.com)) installed.
 
 Then, talk to [@BotFather](https://t.me/BotFather) to create a bot account.
 When you get the bot's token, set up the webhook:

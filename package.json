@@ -3,6 +3,9 @@
   "type": "module",
   "name": "cross-stitch-dueling-bot",
   "version": "0.0.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "postinstall": "nuxt prepare",
     "|-------- APP --------|": "",
