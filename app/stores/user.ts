@@ -23,5 +23,15 @@ export const useUserStore = defineStore("user", () => {
     return data;
   }
 
-  return { user, settings, isAuthenticated, setUser, authenticateUser, registerUser };
+  async function updateUser(userData: Omit<UserData, "id">) {
+    user.value = await UsersApi.updateUser(user.value!.id, userData);
+    return user.value;
+  }
+
+  async function updateUserSettings(settingsData: UserSettingsData) {
+    settings.value = await UsersApi.updateUserSettings(user.value!.id, settingsData);
+    return settings.value;
+  }
+
+  return { user, settings, isAuthenticated, setUser, authenticateUser, registerUser, updateUser, updateUserSettings };
 });

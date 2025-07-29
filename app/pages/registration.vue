@@ -1,22 +1,8 @@
 <template>
   <NuxtLayout>
-    <template #title>Реєстрація</template>
+    <template #title>{{ $t("page-title") }}</template>
     <template #content>
-      <div class="flex flex-col gap-y-2">
-        <!-- @vue-ignore -->
-        <UserInfo v-bind="user" />
-
-        <USeparator decorative />
-
-        <UFormField :label="$t('form-label-stitches-rate')" :description="$t('form-description-stitches-rate')">
-          <USelect v-model="settings.stitchesRate" :items="stitchesRateOptions" class="w-full" />
-        </UFormField>
-
-        <USwitch
-          v-model="settings.participatesInWeeklyRandomDuels"
-          :label="$t('form-label-participates-in-weekly-random-duels')"
-        />
-      </div>
+      <UserForm v-model:user="user" v-model:settings="settings" />
     </template>
     <template #footer>
       <UButton loading-auto :label="$t('form-label-register')" class="w-full justify-center" @click="register" />
@@ -44,12 +30,6 @@
     participatesInWeeklyRandomDuels: true,
   });
 
-  const stitchesRateOptions = [
-    { label: "50-499", value: StitchesRate.Low },
-    { label: "500-999", value: StitchesRate.Medium },
-    { label: "≥1000", value: StitchesRate.High },
-  ];
-
   async function register() {
     try {
       await userStore.registerUser(user, settings);
@@ -64,10 +44,9 @@
 </script>
 
 <fluent locale="uk">
-form-label-stitches-rate = Швидкість вишивання
-form-description-stitches-rate = Середня кількість стібків, яку ви вишиваєте за день.
-form-label-participates-in-weekly-random-duels = Брати участь у щотижневих випадкових дуелях
-form-label-register = Зареєструватися
+page-title = Реєстрація
+
+label-register = Зареєструватися
 
 message-registration-success = Вітаємо! Ви успішно зареєструвалися.
 message-registration-failure = Не вдалося зареєструватися.

@@ -24,4 +24,12 @@ export class UsersService {
 
     return { user, settings };
   }
+
+  async updateUser(id: number, data: Omit<UserData, "id">) {
+    return await this.#usersRepository.updateUser(id, data);
+  }
+
+  async updateUserSettings(id: number, data: UserSettingsData) {
+    return await this.#usersRepository.updateUserSettings(id, data);
+  }
 }

@@ -26,6 +26,7 @@
     "@nuxt/ui": "^3.3.0",
     "@pinia/nuxt": "^0.11.2",
     "@telegram-apps/init-data-node": "^2.0.10",
+    "@vueuse/core": "^13.6.0",
     "awilix": "^12.0.5",
     "dotenv": "^17.2.1",
     "fluent-vue": "^3.7.2",

@@ -4,7 +4,10 @@ export default defineNuxtConfig({
 
   modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "@pinia/nuxt", "unplugin-fluent-vue/nuxt"],
   imports: {
-    presets: [{ from: "fluent-vue", imports: ["useFluent"] }],
+    presets: [
+      { from: "fluent-vue", imports: ["useFluent"] },
+      { from: "@vueuse/core", imports: ["createSharedComposable"] },
+    ],
   },
 
   typescript: {
@@ -47,6 +50,7 @@ export default defineNuxtConfig({
 
   vite: {
     server: {
+      // Allow processing of requests from the tunnel service in development.
       allowedHosts: true,
     },
   },

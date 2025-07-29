@@ -42,4 +42,22 @@ export class UsersRepository {
       WHERE user_settings.user_id = ${userId}
     `);
   }
+
+  async updateUser(id: number, data: Omit<UserData, "id">) {
+    return await this.#pool.one(sql.type(UserSchema)`
+      UPDATE users
+      SET username = ${data.username}, fullname = ${data.fullname}, photo_url = ${data.photoUrl}
+      WHERE id = ${id}
+      RETURNING *
+    `);
+  }
+
+  async updateUserSettings(id: number, data: UserSettingsData) {
+    return await this.#pool.one(sql.type(UserSettingsSchema)`
+      UPDATE user_settings
+      SET stitches_rate = ${data.stitchesRate}, participates_in_weekly_random_duels = ${data.participatesInWeeklyRandomDuels}
+      WHERE user_id = ${id}
+      RETURNING *
+    `);
+  }
 }
