@@ -24,7 +24,7 @@
             root: 'w-full [&>div]:not-last:w-full',
             list: 'w-full justify-evenly',
             item: 'p-0',
-            link: 'flex-col gap-0.5 font-normal text-xs',
+            link: 'flex-col gap-0.5 before:bg-transparent hover:before:bg-transparent font-normal text-xs',
           }"
         />
       </div>
