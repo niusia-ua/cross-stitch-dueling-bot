@@ -1,6 +1,9 @@
 <template>
   <NuxtLayout>
     <template #title>{{ $t("page-title") }}</template>
+    <template #header-actions>
+      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+    </template>
     <template #content>
       <UProgress v-if="pending" size="xs" />
       <div v-if="data?.length" class="flex flex-col gap-y-2">
@@ -26,7 +29,7 @@
   const fluent = useFluent();
   const toast = useToast();
 
-  const { data, pending, error } = await useAsyncData("notifications", () => DuelsApi.getUserDuelRequests(), {
+  const { data, pending, error, refresh } = await useAsyncData("notifications", () => DuelsApi.getUserDuelRequests(), {
     lazy: true,
   });
 

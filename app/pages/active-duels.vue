@@ -1,6 +1,9 @@
 <template>
   <NuxtLayout>
     <template #title>{{ $t("page-title") }}</template>
+    <template #header-actions>
+      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+    </template>
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data">
         <template #participants-cell="{ row }">
@@ -39,9 +42,13 @@
   const fluent = useFluent();
   const toast = useToast();
 
-  const { data, pending, error } = await useAsyncData("active-duels", () => DuelsApi.getActiveDuelsWithParticipants(), {
-    lazy: true,
-  });
+  const { data, pending, error, refresh } = await useAsyncData(
+    "active-duels",
+    () => DuelsApi.getActiveDuelsWithParticipants(),
+    {
+      lazy: true,
+    },
+  );
   const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
     { accessorKey: "codeword", header: fluent.$t("table-col-codeword") },
     { accessorKey: "participants", header: fluent.$t("table-col-participants") },
