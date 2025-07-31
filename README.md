@@ -54,7 +54,11 @@ Last, copy the content of [`.env.example`](./.env.example) to `.env` (you need t
 ### Running the Application
 
 1. Install dependencies: `npm install`.
-2. Set up additional services (the database, local storage, etc.): `docker compose up -d`
+2. Set up additional services (the database, local storage, etc.):
+   ```sh
+   docker compose up -d
+   npm run migrate:up
+   ```
 3. Run the tunnel service: `ngrok http --url=<your domain> 3000` (this is an example for ngrok, use the command for your tunnel service).
 4. Now, you can run the application: `npm run dev`.
 
