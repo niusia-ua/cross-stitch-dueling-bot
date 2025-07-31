@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-export const TelegramUserIdSchema = z.coerce.number().int().positive();
+import { IdSchema } from "./util.js";
 
 export const UserSchema = z.object({
-  id: TelegramUserIdSchema,
+  id: IdSchema,
   username: z.coerce.string().max(32).nullable(),
   fullname: z.coerce.string().max(64 + 1 + 64),
   photoUrl: z.coerce.string().url().nullable(),
@@ -29,7 +29,7 @@ export enum StitchesRate {
 }
 
 export const UserSettingsSchema = z.object({
-  userId: TelegramUserIdSchema,
+  userId: IdSchema,
   stitchesRate: z.nativeEnum(StitchesRate),
   participatesInWeeklyRandomDuels: z.coerce.boolean(),
   createdAt: z.coerce.date(),
@@ -55,3 +55,14 @@ export const UserAndSettingsDataSchema = z.object({
   settings: UserSettingsDataSchema,
 });
 export type UserAndSettingsData = z.infer<typeof UserAndSettingsDataSchema>;
+
+export const UserAvailableForDuelSchema = UserSchema.pick({
+  id: true,
+  fullname: true,
+  photoUrl: true,
+}).merge(
+  UserSettingsSchema.pick({
+    stitchesRate: true,
+  }),
+);
+export type UserAvailableForDuel = z.infer<typeof UserAvailableForDuelSchema>;

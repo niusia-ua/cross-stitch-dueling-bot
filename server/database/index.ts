@@ -16,7 +16,7 @@ export function createDbPool() {
 
 export const sql = createSqlTag({
   typeAliases: {
-    id: z.object({ id: z.number() }).strict(),
+    id: IdObjectSchema.strict(),
     void: z.object({}).strict(),
   },
 });

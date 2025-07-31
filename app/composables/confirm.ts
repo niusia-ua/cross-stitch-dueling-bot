@@ -1,6 +1,6 @@
-import ConfirmDialog from "~/components/modals/ConfirmDialog.vue";
+import ModalConfirm from "~/components/modal/Confirm.vue";
 
 export const useConfirm = createSharedComposable(() => {
   const overlay = useOverlay();
-  return overlay.create(ConfirmDialog);
+  return overlay.create(ModalConfirm);
 });

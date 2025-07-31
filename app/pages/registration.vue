@@ -5,7 +5,7 @@
       <UserForm v-model:user="user" v-model:settings="settings" />
     </template>
     <template #footer>
-      <UButton loading-auto :label="$t('form-label-register')" class="w-full justify-center" @click="register" />
+      <UButton loading-auto :label="$t('label-register')" class="w-full justify-center" @click="register" />
     </template>
   </NuxtLayout>
 </template>

@@ -2,24 +2,49 @@
 
 ```mermaid
 erDiagram
-  USER {
+  "User" {
     bigint id PK
     varchar(32) username UK
-    varchar(129) fullname "Not Null"
+    varchar(129) fullname
     text photo_url
-    boolean active "Not Null"
-    timestamptz created_at "Not Null"
-    timestamptz updated_at "Not Null"
+    boolean active
+    timestamptz created_at
+    timestamptz updated_at
     timestamptz deleted_at
   }
 
-  USER_SETTINGS {
+  "User Settings" {
     bigint user_id PK, FK
-    stitches_rate_enum stitches_rate "Not Null"
-    boolean participates_in_weekly_random_duels "Not Null"
-    timestamptz created_at "Not Null"
-    timestamptz updated_at "Not Null"
+    stitches_rate_enum stitches_rate
+    boolean participates_in_weekly_random_duels
+    timestamptz created_at
+    timestamptz updated_at
   }
 
-  USER ||--|| USER_SETTINGS : "has"
+  "Duel" {
+    int id PK
+    text codeword
+    duel_status_enum status
+    timestamptz started_at
+    timestamptz completed_at
+  }
+
+  "Duel Request" {
+    int id PK
+    bigint from_user_id FK, UK
+    bigint to_user_id FK, UK
+    timestamptz created_at
+  }
+
+  "Duel Participant" {
+    int duel_id PK, FK
+    int user_id PK, FK
+  }
+
+  "User" ||--|| "User Settings" : "has"
+
+  "Duel" ||--|{ "Duel Participant" : "has"
+  "User" ||--|{ "Duel Participant" : "participates"
+
+  "User" }|--|{ "Duel Request" : "has"
 ```
