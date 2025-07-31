@@ -43,6 +43,9 @@ export default defineNuxtConfig({
     BOT_INFO: undefined,
     BOT_WEB_APP_URL: undefined,
 
+    TARGET_CHAT_ID: undefined,
+    TARGET_THREAD_ID: undefined,
+
     JWT_SECRET: undefined,
 
     DATABASE_URL: undefined,

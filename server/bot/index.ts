@@ -1,39 +1,63 @@
-import { Bot, Api } from "grammy";
-import type { UserFromGetMe } from "grammy/types";
+import type { H3Event } from "h3";
+import { Bot, Api, webhookCallback, BotError } from "grammy";
 import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { parseMode } from "@grammyjs/parse-mode";
 import { autoQuote } from "@roziscoding/grammy-autoquote";
 
-import { disableLinkPreview } from "./plugins/link-preview.js";
+import { disableLinkPreview } from "./plugins/";
+import { commands } from "./commands/";
+import { h3 } from "./utils/";
 import type { BotContext } from "./types.js";
 
-export async function setupBot() {
+export async function createBotWebhookHandler() {
   const config = useRuntimeConfig();
 
-  const bot = new Bot<BotContext>(config.BOT_TOKEN, { botInfo: config.BOT_INFO as unknown as UserFromGetMe });
+  const bot = new Bot<BotContext>(config.BOT_TOKEN, { botInfo: config.BOT_INFO });
   configureBotApi(bot.api);
 
   bot.chatType(["group", "supergroup"]).use(autoQuote());
 
-  bot.use(await setupI18n());
+  bot.use(await createBotI18n());
 
-  bot.command("start", async (ctx) => {
-    await ctx.setChatMenuButton({
-      chat_id: ctx.chat.id,
-      menu_button: {
-        type: "web_app",
-        text: "Menu",
-        web_app: { url: config.BOT_WEB_APP_URL },
-      },
-    });
-    await ctx.reply(ctx.t("message-welcome"));
-  });
+  bot
+    .drop(async (ctx) => {
+      const isGroup = ctx.hasChatType(["group", "supergroup"]);
 
-  return bot;
+      if (isGroup && ctx.chat.id !== config.TARGET_CHAT_ID) {
+        await ctx.reply(ctx.t("message-error-not-target-chat"));
+        return true;
+      }
+
+      if (isGroup && ctx.message?.message_thread_id !== config.TARGET_THREAD_ID) {
+        return true;
+      }
+
+      return false;
+    })
+    .use(commands);
+
+  const handleUpdate = webhookCallback(bot, h3, { secretToken: config.BOT_WEBHOOK_SECRET_TOKEN });
+  return async (event: H3Event) => {
+    try {
+      return await handleUpdate(event);
+    } catch (err) {
+      if (err instanceof BotError) {
+        const { error, ctx } = err;
+        console.error(`Error while handling update ${ctx.update.update_id}`, error);
+
+        try {
+          await ctx.reply(ctx.t("message-error-unknown"));
+        } catch (err) {
+          console.error("Failed to send error message:", err);
+        }
+      } else console.error("Unknown error:", err);
+    }
+    return new Response(null, { status: 200 });
+  };
 }
 
-export function setupBotApi() {
+export function createBotApi() {
   const config = useRuntimeConfig();
 
   const api = new Api(config.BOT_TOKEN);
@@ -48,7 +72,7 @@ function configureBotApi(api: Api) {
   api.config.use(disableLinkPreview());
 }
 
-export async function setupI18n() {
+export async function createBotI18n() {
   const storage = useStorage("assets:server");
 
   const i18n = new I18n({ defaultLocale: "uk" });
