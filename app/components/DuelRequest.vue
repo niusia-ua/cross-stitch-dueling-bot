@@ -15,7 +15,18 @@
 <script setup lang="ts">
   import { DATETIME_FORMAT_OPTIONS } from "~/constants/datetime.js";
 
-  const { id, fromUser, createdAt } = defineProps<UserDuelRequest>();
+  // For some reason, Vue can't resolve the auto-imported `UserDuelRequest` type.
+  // It throws an error: `[@vue/compiler-sfc] Unresolvable type reference or unsupported built-in utility type`.
+  interface DuelRequestProps {
+    id: number;
+    fromUser: {
+      fullname: string;
+      photoUrl?: string | null;
+    };
+    createdAt: Date;
+  }
+
+  const { id, fromUser, createdAt } = defineProps<DuelRequestProps>();
   const emit = defineEmits<{
     accept: [id: number];
     decline: [id: number];
