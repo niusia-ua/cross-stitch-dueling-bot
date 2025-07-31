@@ -15,6 +15,10 @@ export class UsersService {
     return await this.#usersRepository.createUser(user, settings);
   }
 
+  async getUser(userId: number) {
+    return await this.#usersRepository.getUser(userId);
+  }
+
   async getUserWithSettings(userId: number) {
     const user = await this.#usersRepository.getUser(userId);
     if (!user) return null;

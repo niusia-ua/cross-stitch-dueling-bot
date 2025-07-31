@@ -24,4 +24,14 @@ export class NotificationsService {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: this.mentionUser(fromUser) });
     await this.#botApi.sendMessage(toUserId, message);
   }
+
+  async notifyUserDuelAccepted(toUserId: number, fromUser: Pick<UserData, "id" | "fullname">) {
+    const message = this.#botI18n.t("uk", "message-duel-request-accepted", { user: this.mentionUser(fromUser) });
+    await this.#botApi.sendMessage(toUserId, message);
+  }
+
+  async notifyUserDuelDeclined(toUserId: number, fromUser: Pick<UserData, "id" | "fullname">) {
+    const message = this.#botI18n.t("uk", "message-duel-request-declined", { user: this.mentionUser(fromUser) });
+    await this.#botApi.sendMessage(toUserId, message);
+  }
 }

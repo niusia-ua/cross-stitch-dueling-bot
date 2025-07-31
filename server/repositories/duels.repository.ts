@@ -36,14 +36,30 @@ export class DuelsRepository {
     `);
   }
 
-  async createDuelRequests(fromUserId: number, toUserIds: number[]) {
-    const user = await this.#pool.one(sql.type(UserSchema.pick({ id: true, fullname: true }))`
-      SELECT id, fullname
-      FROM users
-      WHERE id = ${fromUserId}
+  async getDuelRequest(requestId: number) {
+    return await this.#pool.maybeOne(sql.type(DuelRequestSchema)`
+      SELECT *
+      FROM duel_requests
+      WHERE id = ${requestId}
     `);
+  }
 
-    const result = await this.#pool.any(sql.typeAlias("id")`
+  async getUserDuelRequests(userId: number) {
+    return await this.#pool.any(sql.type(UserDuelRequestSchema)`
+      SELECT
+        dr.id,
+        dr.created_at,
+        json_build_object('fullname', u.fullname, 'photo_url', u.photo_url) AS from_user
+      FROM duel_requests AS dr
+      INNER JOIN users AS u ON u.id = dr.from_user_id
+      WHERE dr.to_user_id = ${userId}
+      GROUP BY dr.id, u.id
+      ORDER BY dr.created_at DESC
+    `);
+  }
+
+  async createDuelRequests(fromUserId: number, toUserIds: number[]) {
+    return await this.#pool.any(sql.typeAlias("id")`
       INSERT INTO duel_requests (from_user_id, to_user_id)
       SELECT *
       FROM ${sql.unnest(
@@ -53,7 +69,13 @@ export class DuelsRepository {
       ON CONFLICT DO NOTHING
       RETURNING id
     `);
+  }
 
-    return { user, result };
+  async removeDuelRequest(requestId: number) {
+    return await this.#pool.one(sql.type(DuelRequestSchema)`
+      DELETE FROM duel_requests
+      WHERE id = ${requestId}
+      RETURNING *
+    `);
   }
 }

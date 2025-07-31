@@ -19,3 +19,14 @@ export async function sendDuelRequests(toUserIds: number[]) {
   });
   return await z.array(IdObjectSchema).parseAsync(data);
 }
+
+export async function getUserDuelRequests() {
+  const data = await $fetch("/api/duels/requests");
+  return await z.array(UserDuelRequestSchema).parseAsync(data);
+}
+
+export async function handleDuelRequest(requestId: number, action: DuelRequestAction) {
+  await $fetch(`/api/duels/requests/${requestId}/${action}`, {
+    method: "POST",
+  });
+}

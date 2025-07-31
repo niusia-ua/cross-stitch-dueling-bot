@@ -17,6 +17,12 @@ export const DuelSchema = z.object({
 });
 export type Duel = z.infer<typeof DuelSchema>;
 
+export enum DuelRequestAction {
+  Accept = "accept",
+  Decline = "decline",
+}
+export const DuelRequestActionSchema = z.nativeEnum(DuelRequestAction);
+
 export const DuelRequestSchema = z.object({
   id: IdSchema,
   fromUserId: IdSchema,
@@ -24,6 +30,19 @@ export const DuelRequestSchema = z.object({
   createdAt: z.coerce.date(),
 });
 export type DuelRequest = z.infer<typeof DuelRequestSchema>;
+
+export const UserDuelRequestSchema = DuelRequestSchema.pick({
+  id: true,
+  createdAt: true,
+}).merge(
+  z.object({
+    fromUser: UserSchema.pick({
+      fullname: true,
+      photoUrl: true,
+    }),
+  }),
+);
+export type UserDuelRequest = z.infer<typeof UserDuelRequestSchema>;
 
 export const DuelParticipantSchema = z.object({
   duelId: IdSchema,

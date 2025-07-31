@@ -29,17 +29,17 @@ export class UsersRepository {
 
   async getUser(userId: number) {
     return await this.#pool.maybeOne(sql.type(UserSchema)`
-      SELECT users.*
+      SELECT *
       FROM users
-      WHERE users.id = ${userId}
+      WHERE id = ${userId}
     `);
   }
 
   async getUserSettings(userId: number) {
     return await this.#pool.maybeOne(sql.type(UserSettingsSchema)`
-      SELECT user_settings.*
+      SELECT *
       FROM user_settings
-      WHERE user_settings.user_id = ${userId}
+      WHERE user_id = ${userId}
     `);
   }
 

@@ -31,6 +31,7 @@
     [
       { to: "/rating", icon: "i-lucide:sparkles" },
       { to: "/active-duels", icon: "i-lucide:swords" },
+      { to: "/notifications", icon: "i-lucide:bell" },
       {
         to: userStore.isAuthenticated ? "/profile" : "/registration",
         icon: "i-lucide:user",

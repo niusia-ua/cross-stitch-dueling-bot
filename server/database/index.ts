@@ -1,16 +1,12 @@
 import { createPool, createSqlTag } from "slonik";
-import { createFieldNameTransformationInterceptor } from "slonik-interceptor-field-name-transformation";
 import z from "zod";
 
-import { createResultParserInterceptor } from "./interceptors/";
+import { createCamelCaseKeysInterceptor, createResultParserInterceptor } from "./interceptors/";
 
 export function createDbPool() {
   const config = useRuntimeConfig();
   return createPool(config.DATABASE_URL, {
-    interceptors: [
-      createFieldNameTransformationInterceptor({ test: (field) => /^[a-z0-9_]+$/.test(field.name) }),
-      createResultParserInterceptor(),
-    ],
+    interceptors: [createCamelCaseKeysInterceptor(), createResultParserInterceptor()],
   });
 }
 
