@@ -1,13 +1,20 @@
-import { Bot } from "grammy";
+import { Bot, Api } from "grammy";
 import type { UserFromGetMe } from "grammy/types";
 import { I18n } from "@grammyjs/i18n";
+import { autoRetry } from "@grammyjs/auto-retry";
+import { parseMode } from "@grammyjs/parse-mode";
+import { autoQuote } from "@roziscoding/grammy-autoquote";
 
+import { disableLinkPreview } from "./plugins/link-preview.js";
 import type { BotContext } from "./types.js";
 
 export async function setupBot() {
   const config = useRuntimeConfig();
 
   const bot = new Bot<BotContext>(config.BOT_TOKEN, { botInfo: config.BOT_INFO as unknown as UserFromGetMe });
+  configureBotApi(bot.api);
+
+  bot.chatType(["group", "supergroup"]).use(autoQuote());
 
   bot.use(await setupI18n());
 
@@ -26,7 +33,22 @@ export async function setupBot() {
   return bot;
 }
 
-async function setupI18n() {
+export function setupBotApi() {
+  const config = useRuntimeConfig();
+
+  const api = new Api(config.BOT_TOKEN);
+  configureBotApi(api);
+
+  return api;
+}
+
+function configureBotApi(api: Api) {
+  api.config.use(autoRetry());
+  api.config.use(parseMode("HTML"));
+  api.config.use(disableLinkPreview());
+}
+
+export async function setupI18n() {
   const storage = useStorage("assets:server");
 
   const i18n = new I18n({ defaultLocale: "uk" });
@@ -36,3 +58,6 @@ async function setupI18n() {
 
   return i18n;
 }
+
+export type { Api as BotApi } from "grammy";
+export type { I18n as BotI18n } from "@grammyjs/i18n";

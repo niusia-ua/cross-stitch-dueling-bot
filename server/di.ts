@@ -1,10 +1,11 @@
 import { asClass, createContainer } from "awilix";
 
+import type { BotApi, BotI18n } from "./bot/";
 import type { DatabasePool } from "./database/";
-import { DuelsService, UsersService } from "./services/";
+import { DuelsService, UsersService, NotificationsService } from "./services/";
 import { DuelsRepository, UsersRepository } from "./repositories/";
 
-export function createDiContainer(pool: DatabasePool) {
+export function createDiContainer(pool: DatabasePool, { botApi, botI18n }: { botApi: BotApi; botI18n: BotI18n }) {
   const diContainer = createContainer<Cradle>({ strict: true });
 
   diContainer.register({
@@ -13,6 +14,8 @@ export function createDiContainer(pool: DatabasePool) {
 
     usersService: asClass(UsersService).singleton(),
     usersRepository: asClass(UsersRepository, { injector: () => ({ pool }) }).singleton(),
+
+    notificationsService: asClass(NotificationsService, { injector: () => ({ botApi, botI18n }) }).singleton(),
   });
 
   return diContainer;
@@ -24,6 +27,8 @@ export interface Cradle {
 
   usersService: UsersService;
   usersRepository: UsersRepository;
+
+  notificationsService: NotificationsService;
 }
 
 export type { AwilixContainer } from "awilix";

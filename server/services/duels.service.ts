@@ -1,13 +1,17 @@
+import type { NotificationsService } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
 
 interface Dependencies {
+  notificationsService: NotificationsService;
   duelsRepository: DuelsRepository;
 }
 
 export class DuelsService {
+  #notificationsService: NotificationsService;
   #duelsRepository: DuelsRepository;
 
-  constructor({ duelsRepository }: Dependencies) {
+  constructor({ notificationsService, duelsRepository }: Dependencies) {
+    this.#notificationsService = notificationsService;
     this.#duelsRepository = duelsRepository;
   }
 
@@ -24,6 +28,15 @@ export class DuelsService {
   }
 
   async sendDuelRequests(fromUserId: number, toUserIds: number[]) {
-    return await this.#duelsRepository.createDuelRequests(fromUserId, toUserIds);
+    const { user, result } = await this.#duelsRepository.createDuelRequests(fromUserId, toUserIds);
+
+    if (result.length > 0) {
+      // If there is no result, it means that user has already requested a duel.
+      await Promise.all(
+        toUserIds.map((toUserId) => this.#notificationsService.notifyUserDuelRequested(toUserId, user)),
+      );
+    }
+
+    return result;
   }
 }

@@ -37,7 +37,13 @@ export class DuelsRepository {
   }
 
   async createDuelRequests(fromUserId: number, toUserIds: number[]) {
-    return await this.#pool.many(sql.typeAlias("id")`
+    const user = await this.#pool.one(sql.type(UserSchema.pick({ id: true, fullname: true }))`
+      SELECT id, fullname
+      FROM users
+      WHERE id = ${fromUserId}
+    `);
+
+    const result = await this.#pool.any(sql.typeAlias("id")`
       INSERT INTO duel_requests (from_user_id, to_user_id)
       SELECT *
       FROM ${sql.unnest(
@@ -47,5 +53,7 @@ export class DuelsRepository {
       ON CONFLICT DO NOTHING
       RETURNING id
     `);
+
+    return { user, result };
   }
 }
