@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     },
   },
 
+  // See `.env.example` for examples, descriptions and instructions.
   runtimeConfig: {
     BOT_TOKEN: undefined,
     BOT_WEBHOOK_SECRET_TOKEN: undefined,
@@ -49,6 +50,10 @@ export default defineNuxtConfig({
     JWT_SECRET: undefined,
 
     DATABASE_URL: undefined,
+
+    GOOGLE_CLOUD_PROJECT_ID: undefined,
+    GOOGLE_CLOUD_TASKS_LOCATION: undefined,
+    GOOGLE_CLOUD_TASKS_HANDLER_BASE_URL: undefined,
   },
 
   vite: {

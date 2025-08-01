@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@fluent/bundle": "0.19.1",
+    "@google-cloud/tasks": "6.2.0",
     "@grammyjs/auto-retry": "2.0.2",
     "@grammyjs/i18n": "1.1.2",
     "@grammyjs/parse-mode": "1.11.1",
@@ -38,6 +39,7 @@
     "dotenv": "17.2.1",
     "es-toolkit": "1.39.8",
     "fluent-vue": "3.7.2",
+    "google-gax": "5.0.1",
     "grammy": "1.37.0",
     "h3": "1.15.3",
     "jsonwebtoken": "9.0.2",

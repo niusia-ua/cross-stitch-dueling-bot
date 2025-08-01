@@ -59,7 +59,7 @@ export class DuelsRepository {
   }
 
   async createDuelRequests(fromUserId: number, toUserIds: number[]) {
-    return await this.#pool.any(sql.typeAlias("id")`
+    return await this.#pool.any(sql.type(DuelRequestSchema)`
       INSERT INTO duel_requests (from_user_id, to_user_id)
       SELECT *
       FROM ${sql.unnest(
@@ -67,12 +67,12 @@ export class DuelsRepository {
         [sql.fragment`bigint`, sql.fragment`bigint`],
       )}
       ON CONFLICT DO NOTHING
-      RETURNING id
+      RETURNING *
     `);
   }
 
   async removeDuelRequest(requestId: number) {
-    return await this.#pool.one(sql.type(DuelRequestSchema)`
+    return await this.#pool.maybeOne(sql.type(DuelRequestSchema)`
       DELETE FROM duel_requests
       WHERE id = ${requestId}
       RETURNING *

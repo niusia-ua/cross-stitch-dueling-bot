@@ -13,6 +13,10 @@ declare module "nuxt/schema" {
     JWT_SECRET: string;
 
     DATABASE_URL: string;
+
+    GOOGLE_CLOUD_PROJECT_ID: string;
+    GOOGLE_CLOUD_TASKS_LOCATION: string;
+    GOOGLE_CLOUD_TASKS_HANDLER_BASE_URL: string;
   }
 }
 

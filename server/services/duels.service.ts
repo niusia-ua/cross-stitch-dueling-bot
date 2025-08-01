@@ -1,10 +1,16 @@
-import type { NotificationsService, UsersService } from "~~/server/services/";
+import { DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants.js";
+
+import type { GoogleCloudTasksService, NotificationsService, UsersService } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
+
+import { TaskQueue } from "~~/server/types.js";
 
 interface Dependencies {
   duelsRepository: DuelsRepository;
   usersService: UsersService;
   notificationsService: NotificationsService;
+
+  gcloudTasksService: GoogleCloudTasksService;
 }
 
 export class DuelsService {
@@ -12,10 +18,14 @@ export class DuelsService {
   #usersService: UsersService;
   #notificationsService: NotificationsService;
 
-  constructor({ duelsRepository, usersService, notificationsService }: Dependencies) {
+  #gcloudTasksService: GoogleCloudTasksService;
+
+  constructor({ duelsRepository, usersService, notificationsService, gcloudTasksService }: Dependencies) {
     this.#duelsRepository = duelsRepository;
     this.#usersService = usersService;
     this.#notificationsService = notificationsService;
+
+    this.#gcloudTasksService = gcloudTasksService;
   }
 
   async getActiveDuelsWithParticipants() {
@@ -41,13 +51,21 @@ export class DuelsService {
   async sendDuelRequests(fromUserId: number, toUserIds: number[]) {
     const result = await this.#duelsRepository.createDuelRequests(fromUserId, toUserIds);
 
-    // If there is no result, it means that user has already requested a duel.
-    // In this case, we do not need to notify users again. They have already received a notification.
+    // If there is no result, it means that user has already requested a duel, so these are duplicates that were ignored.
     if (result.length > 0) {
       const user = await this.#usersService.getUser(fromUserId);
-      await Promise.all(
-        toUserIds.map((toUserId) => this.#notificationsService.notifyUserDuelRequested(toUserId, user!)),
-      );
+
+      for (const request of result) {
+        // Notify all users that they were requested a duel.
+        await this.#notificationsService.notifyUserDuelRequested(request.toUserId, user!);
+
+        // Schedule a task to remove the duel requests after the period of the request validity.
+        await this.#gcloudTasksService.createTask(
+          TaskQueue.DuelRequests,
+          { id: request.id },
+          { delay: DUEL_REQUEST_VALIDITY_PERIOD },
+        );
+      }
     }
 
     return result;
@@ -55,17 +73,32 @@ export class DuelsService {
 
   async acceptDuelRequest(requestId: number) {
     const request = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (!request) return null;
 
-    const fromUser = (await this.#usersService.getUser(request.fromUserId))!;
     const toUser = (await this.#usersService.getUser(request.toUserId))!;
+    await this.#notificationsService.notifyUserDuelRequestAccepted(request.fromUserId, toUser);
 
-    await this.#notificationsService.notifyUserDuelAccepted(fromUser.id, toUser);
+    return request;
   }
 
   async declineDuelRequest(requestId: number) {
     const request = await this.#duelsRepository.removeDuelRequest(requestId);
-    const user = (await this.#usersService.getUser(request.toUserId))!;
+    if (!request) return null;
 
-    await this.#notificationsService.notifyUserDuelDeclined(request.fromUserId, user);
+    const user = (await this.#usersService.getUser(request.toUserId))!;
+    await this.#notificationsService.notifyUserDuelRequestDeclined(request.fromUserId, user);
+
+    return request;
+  }
+
+  async removeExpiredDuelRequest(requestId: number) {
+    const request = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (!request) return null;
+
+    const fromUser = (await this.#usersService.getUser(request.fromUserId))!;
+    const toUser = (await this.#usersService.getUser(request.toUserId))!;
+    await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
+
+    return request;
   }
 }

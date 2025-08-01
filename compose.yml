@@ -9,8 +9,15 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: cross-stitch-dueling-bot
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+  gcloud-tasks-emulator:
+    container_name: cross-stitch-dueling-bot-tasks
+    image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
+    restart: unless-stopped
+    command: ["-host", "0.0.0.0", "-queue", "projects/cross-stitch-dueling-bot/locations/local/queues/duel-requests"]
+    ports:
+      - 8123:8123
 volumes:
   pgdata:

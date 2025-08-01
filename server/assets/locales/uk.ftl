@@ -42,6 +42,7 @@ message-duel-requested =
   Перейдіть на сторінку <i>Повідомлення</i> у вебзастосунку, щоб прийняти або відхилити виклик.
 message-duel-request-accepted = { $user } прийняв/ла виклик на дуель!
 message-duel-request-declined = { $user } відхилив/ла виклик на дуель!
+message-duel-request-expired = Час дійсності виклику на дуель від { $fromUser } до { $toUser } минув.
 
 ## Error messages.
 

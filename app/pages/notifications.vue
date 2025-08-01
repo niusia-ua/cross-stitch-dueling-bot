@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
   import { DuelRequestAction } from "#shared/types/duel.js";
+  import { FetchError } from "ofetch";
   import { DuelsApi } from "~/api/";
 
   const fluent = useFluent();
@@ -47,6 +48,17 @@
       // Remove the processed request from the local data.
       data.value = data.value!.filter((request) => request.id !== requestId);
     } catch (err) {
+      if (err instanceof FetchError) {
+        if (err.statusCode === 404) {
+          toast.add({ color: "warning", description: fluent.$t("message-duel-request-expired") });
+
+          // Remove the expired request from the local data.
+          data.value = data.value!.filter((request) => request.id !== requestId);
+
+          return;
+        }
+      }
+
       console.error("Failed to process duel request:", err);
       toast.add({ color: "error", description: fluent.$t(`message-duel-request-${action}-failure`) });
     }
@@ -64,4 +76,6 @@ message-duel-request-accept-failure = Не вдалося прийняти за�
 
 message-duel-request-decline-success = Запит на дуель відхилено
 message-duel-request-decline-failure = Не вдалося відхилити запит на дуель
+
+message-duel-request-expired = Цей запит на дуель більше не дійсний
 </fluent>

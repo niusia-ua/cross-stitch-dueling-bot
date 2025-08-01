@@ -2,7 +2,7 @@ import { asClass, createContainer } from "awilix";
 
 import type { BotApi, BotI18n } from "./bot/";
 import type { DatabasePool } from "./database/";
-import { DuelsService, UsersService, NotificationsService } from "./services/";
+import { DuelsService, UsersService, NotificationsService, GoogleCloudTasksService } from "./services/";
 import { DuelsRepository, UsersRepository } from "./repositories/";
 
 export function createDiContainer(pool: DatabasePool, { botApi, botI18n }: { botApi: BotApi; botI18n: BotI18n }) {
@@ -16,6 +16,8 @@ export function createDiContainer(pool: DatabasePool, { botApi, botI18n }: { bot
     usersRepository: asClass(UsersRepository, { injector: () => ({ pool }) }).singleton(),
 
     notificationsService: asClass(NotificationsService, { injector: () => ({ botApi, botI18n }) }).singleton(),
+
+    gcloudTasksService: asClass(GoogleCloudTasksService).singleton(),
   });
 
   return diContainer;
@@ -29,6 +31,8 @@ export interface Cradle {
   usersRepository: UsersRepository;
 
   notificationsService: NotificationsService;
+
+  gcloudTasksService: GoogleCloudTasksService;
 }
 
 export type { AwilixContainer } from "awilix";
