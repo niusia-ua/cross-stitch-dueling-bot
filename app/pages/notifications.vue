@@ -7,7 +7,7 @@
     <template #content>
       <UProgress v-if="pending" size="xs" />
       <div v-if="data?.length" class="flex flex-col gap-y-2">
-        <DuelRequest
+        <NotificationDuelRequest
           v-for="request in data"
           :key="request.id"
           v-bind="request"
