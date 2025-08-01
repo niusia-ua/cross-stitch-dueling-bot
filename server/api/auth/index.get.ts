@@ -1,14 +1,11 @@
-import * as twa from "@telegram-apps/init-data-node";
-import jwt from "jsonwebtoken";
-
-import { JWT_COOKIE_NAME } from "~~/server/constants.js";
+import { validate, parse } from "@telegram-apps/init-data-node";
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
 
   const initData = new URLSearchParams(getQuery(event));
   try {
-    twa.validate(initData, config.BOT_TOKEN);
+    validate(initData, config.BOT_TOKEN);
   } catch (error) {
     throw createError({
       status: 400,
@@ -18,7 +15,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const userId = twa.parse(initData).user?.id;
+  const userId = parse(initData).user?.id;
   if (!userId) {
     throw createError({
       status: 400,
@@ -37,13 +34,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const token = jwt.sign({ userId: result.user.id }, config.JWT_SECRET);
-  setCookie(event, JWT_COOKIE_NAME, token, {
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
-
+  setJwtAuthData(event, { userId: result.user.id });
   return result;
 });

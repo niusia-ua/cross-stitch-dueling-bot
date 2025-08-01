@@ -1,7 +1,11 @@
 import type { H3Event } from "h3";
 import jwt from "jsonwebtoken";
 
-import { JWT_COOKIE_NAME } from "~~/server/constants.js";
+const JWT_COOKIE_NAME = "cross-stitch-dueling-bot-jwt";
+
+interface JwtPayload {
+  userId: number;
+}
 
 /**
  * Get the JWT authentication data from the request.
@@ -26,8 +30,7 @@ export function getJwtAuthData(event: H3Event) {
   }
 
   try {
-    const decoded = jwt.verify(cookie, config.JWT_SECRET);
-    return decoded as { userId: number } & jwt.JwtPayload;
+    return jwt.verify(cookie, config.JWT_SECRET) as JwtPayload;
   } catch (err) {
     throw createError({
       status: 401,
@@ -36,4 +39,21 @@ export function getJwtAuthData(event: H3Event) {
       cause: err,
     });
   }
+}
+
+/**
+ * Set the JWT authentication data in the response.
+ * @param event The H3 event object representing the request.
+ * @param payload The JWT payload containing user information.
+ */
+export function setJwtAuthData(event: H3Event, payload: JwtPayload) {
+  const config = useRuntimeConfig(event);
+
+  const token = jwt.sign(payload, config.JWT_SECRET);
+  setCookie(event, JWT_COOKIE_NAME, token, {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
 }
