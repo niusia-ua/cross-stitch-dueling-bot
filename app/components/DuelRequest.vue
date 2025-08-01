@@ -8,7 +8,7 @@
         <UButton size="sm" color="error" icon="i-lucide:x" @click="emit('decline', id)" />
       </div>
     </div>
-    <NuxtTime class="text-xs text-dimmed" :datetime="createdAt" v-bind="DATETIME_FORMAT_OPTIONS" />
+    <NuxtTime relative :datetime="createdAt" v-bind="DATETIME_FORMAT_OPTIONS" class="text-xs text-dimmed" />
   </div>
 </template>
 
