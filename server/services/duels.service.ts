@@ -1,4 +1,4 @@
-import { DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants.js";
+import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
 
 import type { GoogleCloudTasksService, NotificationsService, UsersService } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
@@ -75,6 +75,8 @@ export class DuelsService {
     const request = await this.#duelsRepository.removeDuelRequest(requestId);
     if (!request) return null;
 
+    await this.createDuel(request.fromUserId, request.toUserId);
+
     const toUser = (await this.#usersService.getUser(request.toUserId))!;
     await this.#notificationsService.notifyUserDuelRequestAccepted(request.fromUserId, toUser);
 
@@ -100,5 +102,17 @@ export class DuelsService {
     await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
 
     return request;
+  }
+
+  private async createDuel(userId1: number, userId2: number) {
+    const codeword = await getRandomCodeword();
+    const duel = await this.#duelsRepository.createDuel(codeword, userId1, userId2);
+
+    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+
+    const user1 = await this.#usersService.getUser(userId1);
+    const user2 = await this.#usersService.getUser(userId2);
+
+    await this.#notificationsService.announceDuel(codeword, deadline, user1!, user2!);
   }
 }

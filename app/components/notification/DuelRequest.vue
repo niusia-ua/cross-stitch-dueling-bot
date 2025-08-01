@@ -8,12 +8,12 @@
         <UButton size="sm" color="error" icon="i-lucide:x" @click="emit('decline', id)" />
       </div>
     </div>
-    <NuxtTime relative :datetime="createdAt" v-bind="DATETIME_FORMAT_OPTIONS" class="text-xs text-dimmed" />
+    <NuxtTime relative :datetime="createdAt" v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS" class="text-xs text-dimmed" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { DATETIME_FORMAT_OPTIONS } from "~/constants/datetime.js";
+  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 
   // For some reason, Vue can't resolve the auto-imported `UserDuelRequest` type.
   // It throws an error: `[@vue/compiler-sfc] Unresolvable type reference or unsupported built-in utility type`.

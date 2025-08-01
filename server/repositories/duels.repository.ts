@@ -78,4 +78,29 @@ export class DuelsRepository {
       RETURNING *
     `);
   }
+
+  async createDuel(codeword: string, userId1: number, userId2: number) {
+    return await this.#pool.transaction(async (tx) => {
+      const duel = await tx.one(sql.type(DuelSchema)`
+        INSERT INTO duels (codeword)
+        VALUES (${codeword})
+        RETURNING *
+      `);
+
+      await tx.many(sql.type(DuelParticipantSchema)`
+        INSERT INTO duel_participants (duel_id, user_id)
+        SELECT *
+        FROM ${sql.unnest(
+          [
+            [duel.id, userId1],
+            [duel.id, userId2],
+          ],
+          [sql.fragment`int`, sql.fragment`bigint`],
+        )}
+        RETURNING *
+      `);
+
+      return duel;
+    });
+  }
 }

@@ -7,19 +7,21 @@
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data">
         <template #participants-cell="{ row }">
-          <UserInfo
-            v-for="p in row.original.participants"
-            :key="p.id"
-            :fullname="p.fullname"
-            :photo-url="p.photoUrl ?? undefined"
-            variant="simple"
-          />
+          <div class="space-y-1">
+            <UserInfo
+              v-for="p in row.original.participants"
+              :key="p.id"
+              :fullname="p.fullname"
+              :photo-url="p.photoUrl ?? undefined"
+              variant="simple"
+            />
+          </div>
         </template>
 
-        <template #startedAt-cell="{ row }">
+        <template #deadline-cell="{ row }">
           <NuxtTime
             :datetime="dayjs(row.original.startedAt).add(DUEL_PERIOD, 'milliseconds').toDate()"
-            v-bind="DATETIME_FORMAT_OPTIONS"
+            v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
           />
         </template>
       </UTable>
@@ -33,9 +35,9 @@
 <script setup lang="ts">
   import type { TableColumn } from "@nuxt/ui";
 
-  import { DUEL_PERIOD } from "#shared/constants.js";
-  import { DATETIME_FORMAT_OPTIONS } from "~/constants/datetime.js";
-  import { dayjs } from "~/utils/datetime.js";
+  import { dayjs } from "#shared/utils/datetime.js";
+  import { DUEL_PERIOD } from "#shared/constants/duels.js";
+  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 
   import { DuelsApi } from "~/api/index.js";
 
@@ -50,9 +52,20 @@
     },
   );
   const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
-    { accessorKey: "codeword", header: fluent.$t("table-col-codeword") },
+    {
+      accessorKey: "codeword",
+      header: fluent.$t("table-col-codeword"),
+      cell: ({ row }) => {
+        const value = row.original.codeword;
+        return value[0]!.toUpperCase() + value.slice(1);
+      },
+    },
     { accessorKey: "participants", header: fluent.$t("table-col-participants") },
-    { accessorKey: "startedAt", header: fluent.$t("table-col-deadline") },
+    {
+      id: "deadline",
+      accessorKey: "startedAt",
+      header: fluent.$t("table-col-deadline"),
+    },
   ]);
 
   watch(error, (err) => {
