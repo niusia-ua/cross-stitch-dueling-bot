@@ -15,8 +15,8 @@ export class UsersService {
     return await this.#usersRepository.createUser(user, settings);
   }
 
-  async getUser(userId: number) {
-    return await this.#usersRepository.getUser(userId);
+  async getUserIdAndFullname(userId: number) {
+    return await this.#usersRepository.getUserIdAndFullname(userId);
   }
 
   async getUserWithSettings(userId: number) {

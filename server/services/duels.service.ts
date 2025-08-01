@@ -53,7 +53,7 @@ export class DuelsService {
 
     // If there is no result, it means that user has already requested a duel, so these are duplicates that were ignored.
     if (result.length > 0) {
-      const user = await this.#usersService.getUser(fromUserId);
+      const user = await this.#usersService.getUserIdAndFullname(fromUserId);
 
       for (const request of result) {
         // Notify all users that they were requested a duel.
@@ -77,7 +77,7 @@ export class DuelsService {
 
     await this.createDuel(request.fromUserId, request.toUserId);
 
-    const toUser = (await this.#usersService.getUser(request.toUserId))!;
+    const toUser = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
     await this.#notificationsService.notifyUserDuelRequestAccepted(request.fromUserId, toUser);
 
     return request;
@@ -87,7 +87,7 @@ export class DuelsService {
     const request = await this.#duelsRepository.removeDuelRequest(requestId);
     if (!request) return null;
 
-    const user = (await this.#usersService.getUser(request.toUserId))!;
+    const user = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
     await this.#notificationsService.notifyUserDuelRequestDeclined(request.fromUserId, user);
 
     return request;
@@ -97,8 +97,8 @@ export class DuelsService {
     const request = await this.#duelsRepository.removeDuelRequest(requestId);
     if (!request) return null;
 
-    const fromUser = (await this.#usersService.getUser(request.fromUserId))!;
-    const toUser = (await this.#usersService.getUser(request.toUserId))!;
+    const fromUser = (await this.#usersService.getUserIdAndFullname(request.fromUserId))!;
+    const toUser = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
     await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
 
     return request;
@@ -110,8 +110,8 @@ export class DuelsService {
 
     const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
-    const user1 = await this.#usersService.getUser(userId1);
-    const user2 = await this.#usersService.getUser(userId2);
+    const user1 = await this.#usersService.getUserIdAndFullname(userId1);
+    const user2 = await this.#usersService.getUserIdAndFullname(userId2);
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1!, user2!);
   }

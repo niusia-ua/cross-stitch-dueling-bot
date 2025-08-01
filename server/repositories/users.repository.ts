@@ -12,13 +12,13 @@ export class UsersRepository {
   }
 
   async createUser(user: UserData, settings: UserSettingsData) {
-    return await this.#pool.transaction(async (transactionConnection) => {
-      const u = await transactionConnection.one(sql.type(UserSchema)`
+    return await this.#pool.transaction(async (tx) => {
+      const u = await tx.one(sql.type(UserSchema)`
         INSERT INTO users (id, username, fullname, photo_url)
         VALUES (${user.id}, ${user.username}, ${user.fullname}, ${user.photoUrl})
         RETURNING *
       `);
-      const s = await transactionConnection.one(sql.type(UserSettingsSchema)`
+      const s = await tx.one(sql.type(UserSettingsSchema)`
         INSERT INTO user_settings (user_id, stitches_rate, participates_in_weekly_random_duels)
         VALUES (${user.id}, ${settings.stitchesRate}, ${settings.participatesInWeeklyRandomDuels})
         RETURNING *
@@ -30,6 +30,14 @@ export class UsersRepository {
   async getUser(userId: number) {
     return await this.#pool.maybeOne(sql.type(UserSchema)`
       SELECT *
+      FROM users
+      WHERE id = ${userId}
+    `);
+  }
+
+  async getUserIdAndFullname(userId: number) {
+    return await this.#pool.maybeOne(sql.type(UserIdAndFullnameSchema)`
+      SELECT id, fullname
       FROM users
       WHERE id = ${userId}
     `);

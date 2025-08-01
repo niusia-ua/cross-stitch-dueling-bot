@@ -14,13 +14,19 @@ export const UserSchema = z.object({
 });
 export type User = z.infer<typeof UserSchema>;
 
-export const UserDataSchema = UserSchema.omit({
-  active: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
+export const UserDataSchema = UserSchema.pick({
+  id: true,
+  username: true,
+  fullname: true,
+  photoUrl: true,
 });
 export type UserData = z.infer<typeof UserDataSchema>;
+
+export const UserIdAndFullnameSchema = UserSchema.pick({
+  id: true,
+  fullname: true,
+});
+export type UserIdAndFullname = z.infer<typeof UserIdAndFullnameSchema>;
 
 export enum StitchesRate {
   Low = "low",

@@ -25,22 +25,22 @@ export class NotificationsService {
     this.#TARGET_THREAD_ID = config.TARGET_THREAD_ID;
   }
 
-  async notifyUserDuelRequested(toUserId: number, fromUser: MinimalUserData) {
+  async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
     await this.#botApi.sendMessage(toUserId, message);
   }
 
-  async notifyUserDuelRequestAccepted(toUserId: number, fromUser: MinimalUserData) {
+  async notifyUserDuelRequestAccepted(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-request-accepted", { user: mentionUser(fromUser) });
     await this.#botApi.sendMessage(toUserId, message);
   }
 
-  async notifyUserDuelRequestDeclined(toUserId: number, fromUser: MinimalUserData) {
+  async notifyUserDuelRequestDeclined(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-request-declined", { user: mentionUser(fromUser) });
     await this.#botApi.sendMessage(toUserId, message);
   }
 
-  async notifyUsersDuelRequestExpired(fromUser: MinimalUserData, toUser: MinimalUserData) {
+  async notifyUsersDuelRequestExpired(fromUser: UserIdAndFullname, toUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-request-expired", {
       fromUser: mentionUser(fromUser),
       toUser: mentionUser(toUser),
@@ -49,7 +49,7 @@ export class NotificationsService {
     await this.#botApi.sendMessage(toUser.id, message);
   }
 
-  async announceDuel(codeword: string, deadline: Date, user1: MinimalUserData, user2: MinimalUserData) {
+  async announceDuel(codeword: string, deadline: Date, user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-announcement", {
       codeword,
       deadline: this.#datetimeFormatter.format(deadline),
@@ -62,8 +62,7 @@ export class NotificationsService {
   }
 }
 
-type MinimalUserData = Pick<User, "id" | "fullname">;
-function mentionUser(user: MinimalUserData, options?: { skipFormatting?: boolean }) {
+function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boolean }) {
   const { id, fullname } = user;
   if (options?.skipFormatting) return fullname;
   return `<a href="tg://user?id=${id}">${fullname}</a>`;
