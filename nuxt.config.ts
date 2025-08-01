@@ -39,10 +39,11 @@ export default defineNuxtConfig({
 
   // See `.env.example` for examples, descriptions and instructions.
   runtimeConfig: {
+    APP_URL: undefined,
+
     BOT_TOKEN: undefined,
     BOT_WEBHOOK_SECRET_TOKEN: undefined,
     BOT_INFO: undefined,
-    BOT_WEB_APP_URL: undefined,
 
     TARGET_CHAT_ID: undefined,
     TARGET_THREAD_ID: undefined,
@@ -53,7 +54,6 @@ export default defineNuxtConfig({
 
     GOOGLE_CLOUD_PROJECT_ID: undefined,
     GOOGLE_CLOUD_TASKS_LOCATION: undefined,
-    GOOGLE_CLOUD_TASKS_HANDLER_BASE_URL: undefined,
   },
 
   vite: {

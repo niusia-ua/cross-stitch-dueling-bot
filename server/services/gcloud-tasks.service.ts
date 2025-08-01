@@ -1,14 +1,15 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
 import { ChannelCredentials } from "google-gax";
 
-import type { TaskQueue } from "~~/server/types.js";
+import { DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
 
 export class GoogleCloudTasksService {
   #client: CloudTasksClient;
 
   #projectId: string;
   #location: string;
-  #handlerBaseUrl: string;
+
+  #baseUrl: string;
 
   constructor() {
     if (import.meta.dev) {
@@ -26,26 +27,49 @@ export class GoogleCloudTasksService {
     const config = useRuntimeConfig();
     this.#projectId = config.GOOGLE_CLOUD_PROJECT_ID;
     this.#location = config.GOOGLE_CLOUD_TASKS_LOCATION;
-    this.#handlerBaseUrl = config.GOOGLE_CLOUD_TASKS_HANDLER_BASE_URL;
+    this.#baseUrl = config.APP_URL;
   }
 
-  async createTask(queue: TaskQueue, payload?: unknown, options?: CreateTaskOptions) {
+  /**
+   * Creates a task in the specified queue with the given payload.
+   * @param queue The name of the queue to create the task in.
+   * @param endpoint The endpoint to call when the task is executed.
+   * @param payload The payload to include in the task.
+   * @param options Options for creating the task.
+   */
+  async #createTask(
+    queue: string,
+    endpoint: string,
+    payload: unknown,
+    options?: {
+      /** The time in milliseconds to delay the task. */
+      delay?: number;
+    },
+  ) {
     await this.#client.createTask({
       parent: this.#client.queuePath(this.#projectId, this.#location, queue),
       task: {
         httpRequest: {
-          url: new URL(queue, this.#handlerBaseUrl).toString(),
+          url: new URL(`/tasks/${endpoint}`, this.#baseUrl).toString(),
           httpMethod: "POST",
           headers: { "Content-Type": "application/json" },
-          body: payload !== undefined ? Buffer.from(JSON.stringify(payload)) : undefined,
+          body: Buffer.from(JSON.stringify(payload)),
         },
         scheduleTime: options?.delay !== undefined ? { seconds: (Date.now() + options.delay) / 1000 } : undefined,
       },
     });
   }
-}
 
-export interface CreateTaskOptions {
-  /** The time in milliseconds to delay the task. */
-  delay?: number;
+  /**
+   * Schedules a task to cancel a duel request after the period of validity.
+   * @param id The ID of the duel request to cancel.
+   */
+  async scheduleDuelRequestCancellation(id: number) {
+    await this.#createTask(
+      "duel-request-cancellation",
+      "cancel-duel-request",
+      { id },
+      { delay: DUEL_REQUEST_VALIDITY_PERIOD },
+    );
+  }
 }

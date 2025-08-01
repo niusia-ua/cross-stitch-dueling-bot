@@ -1,9 +1,7 @@
-import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
+import { DUEL_PERIOD } from "#shared/constants/duels.js";
 
 import type { GoogleCloudTasksService, NotificationsService, UsersService } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
-
-import { TaskQueue } from "~~/server/types.js";
 
 interface Dependencies {
   duelsRepository: DuelsRepository;
@@ -56,15 +54,8 @@ export class DuelsService {
       const user = await this.#usersService.getUserIdAndFullname(fromUserId);
 
       for (const request of result) {
-        // Notify all users that they were requested a duel.
         await this.#notificationsService.notifyUserDuelRequested(request.toUserId, user!);
-
-        // Schedule a task to remove the duel requests after the period of the request validity.
-        await this.#gcloudTasksService.createTask(
-          TaskQueue.DuelRequests,
-          { id: request.id },
-          { delay: DUEL_REQUEST_VALIDITY_PERIOD },
-        );
+        await this.#gcloudTasksService.scheduleDuelRequestCancellation(request.id);
       }
     }
 

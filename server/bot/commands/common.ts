@@ -21,7 +21,7 @@ composer.command("start", async (ctx) => {
       menu_button: {
         type: "web_app",
         text: ctx.t("menu-button-label"),
-        web_app: { url: config.BOT_WEB_APP_URL },
+        web_app: { url: config.APP_URL },
       },
     });
     await ctx.reply(ctx.t("private-message-welcome"));
