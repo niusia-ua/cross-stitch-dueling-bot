@@ -1,3 +1,4 @@
+import { InlineKeyboard, type RawApi } from "grammy";
 import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 
 import type { BotApi, BotI18n } from "~~/server/bot/";
@@ -13,31 +14,50 @@ export class NotificationsService {
 
   #datetimeFormatter = new Intl.DateTimeFormat("uk", DEFAULT_DATETIME_FORMAT_OPTIONS);
 
-  #TARGET_CHAT_ID: number;
-  #TARGET_THREAD_ID: number;
+  #webAppUrl: string;
+  #targetChatId: number;
+  #targetThreadId: number;
 
   constructor({ botApi, botI18n }: Dependencies) {
     this.#botApi = botApi;
     this.#botI18n = botI18n;
 
     const config = useRuntimeConfig();
-    this.#TARGET_CHAT_ID = config.TARGET_CHAT_ID;
-    this.#TARGET_THREAD_ID = config.TARGET_THREAD_ID;
+    this.#webAppUrl = config.APP_URL;
+    this.#targetChatId = config.TARGET_CHAT_ID;
+    this.#targetThreadId = config.TARGET_THREAD_ID;
+  }
+
+  /** Send a private message to a user. */
+  #sendPrivateMessage(chatId: number, message: string, options?: SendMessageOptions) {
+    return this.#botApi.sendMessage(chatId, message, options);
+  }
+
+  /** Send a group message. */
+  #sendGroupMessage(message: string, options?: SendMessageOptions) {
+    // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
+    return this.#botApi.raw.sendMessage({
+      ...options,
+      chat_id: this.#targetChatId,
+      message_thread_id: this.#targetThreadId,
+      text: message,
+    });
   }
 
   async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
-    await this.#botApi.sendMessage(toUserId, message);
+    const keyboard = new InlineKeyboard().webApp(this.#botI18n.t("uk", "label-open"), this.#webAppUrl);
+    await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });
   }
 
   async notifyUserDuelRequestAccepted(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-request-accepted", { user: mentionUser(fromUser) });
-    await this.#botApi.sendMessage(toUserId, message);
+    await this.#sendPrivateMessage(toUserId, message);
   }
 
   async notifyUserDuelRequestDeclined(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-request-declined", { user: mentionUser(fromUser) });
-    await this.#botApi.sendMessage(toUserId, message);
+    await this.#sendPrivateMessage(toUserId, message);
   }
 
   async notifyUsersDuelRequestExpired(fromUser: UserIdAndFullname, toUser: UserIdAndFullname) {
@@ -45,8 +65,8 @@ export class NotificationsService {
       fromUser: mentionUser(fromUser),
       toUser: mentionUser(toUser),
     });
-    await this.#botApi.sendMessage(fromUser.id, message);
-    await this.#botApi.sendMessage(toUser.id, message);
+    await this.#sendPrivateMessage(fromUser.id, message);
+    await this.#sendPrivateMessage(toUser.id, message);
   }
 
   async announceDuel(codeword: string, deadline: Date, user1: UserIdAndFullname, user2: UserIdAndFullname) {
@@ -56,9 +76,7 @@ export class NotificationsService {
       user1: mentionUser(user1),
       user2: mentionUser(user2),
     });
-    await this.#botApi.sendMessage(this.#TARGET_CHAT_ID, message, {
-      reply_parameters: { message_id: this.#TARGET_THREAD_ID },
-    });
+    await this.#sendGroupMessage(message);
   }
 }
 
@@ -67,3 +85,5 @@ function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boole
   if (options?.skipFormatting) return fullname;
   return `<a href="tg://user?id=${id}">${fullname}</a>`;
 }
+
+type SendMessageOptions = Omit<Parameters<RawApi["sendMessage"]>[0], "chat_id" | "text">;
