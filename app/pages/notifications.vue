@@ -63,6 +63,10 @@
       toast.add({ color: "error", description: fluent.$t(`message-duel-request-${action}-failure`) });
     }
   }
+
+  definePageMeta({
+    middleware: ["auth"],
+  });
 </script>
 
 <fluent locale="uk">

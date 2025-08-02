@@ -55,6 +55,7 @@
         to: "/notifications",
         icon: "i-lucide:bell",
         label: fluent.$t("label-nav-notifications"),
+        disabled: !userStore.isAuthenticated,
       },
       {
         to: userStore.isAuthenticated ? "/profile" : "/registration",

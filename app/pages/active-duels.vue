@@ -26,7 +26,7 @@
         </template>
       </UTable>
     </template>
-    <template #footer>
+    <template v-if="userStore.isAuthenticated" #footer>
       <ModalDuelRequest />
     </template>
   </NuxtLayout>
@@ -43,6 +43,8 @@
 
   const fluent = useFluent();
   const toast = useToast();
+
+  const userStore = useUserStore();
 
   const { data, pending, error, refresh } = await useAsyncData(
     "active-duels",
