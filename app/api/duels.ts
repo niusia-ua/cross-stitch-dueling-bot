@@ -30,3 +30,16 @@ export async function handleDuelRequest(requestId: number, action: DuelRequestAc
     method: "POST",
   });
 }
+
+export async function sendDuelReport(duelId: number, report: DuelReportRequest) {
+  const formData = new FormData();
+  report.photos.forEach((photo) => formData.append("photos", photo));
+  formData.append("stitches", report.stitches.toString());
+  if (report.additionalInfo) formData.append("additionalInfo", report.additionalInfo);
+
+  const data = await $fetch(`/api/duels/${duelId}/report`, {
+    method: "POST",
+    body: formData,
+  });
+  return await DuelReportResponseSchema.parseAsync(data);
+}

@@ -5,29 +5,11 @@
       <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
     </template>
     <template #content>
-      <UTable sticky :loading="pending" :columns="columns" :data="data">
-        <template #participants-cell="{ row }">
-          <div class="space-y-1">
-            <UserInfo
-              v-for="p in row.original.participants"
-              :key="p.id"
-              :fullname="p.fullname"
-              :photo-url="p.photoUrl ?? undefined"
-              variant="simple"
-            />
-          </div>
-        </template>
-
-        <template #deadline-cell="{ row }">
-          <NuxtTime
-            :datetime="dayjs(row.original.startedAt).add(DUEL_PERIOD, 'milliseconds').toDate()"
-            v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
-          />
-        </template>
-      </UTable>
+      <UTable sticky :loading="pending" :columns="columns" :data="data" />
     </template>
     <template v-if="userStore.isAuthenticated" #footer>
-      <ModalDuelRequest />
+      <ModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
+      <ModalDuelRequest v-else />
     </template>
   </NuxtLayout>
 </template>
@@ -46,6 +28,52 @@
 
   const userStore = useUserStore();
 
+  const UserInfo = resolveComponent("UserInfo");
+  const NuxtTime = resolveComponent("NuxtTime");
+
+  const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
+    {
+      accessorKey: "codeword",
+      header: fluent.$t("table-col-codeword"),
+      cell: ({ row }) => {
+        const value = row.original.codeword;
+
+        // Capitalize the first letter of the codeword.
+        return value[0]!.toUpperCase() + value.slice(1);
+      },
+    },
+    {
+      accessorKey: "participants",
+      header: fluent.$t("table-col-participants"),
+      cell: ({ row }) => {
+        return h(
+          "div",
+          { class: "space-y-2" },
+          row.original.participants.map((p) =>
+            h(UserInfo, {
+              key: p.id,
+              variant: "simple",
+              ...p,
+            }),
+          ),
+        );
+      },
+    },
+    {
+      accessorKey: "startedAt",
+      header: fluent.$t("table-col-deadline"),
+      cell: ({ row }) => {
+        // Calculate the deadline based on the duel's startedAt time.
+        const datetime = dayjs(row.original.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+
+        const absolute = h(NuxtTime, { datetime, ...DEFAULT_DATETIME_FORMAT_OPTIONS });
+        const relative = h(NuxtTime, { datetime, relative: true });
+
+        return h("div", [absolute, h("br"), "(", relative, ")"]);
+      },
+    },
+  ]);
+
   const { data, pending, error, refresh } = await useAsyncData(
     "active-duels",
     () => DuelsApi.getActiveDuelsWithParticipants(),
@@ -53,22 +81,9 @@
       lazy: true,
     },
   );
-  const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
-    {
-      accessorKey: "codeword",
-      header: fluent.$t("table-col-codeword"),
-      cell: ({ row }) => {
-        const value = row.original.codeword;
-        return value[0]!.toUpperCase() + value.slice(1);
-      },
-    },
-    { accessorKey: "participants", header: fluent.$t("table-col-participants") },
-    {
-      id: "deadline",
-      accessorKey: "startedAt",
-      header: fluent.$t("table-col-deadline"),
-    },
-  ]);
+  const ownDuel = computed(() =>
+    data.value?.find((duel) => duel.participants.some((p) => p.id === userStore.user?.id)),
+  );
 
   watch(error, (err) => {
     if (err) {

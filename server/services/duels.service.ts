@@ -1,6 +1,11 @@
 import { DUEL_PERIOD } from "#shared/constants/duels.js";
 
-import type { GoogleCloudTasksService, NotificationsService, UsersService } from "~~/server/services/";
+import type {
+  UsersService,
+  NotificationsService,
+  GoogleCloudTasksService,
+  GoogleCloudStorageService,
+} from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
 
 interface Dependencies {
@@ -9,6 +14,7 @@ interface Dependencies {
   notificationsService: NotificationsService;
 
   gcloudTasksService: GoogleCloudTasksService;
+  gcloudStorageService: GoogleCloudStorageService;
 }
 
 export class DuelsService {
@@ -17,13 +23,21 @@ export class DuelsService {
   #notificationsService: NotificationsService;
 
   #gcloudTasksService: GoogleCloudTasksService;
+  #gcloudStorageService: GoogleCloudStorageService;
 
-  constructor({ duelsRepository, usersService, notificationsService, gcloudTasksService }: Dependencies) {
+  constructor({
+    duelsRepository,
+    usersService,
+    notificationsService,
+    gcloudTasksService,
+    gcloudStorageService,
+  }: Dependencies) {
     this.#duelsRepository = duelsRepository;
     this.#usersService = usersService;
     this.#notificationsService = notificationsService;
 
     this.#gcloudTasksService = gcloudTasksService;
+    this.#gcloudStorageService = gcloudStorageService;
   }
 
   async getActiveDuelsWithParticipants() {
@@ -105,5 +119,38 @@ export class DuelsService {
     const user2 = await this.#usersService.getUserIdAndFullname(userId2);
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1!, user2!);
+  }
+
+  async createDuelReport(duelId: number, userId: number, report: DuelReportRequest) {
+    const participatesInDuel = await this.checkIfUserParticipatesInDuel(userId, duelId);
+    if (!participatesInDuel) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Forbidden",
+        message: "You are not allowed to report this duel",
+      });
+    }
+
+    const photoUrls = await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
+    return await this.#duelsRepository.createDuelReport(duelId, userId, {
+      ...report,
+      photos: photoUrls,
+    });
+  }
+
+  private async checkIfUserParticipatesInDuel(userId: number, duelId: number) {
+    const duel = await this.#duelsRepository.getDuelById(duelId);
+    if (!duel) return false;
+
+    if (duel.status !== DuelStatus.Active) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Bad Request",
+        message: "Duel is not active",
+      });
+    }
+
+    const participants = await this.#duelsRepository.getDuelParticipants(duelId);
+    return participants.some((p) => p.userId === userId);
   }
 }

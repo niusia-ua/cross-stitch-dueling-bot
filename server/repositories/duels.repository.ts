@@ -11,6 +11,22 @@ export class DuelsRepository {
     this.#pool = pool;
   }
 
+  async getDuelById(duelId: number) {
+    return await this.#pool.maybeOne(sql.type(DuelSchema)`
+      SELECT *
+      FROM duels
+      WHERE id = ${duelId}
+    `);
+  }
+
+  async getDuelParticipants(duelId: number) {
+    return await this.#pool.any(sql.type(DuelParticipantSchema)`
+      SELECT *
+      FROM duel_participants
+      WHERE duel_id = ${duelId}
+    `);
+  }
+
   async getActiveDuelsWithParticipants() {
     return await this.#pool.any(sql.type(DuelWithParticipantsDataSchema)`
       SELECT
@@ -102,5 +118,21 @@ export class DuelsRepository {
 
       return duel;
     });
+  }
+
+  async createDuelReport(
+    duelId: number,
+    userId: number,
+    report: Omit<DuelReportRequest, "photos"> & { photos: string[] },
+  ) {
+    return await this.#pool.one(sql.type(DuelReportResponseSchema)`
+      INSERT INTO duel_reports (duel_id, user_id, photos, stitches, additional_info)
+      VALUES (${duelId}, ${userId}, ${sql.array(report.photos, "text")}, ${report.stitches}, ${report.additionalInfo})
+      ON CONFLICT (duel_id, user_id) DO UPDATE
+      SET photos = EXCLUDED.photos,
+          stitches = EXCLUDED.stitches,
+          additional_info = EXCLUDED.additional_info
+      RETURNING *
+    `);
   }
 }

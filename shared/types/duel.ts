@@ -66,3 +66,19 @@ export const DuelWithParticipantsDataSchema = DuelSchema.pick({
   }),
 );
 export type DuelWithParticipantsData = z.infer<typeof DuelWithParticipantsDataSchema>;
+
+export const DuelReportRequestSchema = z.object({
+  photos: z.array(z.instanceof(File)).min(2),
+  stitches: z.coerce.number().nonnegative(),
+  additionalInfo: z.coerce.string().nullable(),
+});
+export type DuelReportRequest = z.infer<typeof DuelReportRequestSchema>;
+
+export const DuelReportResponseSchema = z.object({
+  duelId: IdSchema,
+  userId: IdSchema,
+  photos: z.array(z.coerce.string().url()).min(2),
+  stitches: z.coerce.number().nonnegative(),
+  additionalInfo: z.coerce.string().nullable(),
+});
+export type DuelReportResponse = z.infer<typeof DuelReportResponseSchema>;

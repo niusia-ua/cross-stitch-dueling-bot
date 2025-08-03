@@ -41,10 +41,21 @@ erDiagram
     int user_id PK, FK
   }
 
+  "Duel Report" {
+    int duel_id PK, FK
+    int user_id PK, FK
+    text[] photos
+    real stitches
+    text additional_info
+  }
+
   "User" ||--|| "User Settings" : "has"
 
   "Duel" ||--|{ "Duel Participant" : "has"
   "User" ||--|{ "Duel Participant" : "participates"
 
-  "User" }|--|{ "Duel Request" : "has"
+  "User" ||--|{ "Duel Request" : "has"
+
+  "Duel Report" }|--|| "Duel" : "refers to"
+  "User" ||--|{ "Duel Report" : "sends"
 ```

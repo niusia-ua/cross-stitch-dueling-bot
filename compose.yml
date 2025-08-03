@@ -1,7 +1,7 @@
 name: cross-stitch-dueling-bot
 services:
-  db:
-    container_name: cross-stitch-dueling-bot-db
+  postgres:
+    container_name: cross-stitch-dueling-bot-database
     image: postgres:17.5
     restart: unless-stopped
     environment:
@@ -11,7 +11,8 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+
   gcloud-tasks-emulator:
     container_name: cross-stitch-dueling-bot-tasks
     image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
@@ -25,5 +26,14 @@ services:
       ]
     ports:
       - 8123:8123
+
+  gcloud-storage-emulator:
+    container_name: cross-stitch-dueling-bot-storage
+    image: fsouza/fake-gcs-server:1.52.2
+    restart: unless-stopped
+    command: ["-scheme", "http", "-backend", "memory"]
+    ports:
+      - 4443:4443
+
 volumes:
-  pgdata:
+  postgres-data:
