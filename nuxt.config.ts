@@ -56,6 +56,20 @@ export default defineNuxtConfig({
     GOOGLE_CLOUD_TASKS_LOCATION: undefined,
   },
 
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        // Since we have a single always visible navigation bar,
+        // we prefer to disable prefetching for links on visibility,
+        // and only enable it on interaction instead.
+        prefetchOn: {
+          visibility: false,
+          interaction: true,
+        },
+      },
+    },
+  },
+
   vite: {
     server: {
       // Allow processing of requests from the tunnel service in development.
