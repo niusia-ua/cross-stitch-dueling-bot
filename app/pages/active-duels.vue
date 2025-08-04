@@ -8,8 +8,8 @@
       <UTable sticky :loading="pending" :columns="columns" :data="data" />
     </template>
     <template v-if="userStore.isAuthenticated" #footer>
-      <ModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
-      <ModalDuelRequest v-else />
+      <LazyModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
+      <LazyModalDuelRequest v-else />
     </template>
   </NuxtLayout>
 </template>
