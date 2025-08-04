@@ -16,67 +16,13 @@
         <slot name="footer" />
       </UContainer>
 
-      <div class="flex items-center justify-center border-t border-default py-2">
-        <UNavigationMenu
-          :items="navigationItems"
-          type="single"
-          :ui="{
-            root: 'w-full [&>div]:not-last:w-full',
-            list: 'w-full justify-evenly',
-            item: 'p-0',
-            link: 'flex-col gap-0.5 before:bg-transparent hover:before:bg-transparent font-normal text-xs',
-          }"
-        />
-      </div>
+      <ClientOnly>
+        <LazyNavigationBar v-if="loggedIn" />
+      </ClientOnly>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-  import type { NavigationMenuItem } from "@nuxt/ui";
-
-  const fluent = useFluent();
-
-  const userStore = useUserStore();
-
-  const navigationItems = computed<NavigationMenuItem[][]>(() => [
-    [
-      {
-        to: "/rating",
-        icon: "i-lucide:sparkles",
-        label: fluent.$t("label-nav-rating"),
-      },
-      {
-        to: "/active-duels",
-        icon: "i-lucide:swords",
-        label: fluent.$t("label-nav-active-duels"),
-      },
-      {
-        to: "/notifications",
-        icon: "i-lucide:bell",
-        label: fluent.$t("label-nav-notifications"),
-        disabled: !userStore.isAuthenticated,
-      },
-      {
-        to: userStore.isAuthenticated ? "/profile" : "/registration",
-        icon: "i-lucide:user",
-        label: userStore.isAuthenticated ? fluent.$t("label-nav-profile") : fluent.$t("label-nav-registration"),
-        avatar:
-          userStore.isAuthenticated && userStore.user?.photoUrl
-            ? {
-                src: userStore.user.photoUrl,
-                alt: userStore.user.fullname,
-              }
-            : undefined,
-      },
-    ],
-  ]);
+  const { loggedIn } = useUserSession();
 </script>
-
-<fluent locale="uk">
-label-nav-rating = Рейтинг
-label-nav-active-duels = Активні дуелі
-label-nav-notifications = Повідомлення
-label-nav-profile = Профіль
-label-nav-registration = Реєстрація
-</fluent>

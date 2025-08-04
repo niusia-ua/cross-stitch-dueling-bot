@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
-  const { userId } = getJwtAuthData(event);
+  const { user } = await requireUserSession(event);
   const { id: targetUserId } = await getValidatedRouterParams(event, IdObjectSchema.parseAsync);
-  if (userId !== targetUserId) {
+
+  if (user.id !== targetUserId) {
     throw createError({
       status: 403,
       statusMessage: "Forbidden",
@@ -12,5 +13,8 @@ export default defineEventHandler(async (event) => {
   const data = await readValidatedBody(event, UserDataSchema.omit({ id: true }).parseAsync);
 
   const userService = event.context.diContainerScope.resolve("usersService");
-  return await userService.updateUser(targetUserId, data);
+  const result = await userService.updateUser(targetUserId, data);
+
+  await setUserSession(event, { user: result });
+  return result;
 });

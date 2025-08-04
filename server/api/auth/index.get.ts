@@ -34,6 +34,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  setJwtAuthData(event, { userId: result.user.id });
+  await setUserSession(event, result);
   return result;
 });

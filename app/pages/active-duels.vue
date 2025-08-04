@@ -7,7 +7,7 @@
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data" />
     </template>
-    <template v-if="userStore.isAuthenticated" #footer>
+    <template v-if="loggedIn" #footer>
       <LazyModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
       <LazyModalDuelRequest v-else />
     </template>
@@ -26,7 +26,7 @@
   const fluent = useFluent();
   const toast = useToast();
 
-  const userStore = useUserStore();
+  const { loggedIn, session } = useUserSession();
 
   const UserInfo = resolveComponent("UserInfo");
   const NuxtTime = resolveComponent("NuxtTime");
@@ -82,7 +82,7 @@
     },
   );
   const ownDuel = computed(() =>
-    data.value?.find((duel) => duel.participants.some((p) => p.id === userStore.user?.id)),
+    data.value?.find((duel) => duel.participants.some((p) => p.id === session.value?.user?.id)),
   );
 
   watch(error, (err) => {

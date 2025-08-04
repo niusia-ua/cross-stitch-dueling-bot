@@ -11,10 +11,10 @@
 </template>
 
 <script setup lang="ts">
+  import { UsersApi } from "~/api/";
+
   const fluent = useFluent();
   const toast = useToast();
-
-  const userStore = useUserStore();
 
   // At this point, the Telegram user data must be available.
   const tgUser = Telegram.WebApp.initDataUnsafe.user!;
@@ -32,13 +32,12 @@
 
   async function register() {
     try {
-      await userStore.registerUser(user, settings);
-
+      await UsersApi.createUser(user, settings);
+      await navigateTo("/profile");
       toast.add({ color: "success", description: fluent.$t("message-registration-success") });
-      navigateTo("/profile");
-    } catch (e) {
+    } catch (err) {
       toast.add({ color: "error", description: fluent.$t("message-registration-failure") });
-      console.error(e);
+      console.error(err);
     }
   }
 </script>

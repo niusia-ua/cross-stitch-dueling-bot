@@ -4,6 +4,6 @@ export default defineEventHandler(async (event) => {
   const userService = event.context.diContainerScope.resolve("usersService");
   const result = await userService.createUser(user, settings);
 
-  setJwtAuthData(event, { userId: result.user.id });
+  await setUserSession(event, result);
   return result;
 });

@@ -6,7 +6,7 @@ const ParamsSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const { userId } = getJwtAuthData(event);
+  const { user } = await requireUserSession(event);
   const { id: requestId, action } = await getValidatedRouterParams(event, ParamsSchema.parseAsync);
 
   const duelsService = event.context.diContainerScope.resolve("duelsService");
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       message: "Duel request not found",
     });
   }
-  if (duelRequest.toUserId !== userId) {
+  if (duelRequest.toUserId !== user.id) {
     throw createError({
       statusCode: 403,
       statusMessage: "Forbidden",

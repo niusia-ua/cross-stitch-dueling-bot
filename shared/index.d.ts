@@ -11,8 +11,6 @@ declare module "nuxt/schema" {
     TARGET_CHAT_ID: number;
     TARGET_THREAD_ID: number;
 
-    JWT_SECRET: string;
-
     DATABASE_URL: string;
 
     GOOGLE_CLOUD_PROJECT_ID: string;

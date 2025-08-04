@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { userId } = getJwtAuthData(event);
+  const { user } = await requireUserSession(event);
   const { id: duelId } = await getValidatedRouterParams(event, IdObjectSchema.parseAsync);
 
   const formData = await readFormData(event);
@@ -10,5 +10,5 @@ export default defineEventHandler(async (event) => {
   });
 
   const duelsService = event.context.diContainerScope.resolve("duelsService");
-  return await duelsService.createDuelReport(duelId, userId, report);
+  return await duelsService.createDuelReport(duelId, user.id, report);
 });

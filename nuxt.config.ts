@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
-  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "@pinia/nuxt", "unplugin-fluent-vue/nuxt"],
+  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "unplugin-fluent-vue/nuxt", "nuxt-auth-utils"],
   imports: {
     presets: [
       { from: "fluent-vue", imports: ["useFluent"] },
@@ -26,7 +26,10 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    "/": { redirect: "/rating" },
+    "/": {
+      // We don't have a home page, so redirect to the rating page.
+      redirect: "/rating",
+    },
   },
 
   fluentVue: {
@@ -47,8 +50,6 @@ export default defineNuxtConfig({
 
     TARGET_CHAT_ID: undefined,
     TARGET_THREAD_ID: undefined,
-
-    JWT_SECRET: undefined,
 
     DATABASE_URL: undefined,
 

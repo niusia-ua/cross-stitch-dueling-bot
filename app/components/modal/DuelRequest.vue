@@ -49,7 +49,7 @@
   const fluent = useFluent();
   const toast = useToast();
 
-  const userStore = useUserStore();
+  const { session } = useUserSession();
 
   const open = ref(false);
 
@@ -67,7 +67,7 @@
 
   const { data, pending, error, execute, clear } = await useAsyncData(
     "available-users",
-    () => DuelsApi.getAvailableUsersForDuel(userStore.user?.id),
+    () => DuelsApi.getAvailableUsersForDuel(session.value?.user?.id),
     {
       server: false,
       lazy: true,

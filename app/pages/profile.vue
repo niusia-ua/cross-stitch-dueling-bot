@@ -2,7 +2,7 @@
   <NuxtLayout>
     <template #title>{{ $t("page-title") }}</template>
     <template #content>
-      <UserForm v-model:user="user" v-model:settings="settings">
+      <UserForm v-model:user="user" v-model:settings="settingsData">
         <template #user-actions>
           <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="updateUser" />
         </template>
@@ -20,23 +20,35 @@
 </template>
 
 <script setup lang="ts">
+  import { UsersApi } from "~/api/";
+
   const fluent = useFluent();
   const toast = useToast();
   const confirm = useConfirm();
 
-  const userStore = useUserStore();
+  const { session, fetch: refreshSession } = useUserSession();
 
-  const user = reactive<UserData>({ ...userStore.user! });
-  const settings = reactive<UserSettingsData>({ ...userStore.settings! });
+  // Session data is guaranteed to be available after the authenticated middleware is executed.
+  const user = computed(() => session.value!.user!);
+  const settings = computed(() => session.value!.settings!);
+
+  // Create a reactive object for modifying settings in the form.
+  const settingsData = reactive({
+    stitchesRate: settings.value.stitchesRate,
+    participatesInWeeklyRandomDuels: settings.value.participatesInWeeklyRandomDuels,
+  });
 
   async function updateUser() {
     try {
       const tgUser = Telegram.WebApp.initDataUnsafe.user!;
-      await userStore.updateUser({
+
+      await UsersApi.updateUser(user.value.id, {
         fullname: [tgUser.first_name, tgUser.last_name].join(" ").trimEnd(),
         username: tgUser.username ?? null,
         photoUrl: tgUser.photo_url ?? null,
       });
+      await refreshSession();
+
       toast.add({ color: "success", description: fluent.$t("message-user-update-success") });
     } catch (err) {
       console.error(err);
@@ -46,7 +58,8 @@
 
   async function updateSettings() {
     try {
-      await userStore.updateUserSettings(settings);
+      await UsersApi.updateUserSettings(user.value.id, settingsData);
+      await refreshSession();
       toast.add({ color: "success", description: fluent.$t("message-settings-update-success") });
     } catch (err) {
       console.error(err);
@@ -54,14 +67,10 @@
     }
   }
 
-  definePageMeta({
-    middleware: ["auth"],
-  });
-
   onBeforeRouteLeave(async () => {
     if (
-      settings.stitchesRate !== userStore.settings!.stitchesRate ||
-      settings.participatesInWeeklyRandomDuels !== userStore.settings!.participatesInWeeklyRandomDuels
+      settings.value.stitchesRate !== settingsData.stitchesRate ||
+      settings.value.participatesInWeeklyRandomDuels !== settingsData.participatesInWeeklyRandomDuels
     ) {
       const accepted = await confirm.open({
         title: fluent.$t("title-warning"),
