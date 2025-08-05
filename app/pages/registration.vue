@@ -17,7 +17,7 @@
   const toast = useToast();
 
   // At this point, the Telegram user data must be available.
-  const tgUser = Telegram.WebApp.initDataUnsafe.user!;
+  const tgUser = window.Telegram.WebApp.initDataUnsafe.user!;
 
   const user = reactive<UserData>({
     id: tgUser.id,

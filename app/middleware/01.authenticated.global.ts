@@ -9,14 +9,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const { loggedIn, fetch: refreshSession } = useUserSession();
   if (!loggedIn.value && to.path !== "/registration") {
     try {
-      await AuthApi.auth(Telegram.WebApp.initData);
+      await AuthApi.auth(window.Telegram.WebApp.initData);
       await refreshSession();
     } catch (err) {
       if (err instanceof FetchError) {
         if (err.status === 400) {
-          return Telegram.WebApp.showAlert("The provided Web App init data is invalid. Please restart the app.", () => {
-            Telegram.WebApp.close();
-          });
+          return window.Telegram.WebApp.showAlert(
+            "The provided Web App init data is invalid. Please restart the app.",
+            () => window.Telegram.WebApp.close(),
+          );
         }
 
         if (err.status === 401) {

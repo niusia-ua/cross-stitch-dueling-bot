@@ -40,7 +40,7 @@
 
   async function updateUser() {
     try {
-      const tgUser = Telegram.WebApp.initDataUnsafe.user!;
+      const tgUser = window.Telegram.WebApp.initDataUnsafe.user!;
 
       await UsersApi.updateUser(user.value.id, {
         fullname: [tgUser.first_name, tgUser.last_name].join(" ").trimEnd(),
