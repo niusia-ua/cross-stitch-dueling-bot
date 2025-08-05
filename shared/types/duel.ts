@@ -67,18 +67,28 @@ export const DuelWithParticipantsDataSchema = DuelSchema.pick({
 );
 export type DuelWithParticipantsData = z.infer<typeof DuelWithParticipantsDataSchema>;
 
-export const DuelReportRequestSchema = z.object({
-  photos: z.array(z.instanceof(File)).min(2),
-  stitches: z.coerce.number().nonnegative(),
-  additionalInfo: z.coerce.string().nullable(),
-});
-export type DuelReportRequest = z.infer<typeof DuelReportRequestSchema>;
-
-export const DuelReportResponseSchema = z.object({
+export const DuelReportSchema = z.object({
   duelId: IdSchema,
   userId: IdSchema,
-  photos: z.array(z.coerce.string().url()).min(2),
   stitches: z.coerce.number().nonnegative(),
   additionalInfo: z.coerce.string().nullable(),
 });
-export type DuelReportResponse = z.infer<typeof DuelReportResponseSchema>;
+export type DuelReport = z.infer<typeof DuelReportSchema>;
+
+export const DuelReportDataSchema = DuelReportSchema.pick({
+  stitches: true,
+  additionalInfo: true,
+});
+export type DuelReportData = z.infer<typeof DuelReportDataSchema>;
+
+export const DuelReportPhotosSchema = z.object({
+  photos: z.array(
+    z.instanceof(File, { message: "Please select an image file." }).refine((file) => file.size <= 2 * 1024 * 1024, {
+      message: "The image is too large. Please choose an image smaller than 2MB.",
+    }),
+  ),
+});
+export type DuelReportPhotos = z.infer<typeof DuelReportPhotosSchema>;
+
+export const DuelReportRequestSchema = DuelReportDataSchema.merge(DuelReportPhotosSchema);
+export type DuelReportRequest = z.infer<typeof DuelReportRequestSchema>;

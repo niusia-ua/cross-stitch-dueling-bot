@@ -1,6 +1,8 @@
-import { InlineKeyboard, type RawApi } from "grammy";
-import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
+import { zip } from "es-toolkit";
+import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "grammy";
+import type { InputMediaPhoto } from "grammy/types";
 
+import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 import type { BotApi, BotI18n } from "~~/server/bot/";
 
 interface Dependencies {
@@ -44,6 +46,17 @@ export class NotificationsService {
     });
   }
 
+  /** Send a group message with a media group (album). */
+  #sendGroupMediaMessage(media: InputMediaPhoto[], options?: SendMessageOptions) {
+    // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
+    return this.#botApi.raw.sendMediaGroup({
+      ...options,
+      chat_id: this.#targetChatId,
+      message_thread_id: this.#targetThreadId,
+      media,
+    });
+  }
+
   async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
     const keyboard = new InlineKeyboard().webApp(this.#botI18n.t("uk", "label-open"), this.#webAppUrl);
@@ -77,6 +90,49 @@ export class NotificationsService {
       user2: mentionUser(user2),
     });
     await this.#sendGroupMessage(message);
+  }
+
+  async postDuelResults(
+    codeword: string,
+    participants: readonly UserIdAndFullname[],
+    reports: readonly DuelReportData[],
+    photos: Buffer[][],
+    winner: UserIdAndFullname | null,
+  ) {
+    // Post a message with the duel overview.
+    await this.#sendGroupMessage(
+      this.#botI18n.t("uk", "message-duel-completed", {
+        codeword,
+        players: participants.map((p) => mentionUser(p)).join(", "),
+        hasWinner: String(winner !== null),
+        winner: winner ? mentionUser(winner) : "",
+      }),
+    );
+
+    // Post each report.
+    await Promise.all(
+      zip(participants, reports)
+        .filter(([_, report]) => report && report.stitches > 0)
+        .map(([player, report], i) => {
+          const caption = this.#botI18n.t("uk", "message-duel-report", {
+            player: mentionUser(player),
+            stitches: report.stitches,
+            hasAdditionalInfo: String(report.additionalInfo !== null),
+            additionalInfo: report.additionalInfo ?? "",
+          });
+
+          const media = photos[i].map((buffer, i) => {
+            // Attach a caption only to the first photo.
+            // This way, the caption will be shown for the entire album.
+            return InputMediaBuilder.photo(new InputFile(buffer), {
+              caption: i === 0 ? caption : undefined,
+              parse_mode: "HTML", // TODO: remove
+            });
+          });
+
+          return this.#sendGroupMediaMessage(media, { disable_notification: true });
+        }),
+    );
   }
 }
 

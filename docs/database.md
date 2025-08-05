@@ -38,15 +38,19 @@ erDiagram
 
   "Duel Participant" {
     int duel_id PK, FK
-    int user_id PK, FK
+    bigint user_id PK, FK
   }
 
   "Duel Report" {
     int duel_id PK, FK
-    int user_id PK, FK
-    text[] photos
+    bigint user_id PK, FK
     real stitches
     text additional_info
+  }
+
+  "Duel Winner" {
+    int duel_id PK,FK
+    bigint user_id PK,FK
   }
 
   "User" ||--|| "User Settings" : "has"
@@ -58,4 +62,7 @@ erDiagram
 
   "Duel Report" }|--|| "Duel" : "refers to"
   "User" ||--|{ "Duel Report" : "sends"
+
+  "User" ||--|{ "Duel Winner" : "is"
+  "Duel" ||--|{ "Duel Winner" : "has"
 ```

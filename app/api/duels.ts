@@ -37,9 +37,8 @@ export async function sendDuelReport(duelId: number, report: DuelReportRequest) 
   formData.append("stitches", report.stitches.toString());
   if (report.additionalInfo) formData.append("additionalInfo", report.additionalInfo);
 
-  const data = await $fetch(`/api/duels/${duelId}/report`, {
+  await $fetch(`/api/duels/${duelId}/report`, {
     method: "POST",
     body: formData,
   });
-  return await DuelReportResponseSchema.parseAsync(data);
 }

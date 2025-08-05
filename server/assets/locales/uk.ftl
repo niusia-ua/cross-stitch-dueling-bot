@@ -49,6 +49,32 @@ message-duel-announcement =
   Кодове слово: <b>{ $codeword }</b>.
   Дедлайн: <b>{ $deadline }</b>.
 
+message-duel-completed =
+  Дуель завершено!
+  Кодове слово: <b>{ $codeword }</b>.
+  Учасники: { $players }
+  { $hasWinner ->
+    [true] Переможець: { $winner }.
+    *[false]
+      На жаль, у цій дуелі немає переможця.
+  }
+
+message-duel-report =
+  Звіт учасника дуелі { $player }.
+  Загалом вишито { $stitches ->
+    [one] { $stitches } стібок
+    [few] { $stitches } стібки
+    *[many] { $stitches } стібків
+  }.
+
+  { $hasAdditionalInfo ->
+    [true]
+      Додаткова інформація:
+      { $additionalInfo }
+    *[false]
+      Додаткової інформації немає.
+  }
+
 ## Error messages.
 
 message-error-unknown =

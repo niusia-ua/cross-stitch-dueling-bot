@@ -1,7 +1,7 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
 import { ChannelCredentials } from "google-gax";
 
-import { DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
+import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
 
 export class GoogleCloudTasksService {
   #client: CloudTasksClient;
@@ -50,7 +50,7 @@ export class GoogleCloudTasksService {
       parent: this.#client.queuePath(this.#projectId, this.#location, queue),
       task: {
         httpRequest: {
-          url: new URL(`/tasks/${endpoint}`, this.#baseUrl).toString(),
+          url: new URL(`/api/tasks/${endpoint}`, this.#baseUrl).toString(),
           httpMethod: "POST",
           headers: { "Content-Type": "application/json" },
           body: Buffer.from(JSON.stringify(payload)),
@@ -71,5 +71,13 @@ export class GoogleCloudTasksService {
       { id },
       { delay: DUEL_REQUEST_VALIDITY_PERIOD },
     );
+  }
+
+  /**
+   * Schedules a task to complete a duel after the duel period.
+   * @param id The ID of the duel to complete.
+   */
+  async scheduleDuelCompletion(id: number) {
+    await this.#createTask("duel-completion", "complete-duel", { id }, { delay: DUEL_PERIOD });
   }
 }

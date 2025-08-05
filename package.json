@@ -19,7 +19,7 @@
     "migrate:redo": "node-pg-migrate redo --database-url-var NUXT_DATABASE_URL",
     "migrate:create": "node-pg-migrate create --migration-file-language sql --migration-filename-format index",
     "|-------- SERVICES --------|": "",
-    "services:up": "docker compose up -d && npm run migrate:up && node scripts/create-buckets.js",
+    "services:up": "docker compose up -d && sleep 2 && npm run migrate:up && node scripts/create-buckets.js",
     "services:down": "docker compose down",
     "|-------- UTILS --------|": "",
     "check-types": "nuxt typecheck",

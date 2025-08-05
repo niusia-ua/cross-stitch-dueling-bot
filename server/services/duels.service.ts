@@ -1,3 +1,4 @@
+import { sample } from "es-toolkit";
 import { DUEL_PERIOD } from "#shared/constants/duels.js";
 
 import type {
@@ -119,6 +120,32 @@ export class DuelsService {
     const user2 = await this.#usersService.getUserIdAndFullname(userId2);
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1!, user2!);
+    await this.#gcloudTasksService.scheduleDuelCompletion(duel.id);
+  }
+
+  async completeDuel(duelId: number) {
+    const duel = await this.#duelsRepository.getDuelById(duelId);
+    if (!duel || duel.status !== DuelStatus.Active) return;
+
+    await this.#duelsRepository.updateDuelStatus(duelId, DuelStatus.Completed);
+
+    const participants = await Promise.all(
+      (await this.#duelsRepository.getDuelParticipants(duelId)).map(
+        async ({ userId }) => (await this.#usersService.getUserIdAndFullname(userId))!,
+      ),
+    );
+    const reports = await this.#duelsRepository.getDuelReportsByDuelId(duelId);
+    const photos = await Promise.all(
+      reports.map(({ duelId, userId }) => this.#gcloudStorageService.downloadDuelReportPhotos(duelId, userId)),
+    );
+
+    // Determine the winner based on the reports.
+    const highestScore = Math.max(...reports.map((r) => r.stitches));
+    const winners = reports.filter((r) => r.stitches === highestScore);
+    const winner = participants.find((user) => user.id === sample(winners)?.userId) ?? null;
+    if (winner) await this.#duelsRepository.setDuelWinner(duelId, winner.id);
+
+    await this.#notificationsService.postDuelResults(duel.codeword, participants, reports, photos, winner);
   }
 
   async createDuelReport(duelId: number, userId: number, report: DuelReportRequest) {
@@ -131,11 +158,8 @@ export class DuelsService {
       });
     }
 
-    const photoUrls = await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
-    return await this.#duelsRepository.createDuelReport(duelId, userId, {
-      ...report,
-      photos: photoUrls,
-    });
+    await this.#duelsRepository.createDuelReport(duelId, userId, report);
+    await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
   }
 
   private async checkIfUserParticipatesInDuel(userId: number, duelId: number) {
