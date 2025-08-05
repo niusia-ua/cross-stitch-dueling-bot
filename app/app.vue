@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
   onMounted(() => {
-    Telegram.WebApp.ready();
+    window.Telegram.WebApp.ready();
   });
 </script>
 
