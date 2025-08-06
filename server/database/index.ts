@@ -1,5 +1,4 @@
-import { createPool, createSqlTag } from "slonik";
-import z from "zod";
+import { createPool } from "slonik";
 
 import { createCamelCaseKeysInterceptor, createResultParserInterceptor } from "./interceptors/";
 
@@ -10,11 +9,7 @@ export function createDbPool() {
   });
 }
 
-export const sql = createSqlTag({
-  typeAliases: {
-    id: IdObjectSchema.strict(),
-    void: z.object({}).strict(),
-  },
-});
+export * from "./sql.js";
+export * from "./utils.js";
 
 export type { DatabasePool } from "slonik";

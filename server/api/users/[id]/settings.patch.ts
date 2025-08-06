@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const data = await readValidatedBody(event, UserSettingsDataSchema.parseAsync);
+  const data = await readValidatedBody(event, UserSettingsDataSchema.partial().parseAsync);
 
   const userService = event.context.diContainerScope.resolve("usersService");
   const result = await userService.updateUserSettings(targetUserId, data);

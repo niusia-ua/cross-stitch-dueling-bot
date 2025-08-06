@@ -15,10 +15,10 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 
 export const UserDataSchema = UserSchema.pick({
-  id: true,
   username: true,
   fullname: true,
   photoUrl: true,
+  active: true,
 });
 export type UserData = z.infer<typeof UserDataSchema>;
 

@@ -11,8 +11,8 @@ export class UsersService {
     this.#usersRepository = usersRepository;
   }
 
-  async createUser(user: UserData, settings: UserSettingsData) {
-    return await this.#usersRepository.createUser(user, settings);
+  async createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
+    return await this.#usersRepository.createUser(id, user, settings);
   }
 
   async getUserIdAndFullname(userId: number) {
@@ -29,11 +29,11 @@ export class UsersService {
     return { user, settings };
   }
 
-  async updateUser(id: number, data: Omit<UserData, "id">) {
+  async updateUser(id: number, data: Partial<UserData>) {
     return await this.#usersRepository.updateUser(id, data);
   }
 
-  async updateUserSettings(id: number, data: UserSettingsData) {
+  async updateUserSettings(id: number, data: Partial<UserSettingsData>) {
     return await this.#usersRepository.updateUserSettings(id, data);
   }
 }

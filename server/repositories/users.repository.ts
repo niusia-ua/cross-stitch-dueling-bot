@@ -1,4 +1,4 @@
-import { sql, type DatabasePool } from "~~/server/database/";
+import { sql, partialUpdateSet, type DatabasePool } from "~~/server/database/";
 
 interface Dependencies {
   pool: DatabasePool;
@@ -11,16 +11,16 @@ export class UsersRepository {
     this.#pool = pool;
   }
 
-  async createUser(user: UserData, settings: UserSettingsData) {
+  async createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
     return await this.#pool.transaction(async (tx) => {
       const u = await tx.one(sql.type(UserSchema)`
         INSERT INTO users (id, username, fullname, photo_url)
-        VALUES (${user.id}, ${user.username}, ${user.fullname}, ${user.photoUrl})
+        VALUES (${id}, ${user.username}, ${user.fullname}, ${user.photoUrl})
         RETURNING *
       `);
       const s = await tx.one(sql.type(UserSettingsSchema)`
         INSERT INTO user_settings (user_id, stitches_rate, participates_in_weekly_random_duels)
-        VALUES (${user.id}, ${settings.stitchesRate}, ${settings.participatesInWeeklyRandomDuels})
+        VALUES (${id}, ${settings.stitchesRate}, ${settings.participatesInWeeklyRandomDuels})
         RETURNING *
       `);
       return { user: u, settings: s };
@@ -51,19 +51,19 @@ export class UsersRepository {
     `);
   }
 
-  async updateUser(id: number, data: Omit<UserData, "id">) {
+  async updateUser(id: number, data: Partial<UserData>) {
     return await this.#pool.one(sql.type(UserSchema)`
       UPDATE users
-      SET username = ${data.username}, fullname = ${data.fullname}, photo_url = ${data.photoUrl}
+      SET ${partialUpdateSet(data)}
       WHERE id = ${id}
       RETURNING *
     `);
   }
 
-  async updateUserSettings(id: number, data: UserSettingsData) {
+  async updateUserSettings(id: number, data: Partial<UserSettingsData>) {
     return await this.#pool.one(sql.type(UserSettingsSchema)`
       UPDATE user_settings
-      SET stitches_rate = ${data.stitchesRate}, participates_in_weekly_random_duels = ${data.participatesInWeeklyRandomDuels}
+      SET ${partialUpdateSet(data)}
       WHERE user_id = ${id}
       RETURNING *
     `);

@@ -1,5 +1,5 @@
-export async function createUser(user: UserData, settings: UserSettingsData) {
-  const data = await $fetch("/api/users/", {
+export async function createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
+  const data = await $fetch(`/api/users/${id}`, {
     method: "POST",
     body: { user, settings },
   });
@@ -12,7 +12,7 @@ export async function getUser(id: number) {
   return await UserAndSettingsSchema.parseAsync(data);
 }
 
-export async function updateUser(id: number, user: Omit<UserData, "id">) {
+export async function updateUser(id: number, user: Partial<UserData>) {
   const data = await $fetch(`/api/users/${id}`, {
     method: "PATCH",
     body: user,
@@ -20,7 +20,7 @@ export async function updateUser(id: number, user: Omit<UserData, "id">) {
   return await UserSchema.parseAsync(data);
 }
 
-export async function updateUserSettings(id: number, settings: UserSettingsData) {
+export async function updateUserSettings(id: number, settings: Partial<UserSettingsData>) {
   const data = await $fetch(`/api/users/${id}/settings`, {
     method: "PATCH",
     body: settings,
