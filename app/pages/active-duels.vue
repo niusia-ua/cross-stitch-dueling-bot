@@ -26,6 +26,7 @@
   const fluent = useFluent();
   const toast = useToast();
 
+  const { $selectedLocale } = useNuxtApp();
   const { loggedIn, session } = useUserSession();
 
   const UserInfo = resolveComponent("UserInfo");
@@ -66,8 +67,8 @@
         // Calculate the deadline based on the duel's startedAt time.
         const datetime = dayjs(row.original.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
-        const absolute = h(NuxtTime, { datetime, ...DEFAULT_DATETIME_FORMAT_OPTIONS });
-        const relative = h(NuxtTime, { datetime, relative: true });
+        const absolute = h(NuxtTime, { datetime, locale: $selectedLocale.value, ...DEFAULT_DATETIME_FORMAT_OPTIONS });
+        const relative = h(NuxtTime, { datetime, locale: $selectedLocale.value, relative: true });
 
         return h("div", [absolute, h("br"), "(", relative, ")"]);
       },

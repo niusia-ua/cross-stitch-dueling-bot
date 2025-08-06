@@ -1,16 +1,18 @@
 <template>
-  <UApp :toaster="{ position: 'top-center' }">
+  <UApp :locale="nuxtLocales[$selectedLocale]" :toaster="{ position: 'top-center' }">
     <NuxtPage />
   </UApp>
 </template>
 
 <script setup lang="ts">
+  import { uk } from "@nuxt/ui/locale";
+
+  const nuxtLocales = { uk } as const;
+
+  const { $selectedLocale, $changeLocale } = useNuxtApp();
+
   onMounted(() => {
+    $changeLocale(window.Telegram.WebApp.initDataUnsafe.user?.language_code);
     window.Telegram.WebApp.ready();
   });
 </script>
-
-<fluent locale="uk">
-message-error-invalid-web-app-data = Не валідні дані вебзастосунку. Ми не можемо їм довіряти. Застосунок буде закрито.
-message-error-unknown = Сталася невідома помилка. Будь ласка, спробуйте ще раз пізніше.
-</fluent>

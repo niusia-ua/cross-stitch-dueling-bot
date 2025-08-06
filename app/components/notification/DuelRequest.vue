@@ -8,7 +8,13 @@
         <UButton size="sm" color="error" icon="i-lucide:x" @click="emit('decline', id)" />
       </div>
     </div>
-    <NuxtTime relative :datetime="createdAt" v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS" class="text-xs text-dimmed" />
+    <NuxtTime
+      relative
+      :locale="$selectedLocale"
+      :datetime="createdAt"
+      v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
+      class="text-xs text-dimmed"
+    />
   </div>
 </template>
 
@@ -31,4 +37,6 @@
     accept: [id: number];
     decline: [id: number];
   }>();
+
+  const { $selectedLocale } = useNuxtApp();
 </script>
