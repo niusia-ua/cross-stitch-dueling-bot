@@ -12,8 +12,7 @@ export const DuelSchema = z.object({
   id: IdSchema,
   codeword: z.string(),
   status: z.nativeEnum(DuelStatus),
-  startedAt: z.coerce.date(),
-  completedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
 });
 export type Duel = z.infer<typeof DuelSchema>;
 
@@ -53,7 +52,7 @@ export type DuelParticipant = z.infer<typeof DuelParticipantSchema>;
 export const DuelWithParticipantsDataSchema = DuelSchema.pick({
   id: true,
   codeword: true,
-  startedAt: true,
+  createdAt: true,
 }).merge(
   z.object({
     participants: z.array(

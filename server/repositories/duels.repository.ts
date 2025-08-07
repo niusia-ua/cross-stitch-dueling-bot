@@ -30,14 +30,14 @@ export class DuelsRepository {
   async getActiveDuelsWithParticipants() {
     return await this.#pool.any(sql.type(DuelWithParticipantsDataSchema)`
       SELECT
-        d.id, d.codeword, d.started_at,
+        d.id, d.codeword, d.created_at,
         JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url)) AS participants
       FROM duels AS d
       INNER JOIN duel_participants AS dp ON dp.duel_id = d.id
       INNER JOIN users AS u ON u.id = dp.user_id
       WHERE d.status = ${DuelStatus.Active}
       GROUP BY d.id
-      ORDER BY d.started_at DESC
+      ORDER BY d.created_at DESC
     `);
   }
 
@@ -123,7 +123,7 @@ export class DuelsRepository {
   async updateDuelStatus(duelId: number, status: DuelStatus) {
     await this.#pool.query(sql.typeAlias("void")`
       UPDATE duels
-      SET status = ${status}, completed_at = NOW()
+      SET status = ${status}
       WHERE id = ${duelId}
     `);
   }

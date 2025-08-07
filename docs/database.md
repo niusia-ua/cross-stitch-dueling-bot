@@ -25,8 +25,7 @@ erDiagram
     int id PK
     text codeword
     duel_status_enum status
-    timestamptz started_at
-    timestamptz completed_at
+    timestamptz created_at
   }
 
   "Duel Request" {

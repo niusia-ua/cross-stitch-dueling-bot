@@ -114,7 +114,7 @@ export class DuelsService {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, userId1, userId2);
 
-    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.createdAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
     const user1 = await this.#usersService.getUserIdAndFullname(userId1);
     const user2 = await this.#usersService.getUserIdAndFullname(userId2);
