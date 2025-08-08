@@ -1,6 +1,8 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
+
   devtools: { enabled: true },
+  telemetry: { enabled: false },
 
   modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "unplugin-fluent-vue/nuxt", "nuxt-auth-utils"],
   imports: {
