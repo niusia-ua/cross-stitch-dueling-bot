@@ -1,3 +1,4 @@
+import z from "zod";
 import { sql, type DatabasePool } from "~~/server/database/";
 
 interface Dependencies {
@@ -19,11 +20,47 @@ export class DuelsRepository {
     `);
   }
 
-  async getDuelParticipants(duelId: number) {
-    return await this.#pool.any(sql.type(DuelParticipantSchema)`
-      SELECT *
-      FROM duel_participants
-      WHERE duel_id = ${duelId}
+  /**
+   * Get full duel information by ID.
+   * @param duelId The ID of the duel.
+   * @returns The duel ID, status, and codeword including participants and reports.
+   */
+  async getFullDuelInfoById(duelId: number) {
+    return await this.#pool.maybeOne(sql.type(
+      DuelSchema.pick({ id: true, status: true, codeword: true })
+        .merge(
+          z.object({
+            participants: z.array(UserIdAndFullnameSchema).min(2),
+            reports: z.array(DuelReportDataSchema.nullable()).min(2),
+          }),
+        )
+        .refine((schema) => schema.participants.length === schema.reports.length, {
+          message: "Participants and reports count mismatch.",
+        }),
+    )`
+      SELECT
+      -- Select base duel fields.
+      d.id, d.status, d.codeword,
+      -- Select the id and fullname of participants.
+      JSON_AGG(
+        json_build_object('id', u.id, 'fullname', u.fullname)
+        ORDER BY u.id
+      ) AS participants,
+      -- Select the participants' reports or NULL if one hasn't submitted a report.
+      JSON_AGG(
+        CASE
+          WHEN dr.user_id IS NULL THEN NULL
+        ELSE
+          json_build_object('stitches', dr.stitches, 'additional_info', dr.additional_info)
+        END
+        ORDER BY u.id
+      ) AS reports
+      FROM duels AS d
+      INNER JOIN duel_participants AS dp ON dp.duel_id = d.id
+      INNER JOIN users AS u ON u.id = dp.user_id
+      LEFT JOIN duel_reports AS dr ON dr.duel_id = d.id AND dr.user_id = u.id
+      WHERE d.id = ${duelId}
+      GROUP BY d.id
     `);
   }
 
@@ -46,13 +83,17 @@ export class DuelsRepository {
       SELECT u.id, u.fullname, u.photo_url, us.stitches_rate
       FROM users AS u
       INNER JOIN user_settings AS us ON us.user_id = u.id
-      LEFT JOIN duel_participants AS dp ON dp.user_id = u.id
-      LEFT JOIN duels AS d ON d.id = dp.duel_id AND d.status = ${DuelStatus.Active}
-      WHERE u.active = true AND d.id IS NULL
+      -- Ensure user is active and not participating in an active duel.
+      WHERE u.active AND NOT EXISTS (
+        SELECT
+        FROM duel_participants AS dp
+        JOIN duels AS d ON d.id = dp.duel_id
+        WHERE dp.user_id = u.id AND d.status = ${DuelStatus.Active}
+      );
     `);
   }
 
-  async getDuelRequest(requestId: number) {
+  async getDuelRequestById(requestId: number) {
     return await this.#pool.maybeOne(sql.type(DuelRequestSchema)`
       SELECT *
       FROM duel_requests
@@ -60,7 +101,7 @@ export class DuelsRepository {
     `);
   }
 
-  async getUserDuelRequests(userId: number) {
+  async getDuelRequestsByUserId(userId: number) {
     return await this.#pool.any(sql.type(UserDuelRequestSchema)`
       SELECT
         dr.id,
@@ -88,10 +129,20 @@ export class DuelsRepository {
   }
 
   async removeDuelRequest(requestId: number) {
-    return await this.#pool.maybeOne(sql.type(DuelRequestSchema)`
-      DELETE FROM duel_requests
-      WHERE id = ${requestId}
-      RETURNING *
+    return await this.#pool.maybeOne(sql.type(
+      z.object({
+        fromUser: UserIdAndFullnameSchema,
+        toUser: UserIdAndFullnameSchema,
+      }),
+    )`
+      DELETE FROM duel_requests AS dr
+      USING users AS fu, users AS tu
+      WHERE dr.id = ${requestId}
+        AND fu.id = dr.from_user_id
+        AND tu.id = dr.to_user_id
+      RETURNING
+        json_build_object('id', fu.id, 'fullname', fu.fullname) AS from_user,
+        json_build_object('id', tu.id, 'fullname', tu.fullname) AS to_user
     `);
   }
 
@@ -152,6 +203,26 @@ export class DuelsRepository {
       INSERT INTO duel_winners (duel_id, user_id)
       VALUES (${duelId}, ${userId})
       ON CONFLICT DO NOTHING
+    `);
+  }
+
+  /**
+   * Check if a user is participating in a duel (the provided one or any).
+   * @param userId The ID of the user to check.
+   * @param duelId The ID of the duel to check (optional).
+   * @returns True if the user is participating in the duel, false otherwise.
+   */
+  async checkUserParticipationInDuel(userId: number, duelId?: number) {
+    const conditionFragments = [];
+    if (duelId) conditionFragments.push(sql.fragment`d.id = ${duelId}`);
+    conditionFragments.push(sql.fragment`dp.user_id = ${userId}`);
+    conditionFragments.push(sql.fragment`d.status = ${DuelStatus.Active}`);
+
+    return await this.#pool.exists(sql.typeAlias("void")`
+      SELECT
+      FROM duel_participants AS dp
+      JOIN duels AS d ON d.id = dp.duel_id
+      WHERE ${sql.join(conditionFragments, sql.fragment` AND `)}
     `);
   }
 }

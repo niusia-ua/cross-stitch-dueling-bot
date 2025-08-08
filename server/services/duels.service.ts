@@ -54,11 +54,11 @@ export class DuelsService {
   }
 
   async getDuelRequest(requestId: number) {
-    return await this.#duelsRepository.getDuelRequest(requestId);
+    return await this.#duelsRepository.getDuelRequestById(requestId);
   }
 
-  async getUserDuelRequests(userId: number) {
-    return await this.#duelsRepository.getUserDuelRequests(userId);
+  async getDuelRequestsForUser(userId: number) {
+    return await this.#duelsRepository.getDuelRequestsByUserId(userId);
   }
 
   async sendDuelRequests(fromUserId: number, toUserIds: number[]) {
@@ -66,95 +66,77 @@ export class DuelsService {
 
     // If there is no result, it means that user has already requested a duel, so these are duplicates that were ignored.
     if (result.length > 0) {
-      const user = await this.#usersService.getUserIdAndFullname(fromUserId);
-
-      for (const request of result) {
-        await this.#notificationsService.notifyUserDuelRequested(request.toUserId, user!);
-        await this.#gcloudTasksService.scheduleDuelRequestCancellation(request.id);
-      }
+      const fromUser = await this.#usersService.getUserIdAndFullname(fromUserId);
+      await Promise.all(
+        result.map(async (request) => {
+          await this.#notificationsService.notifyUserDuelRequested(request.toUserId, fromUser!);
+          await this.#gcloudTasksService.scheduleDuelRequestCancellation(request.id);
+        }),
+      );
     }
-
-    return result;
   }
 
   async acceptDuelRequest(requestId: number) {
-    const request = await this.#duelsRepository.removeDuelRequest(requestId);
-    if (!request) return null;
-
-    await this.createDuel(request.fromUserId, request.toUserId);
-
-    const toUser = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
-    await this.#notificationsService.notifyUserDuelRequestAccepted(request.fromUserId, toUser);
-
-    return request;
+    const result = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (result) {
+      const { fromUser, toUser } = result;
+      await this.createDuel(fromUser, toUser);
+      await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
+    }
   }
 
   async declineDuelRequest(requestId: number) {
-    const request = await this.#duelsRepository.removeDuelRequest(requestId);
-    if (!request) return null;
-
-    const user = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
-    await this.#notificationsService.notifyUserDuelRequestDeclined(request.fromUserId, user);
-
-    return request;
+    const result = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (result) {
+      const { fromUser, toUser } = result;
+      await this.#notificationsService.notifyUserDuelRequestDeclined(fromUser.id, toUser);
+    }
   }
 
   async removeExpiredDuelRequest(requestId: number) {
-    const request = await this.#duelsRepository.removeDuelRequest(requestId);
-    if (!request) return null;
-
-    const fromUser = (await this.#usersService.getUserIdAndFullname(request.fromUserId))!;
-    const toUser = (await this.#usersService.getUserIdAndFullname(request.toUserId))!;
-    await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
-
-    return request;
+    const result = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (result) {
+      const { fromUser, toUser } = result;
+      await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
+    }
   }
 
-  private async createDuel(userId1: number, userId2: number) {
+  private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
-    const duel = await this.#duelsRepository.createDuel(codeword, userId1, userId2);
-
+    const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
     const deadline = dayjs(duel.createdAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
-    const user1 = await this.#usersService.getUserIdAndFullname(userId1);
-    const user2 = await this.#usersService.getUserIdAndFullname(userId2);
-
-    await this.#notificationsService.announceDuel(codeword, deadline, user1!, user2!);
+    await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
     await this.#gcloudTasksService.scheduleDuelCompletion(duel.id);
   }
 
   async completeDuel(duelId: number) {
-    const duel = await this.#duelsRepository.getDuelById(duelId);
+    const duel = await this.#duelsRepository.getFullDuelInfoById(duelId);
     if (!duel || duel.status !== DuelStatus.Active) return;
 
-    await this.#duelsRepository.updateDuelStatus(duelId, DuelStatus.Completed);
+    await this.#duelsRepository.updateDuelStatus(duel.id, DuelStatus.Completed);
 
-    const participants = await Promise.all(
-      (await this.#duelsRepository.getDuelParticipants(duelId)).map(
-        async ({ userId }) => (await this.#usersService.getUserIdAndFullname(userId))!,
-      ),
-    );
-    const reports = await this.#duelsRepository.getDuelReportsByDuelId(duelId);
+    const { codeword, participants, reports } = duel;
     const photos = await Promise.all(
-      reports.map(({ duelId, userId }) => this.#gcloudStorageService.downloadDuelReportPhotos(duelId, userId)),
+      participants.map((p) => this.#gcloudStorageService.downloadDuelReportPhotos(duel.id, p.id)),
     );
 
     // Determine the winner based on the reports.
-    const highestScore = Math.max(...reports.map((r) => r.stitches));
-    const winners = reports.filter((r) => r.stitches === highestScore);
-    const winner = participants.find((user) => user.id === sample(winners)?.userId) ?? null;
+    const highestScore = Math.max(...reports.filter((r) => r !== null).map((r) => r.stitches));
+    const winningReportIndex = sample(reports.filter((r) => r?.stitches === highestScore).map((_r, i) => i));
+    const winner = winningReportIndex !== undefined ? participants[winningReportIndex] : null;
     if (winner) await this.#duelsRepository.setDuelWinner(duelId, winner.id);
 
-    await this.#notificationsService.postDuelResults(duel.codeword, participants, reports, photos, winner);
+    await this.#notificationsService.postDuelResults(codeword, participants, reports, photos, winner);
   }
 
   async createDuelReport(duelId: number, userId: number, report: DuelReportRequest) {
-    const participatesInDuel = await this.checkIfUserParticipatesInDuel(userId, duelId);
+    const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(userId, duelId);
     if (!participatesInDuel) {
       throw createError({
         statusCode: 403,
         statusMessage: "Forbidden",
-        message: "You are not allowed to report this duel",
+        message: "You are not a participant in this duel.",
       });
     }
 
@@ -162,19 +144,7 @@ export class DuelsService {
     await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
   }
 
-  private async checkIfUserParticipatesInDuel(userId: number, duelId: number) {
-    const duel = await this.#duelsRepository.getDuelById(duelId);
-    if (!duel) return false;
-
-    if (duel.status !== DuelStatus.Active) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Bad Request",
-        message: "Duel is not active",
-      });
-    }
-
-    const participants = await this.#duelsRepository.getDuelParticipants(duelId);
-    return participants.some((p) => p.userId === userId);
+  async checkUserParticipationInDuel(userId: number, duelId?: number) {
+    return await this.#duelsRepository.checkUserParticipationInDuel(userId, duelId);
   }
 }

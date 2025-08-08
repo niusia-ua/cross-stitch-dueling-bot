@@ -13,11 +13,10 @@ export async function getAvailableUsersForDuel(excludeUserId?: number) {
 }
 
 export async function sendDuelRequests(toUserIds: number[]) {
-  const data = await $fetch("/api/duels/requests", {
+  await $fetch("/api/duels/requests", {
     method: "POST",
     body: toUserIds,
   });
-  return await z.array(IdObjectSchema).parseAsync(data);
 }
 
 export async function getUserDuelRequests() {

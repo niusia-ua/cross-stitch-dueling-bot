@@ -95,7 +95,7 @@ export class NotificationsService {
   async postDuelResults(
     codeword: string,
     participants: readonly UserIdAndFullname[],
-    reports: readonly DuelReportData[],
+    reports: readonly (DuelReportData | null)[],
     photos: Buffer[][],
     winner: UserIdAndFullname | null,
   ) {
@@ -103,7 +103,7 @@ export class NotificationsService {
     await this.#sendGroupMessage(
       this.#botI18n.t("uk", "message-duel-completed", {
         codeword,
-        players: participants.map((p) => mentionUser(p)).join(", "),
+        participants: participants.map((p) => mentionUser(p)).join(", "),
         hasWinner: String(winner !== null),
         winner: winner ? mentionUser(winner) : "",
       }),
@@ -113,12 +113,12 @@ export class NotificationsService {
     await Promise.all(
       zip(participants, reports)
         .filter(([_, report]) => report && report.stitches > 0)
-        .map(([player, report], i) => {
+        .map(([user, report], i) => {
           const caption = this.#botI18n.t("uk", "message-duel-report", {
-            player: mentionUser(player),
-            stitches: report.stitches,
-            hasAdditionalInfo: String(report.additionalInfo !== null),
-            additionalInfo: report.additionalInfo ?? "",
+            user: mentionUser(user),
+            stitches: report!.stitches,
+            hasAdditionalInfo: String(report!.additionalInfo !== null),
+            additionalInfo: report!.additionalInfo ?? "",
           });
 
           const media = photos[i].map((buffer, i) => {

@@ -4,4 +4,4 @@ export const HOUR = MINUTE * 60;
 export const DAY = HOUR * 24;
 
 export const DUEL_REQUEST_VALIDITY_PERIOD = HOUR;
-export const DUEL_PERIOD = MINUTE;
+export const DUEL_PERIOD = DAY;

@@ -38,10 +38,10 @@ message-help =
 ## Duel messages.
 
 message-duel-requested =
-  { $user } викликав/ла вас на дуель!
+  { $user } викликав(ла) вас на дуель!
   Щоб прийняти виклик, відкрийте вебзастосунок, натиснувши на кнопку <i>{ label-open }</i> нижче.
-message-duel-request-accepted = { $user } прийняв/ла виклик на дуель!
-message-duel-request-declined = { $user } відхилив/ла виклик на дуель!
+message-duel-request-accepted = { $user } прийняв(ла) виклик на дуель!
+message-duel-request-declined = { $user } відхилив(ла) виклик на дуель!
 message-duel-request-expired = Час дійсності виклику на дуель від { $fromUser } до { $toUser } минув.
 
 message-duel-announcement =
@@ -52,15 +52,15 @@ message-duel-announcement =
 message-duel-completed =
   Дуель завершено!
   Кодове слово: <b>{ $codeword }</b>.
-  Учасники: { $players }
+  Учасники: { $participants }
   { $hasWinner ->
-    [true] Переможець: { $winner }.
+    [true] Переможець(ниця): { $winner }.
     *[false]
-      На жаль, у цій дуелі немає переможця.
+      На жаль, у цій дуелі немає переможця(ниці).
   }
 
 message-duel-report =
-  Звіт учасника дуелі { $player }.
+  Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
     [one] { $stitches } стібок
     [few] { $stitches } стібки
