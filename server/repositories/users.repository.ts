@@ -27,11 +27,14 @@ export class UsersRepository {
     });
   }
 
-  async getUser(userId: number) {
-    return await this.#pool.maybeOne(sql.type(UserSchema)`
-      SELECT *
-      FROM users
-      WHERE id = ${userId}
+  async getUserAndSettings(userId: number) {
+    return await this.#pool.maybeOne(sql.type(UserAndSettingsSchema)`
+      SELECT
+        row_to_json(u) AS user,
+        row_to_json(s) AS settings
+      FROM users u
+      INNER JOIN user_settings s ON s.user_id = u.id
+      WHERE u.id = ${userId}
     `);
   }
 
@@ -43,25 +46,17 @@ export class UsersRepository {
     `);
   }
 
-  async getUserSettings(userId: number) {
-    return await this.#pool.maybeOne(sql.type(UserSettingsSchema)`
-      SELECT *
-      FROM user_settings
-      WHERE user_id = ${userId}
-    `);
-  }
-
   async updateUser(id: number, data: Partial<UserData>) {
-    const { active, ...rest } = data;
     return await this.#pool.one(sql.type(UserSchema)`
       UPDATE users
-      SET
-        ${partialUpdateSet(rest)},
-        -- When updating the user, we set the active field to DEFAULT if not provided.
-        -- That is, the user account will become active if it was previously inactive.
-        active = ${active ?? sql.fragment`DEFAULT`},
-        -- Also, we set deleted_at to NULL to ensure the user is not considered deleted.
-        deleted_at = ${sql.fragment`NULL`}
+      SET ${partialUpdateSet({
+        ...data,
+        // When updating the user, we set the active field to DEFAULT if not provided.
+        // That is, the user account will become active if it was previously inactive.
+        active: data.active ?? sql.fragment`DEFAULT`,
+        // Also, we set deleted_at to NULL to ensure the user is not considered deleted.
+        deletedAt: sql.fragment`NULL`,
+      })}
       WHERE id = ${id}
       RETURNING *
     `);

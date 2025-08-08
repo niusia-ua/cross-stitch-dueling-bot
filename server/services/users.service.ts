@@ -19,14 +19,8 @@ export class UsersService {
     return await this.#usersRepository.getUserIdAndFullname(userId);
   }
 
-  async getUserWithSettings(userId: number) {
-    const user = await this.#usersRepository.getUser(userId);
-    if (!user) return null;
-
-    const settings = await this.#usersRepository.getUserSettings(userId);
-    if (!settings) return null;
-
-    return { user, settings };
+  async getUserAndSettings(userId: number) {
+    return await this.#usersRepository.getUserAndSettings(userId);
   }
 
   async updateUser(id: number, data: Partial<UserData>) {

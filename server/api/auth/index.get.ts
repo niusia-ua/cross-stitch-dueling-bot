@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const usersService = event.context.diContainerScope.resolve("usersService");
-  const result = await usersService.getUserWithSettings(userId);
+  const result = await usersService.getUserAndSettings(userId);
   if (!result) {
     throw createError({
       status: 401,

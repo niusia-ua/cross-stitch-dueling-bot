@@ -1,5 +1,5 @@
 import { snakeCase } from "es-toolkit";
-import type { PrimitiveValueExpression } from "slonik";
+import type { ValueExpression } from "slonik";
 
 import { sql } from "./sql.js";
 
@@ -9,7 +9,7 @@ import { sql } from "./sql.js";
  * @param data - An object where keys are column names (they will be automatically converted to the `snake_case`) and values are the values to set.
  * @returns A SQL fragment for the UPDATE statement.
  */
-export function partialUpdateSet(data: Record<string, PrimitiveValueExpression>) {
+export function partialUpdateSet(data: Record<string, ValueExpression>) {
   return sql.join(
     Object.entries(data).map(([key, value]) => sql.fragment`${sql.identifier([snakeCase(key)])} = ${value}`),
     sql.fragment`,`,
