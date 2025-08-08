@@ -52,9 +52,16 @@ export class UsersRepository {
   }
 
   async updateUser(id: number, data: Partial<UserData>) {
+    const { active, ...rest } = data;
     return await this.#pool.one(sql.type(UserSchema)`
       UPDATE users
-      SET ${partialUpdateSet(data)}
+      SET
+        ${partialUpdateSet(rest)},
+        -- When updating the user, we set the active field to DEFAULT if not provided.
+        -- That is, the user account will become active if it was previously inactive.
+        active = ${active ?? sql.fragment`DEFAULT`},
+        -- Also, we set deleted_at to NULL to ensure the user is not considered deleted.
+        deleted_at = ${sql.fragment`NULL`}
       WHERE id = ${id}
       RETURNING *
     `);
