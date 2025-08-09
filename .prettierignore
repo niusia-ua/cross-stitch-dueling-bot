@@ -8,3 +8,6 @@ dist/
 
 # Node dependencies
 node_modules/
+
+# Mock data
+fixtures/mockdata.sql

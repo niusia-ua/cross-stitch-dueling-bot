@@ -18,6 +18,7 @@
     "migrate:down": "node-pg-migrate down --database-url-var NUXT_DATABASE_URL",
     "migrate:redo": "node-pg-migrate redo --database-url-var NUXT_DATABASE_URL",
     "migrate:create": "node-pg-migrate create --migration-file-language sql --migration-filename-format index",
+    "db:load-mockdata": "cat fixtures/mockdata.sql | docker exec -i cross-stitch-dueling-bot-database psql -U user -d cross-stitch-dueling-bot -q",
     "|-------- SERVICES --------|": "",
     "services:up": "docker compose up -d && sleep 2 && npm run migrate:up && node scripts/create-buckets.js",
     "services:down": "docker compose down",
