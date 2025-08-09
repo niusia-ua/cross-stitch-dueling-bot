@@ -60,6 +60,8 @@
 
 <script setup lang="ts">
   import type { DropdownMenuItem } from "@nuxt/ui";
+  import { FetchError } from "ofetch";
+
   import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "~~/shared/constants/datetime.js";
   import { UsersApi } from "~/api/";
 
@@ -112,9 +114,22 @@
       updatingUser.value = true;
       await UsersApi.updateUser(user.value.id, data);
       await refreshSession();
-    } catch (err) {
-      console.error(err);
-      toast.add({ color: "error", description: fluent.$t("message-update-failure") });
+    } catch (error) {
+      if (error instanceof FetchError) {
+        const { data } = error as FetchError<ApiErrorData>;
+        if (data?.code === ApiErrorCode.NotAllowed) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-update-user-not-allowed"),
+          });
+          return;
+        }
+      }
+
+      console.error("Failed to update user:", error);
+      throw error;
     } finally {
       updatingUser.value = false;
     }
@@ -130,9 +145,26 @@
       for (const key in data) updatingSettings[key] = true;
       await UsersApi.updateUserSettings(user.value.id, data);
       await refreshSession();
-    } catch (err) {
-      console.error(err);
-      toast.add({ color: "error", description: fluent.$t("message-update-failure") });
+    } catch (error) {
+      if (error instanceof FetchError) {
+        const { data } = error as FetchError<ApiErrorData>;
+        if (data?.code === ApiErrorCode.NotAllowed) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-update-settings-not-allowed"),
+          });
+          return;
+        }
+      }
+
+      console.error("Failed to update settings:", error);
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-unknown"),
+      });
     } finally {
       // @ts-expect-error We always have valid keys in data.
       for (const key in data) updatingSettings[key] = false;
@@ -166,5 +198,10 @@ form-label-participates-in-weekly-random-duels = Брати участь у що
 # $datetime is a NuxtTime component
 message-last-updated-at = Востаннє оновлено { $datetime }.
 
-message-update-failure = Не вдалося оновити дані
+message-error-title = Сталася помилка
+message-error-description-update-user-not-allowed = Вам не дозволено оновлювати дані цього користувача.
+message-error-description-update-settings-not-allowed = Вам не дозволено оновлювати налаштування цього користувача.
+message-error-description-unknown =
+  Не вдалося оновити профіль.
+  Будь ласка, спробуйте ще раз.
 </fluent>

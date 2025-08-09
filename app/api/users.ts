@@ -6,12 +6,6 @@ export async function createUser(id: number, user: Omit<UserData, "active">, set
   return await UserAndSettingsSchema.parseAsync(data);
 }
 
-export async function getUser(id: number) {
-  const data = await $fetch(`/api/users/${id}`);
-  if (data === undefined) return null;
-  return await UserAndSettingsSchema.parseAsync(data);
-}
-
 export async function updateUser(id: number, user: Partial<UserData>) {
   const data = await $fetch(`/api/users/${id}`, {
     method: "PATCH",

@@ -88,7 +88,11 @@
 
   watch(error, (err) => {
     if (err) {
-      toast.add({ color: "error", description: fluent.$t("message-fetch-active-duels-failure") });
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-failed-to-fetch-active-duels"),
+      });
     }
   });
 </script>
@@ -96,9 +100,10 @@
 <fluent locale="uk">
 page-title = Активні дуелі
 
-message-fetch-active-duels-failure = Не вдалося отримати список активних дуелей
-
 table-col-codeword = КС
 table-col-participants = Учасники
 table-col-deadline = Дедлайн
+
+message-error-title = Сталася помилка
+message-error-description-failed-to-fetch-active-duels = Не вдалося отримати список активних дуелей.
 </fluent>

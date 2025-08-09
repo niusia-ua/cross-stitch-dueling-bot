@@ -47,8 +47,9 @@
 
 <script setup lang="ts">
   import type { FormSubmitEvent } from "@nuxt/ui";
-  import { DuelReportRequestSchema } from "#shared/types/duel.js";
+  import { FetchError } from "ofetch";
 
+  import { DuelReportRequestSchema } from "#shared/types/duel.js";
   import { DuelsApi } from "~/api/";
 
   interface DuelReportProps {
@@ -71,12 +72,53 @@
   async function handleSubmit(e: FormSubmitEvent<DuelReportRequest>) {
     try {
       await DuelsApi.sendDuelReport(id, e.data);
-      toast.add({ color: "success", description: fluent.$t("message-send-duel-report-success") });
+      toast.add({
+        color: "success",
+        title: fluent.$t("message-success-title"),
+        description: fluent.$t("message-success-description-duel-report-submitted"),
+      });
 
       open.value = false;
-    } catch (err) {
-      console.error(err);
-      toast.add({ color: "error", description: fluent.$t("message-send-duel-report-failure") });
+    } catch (error) {
+      if (error instanceof FetchError) {
+        const { data } = error as FetchError<ApiErrorData>;
+        if (data?.code === ApiErrorCode.NotAllowed) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-duel-report-not-allowed"),
+          });
+          return;
+        }
+
+        if (data?.code === ApiErrorCode.NotFound) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-duel-report-not-found"),
+          });
+          return;
+        }
+
+        if (data?.code === ApiErrorCode.DuelNotActive) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-duel-not-active"),
+          });
+          return;
+        }
+      }
+
+      console.error("Failed to submit duel report:", error);
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-unknown"),
+      });
     }
   }
 
@@ -100,6 +142,14 @@ form-field-additional-info-hint = Необов'язково
 
 label-send-duel-report = Надіслати звіт
 
-message-send-duel-report-success = Звіт дуелі надіслано успішно!
-message-send-duel-report-failure = Не вдалося надіслати звіт дуелі
+message-success-title = Успіх
+message-success-description-duel-report-submitted = Звіт дуелі надіслано успішно!
+
+message-error-title = Сталася помилка
+message-error-description-duel-report-not-allowed = Вам не дозволено надсилати звіт цієї дуелі.
+message-error-description-duel-not-found = Дуель не знайдено.
+message-error-description-duel-not-active = Дуель вже завершена.
+message-error-description-unknown =
+  Не вдалося надіслати звіт дуелі.
+  Будь ласка, спробуйте ще раз.
 </fluent>

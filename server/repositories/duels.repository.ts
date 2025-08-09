@@ -12,6 +12,11 @@ export class DuelsRepository {
     this.#pool = pool;
   }
 
+  /**
+   * Retrieves a duel by its ID.
+   * @param duelId The ID of the duel.
+   * @returns The duel data or null if not found.
+   */
   async getDuelById(duelId: number) {
     return await this.#pool.maybeOne(sql.type(DuelSchema)`
       SELECT *

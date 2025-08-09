@@ -44,6 +44,8 @@
 
 <script setup lang="ts">
   import type { TableColumn } from "@nuxt/ui";
+  import { FetchError } from "ofetch";
+
   import { DuelsApi } from "~/api/";
 
   const fluent = useFluent();
@@ -76,7 +78,13 @@
   );
 
   watch(error, (err) => {
-    if (err) toast.add({ color: "error", description: fluent.$t("message-fetch-available-users-failure") });
+    if (err) {
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-failed-to-fetch-available-users"),
+      });
+    }
   });
 
   const rowSelection = ref<Record<number, boolean>>({});
@@ -86,19 +94,44 @@
       .map((key) => data.value?.[Number(key)])
       .filter((user) => user !== undefined);
     if (selectedUsers.length === 0) {
-      toast.add({ color: "warning", description: fluent.$t("message-no-users-selected") });
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-no-users-selected"),
+      });
       return;
     }
 
     try {
       await DuelsApi.sendDuelRequests(selectedUsers.map((user) => user.id));
-      toast.add({ color: "success", description: fluent.$t("message-duel-requests-success") });
+      toast.add({
+        color: "success",
+        title: fluent.$t("message-success-title"),
+        description: fluent.$t("message-success-description-duel-requests-sent"),
+      });
 
       open.value = false;
       rowSelection.value = {};
     } catch (error) {
+      if (error instanceof FetchError) {
+        const { data } = error as FetchError<ApiErrorData>;
+        if (data?.code === ApiErrorCode.UserAlreadyInDuel) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-you-already-in-duel"),
+          });
+          return;
+        }
+      }
+
       console.error("Failed to send duel request:", error);
-      toast.add({ color: "error", description: fluent.$t("message-duel-requests-failure") });
+      toast.add({
+        color: "error",
+        title: fluent.$t("message-error-title"),
+        description: fluent.$t("message-error-description-unknown"),
+      });
     }
   }
 </script>
@@ -111,9 +144,14 @@ table-col-stitches-rate = Швидкість вишивання
 
 label-send-duel-request = Кинути виклик
 
-message-fetch-available-users-failure = Не вдалося отримати список доступних для дуелі користувачів
-message-no-users-selected = Будь ласка, виберіть користувачів для виклику на дуель
+message-success-title = Успіх
+message-success-description-duel-requests-sent = Виклик(и) на дуель надіслано.
 
-message-duel-requests-success = Виклик(и) на дуель надіслано
-message-duel-requests-failure = Не вдалося надіслати виклик(и) на дуель
+message-error-title = Сталася помилка
+message-error-description-failed-to-fetch-available-users = Не вдалося отримати список доступних для дуелі користувачів.
+message-error-description-you-already-in-duel = Ви не можете кинути виклик(и), оскільки вже берете участь у дуелі.
+message-error-description-no-users-selected = Будь ласка, виберіть користувачів для виклику на дуель.
+message-error-description-unknown =
+  Не вдалося надіслати виклик на дуель.
+  Будь ласка, спробуйте ще раз.
 </fluent>
