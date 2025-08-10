@@ -1,5 +1,9 @@
 import type { Transformer } from "grammy";
 
+/**
+ * Disables link previews for messages.
+ * @returns A transformer function.
+ */
 export function disableLinkPreview(): Transformer {
   return (prev, method, payload, signal) => {
     if (["sendMessage", "editMessageText"].includes(method)) {

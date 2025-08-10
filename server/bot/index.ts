@@ -2,10 +2,9 @@ import type { H3Event } from "h3";
 import { Bot, Api, webhookCallback, BotError } from "grammy";
 import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
-import { parseMode } from "@grammyjs/parse-mode";
 import { autoQuote } from "@roziscoding/grammy-autoquote";
 
-import { disableLinkPreview } from "./plugins/";
+import { disableLinkPreview, parseMode } from "./plugins/";
 import { commands } from "./commands/";
 import { h3 } from "./utils/";
 import type { BotContext } from "./types.js";

@@ -126,7 +126,6 @@ export class NotificationsService {
             // This way, the caption will be shown for the entire album.
             return InputMediaBuilder.photo(new InputFile(buffer), {
               caption: i === 0 ? caption : undefined,
-              parse_mode: "HTML", // TODO: remove
             });
           });
 
