@@ -181,7 +181,7 @@ export class DuelsService {
   private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
-    const deadline = dayjs(duel.createdAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
     await this.#gcloudTasksService.scheduleDuelCompletion(duel.id);
@@ -193,9 +193,9 @@ export class DuelsService {
    */
   async completeDuel(duelId: number) {
     const duel = await this.#duelsRepository.getFullDuelInfoById(duelId);
-    if (!duel || duel.status !== DuelStatus.Active) return;
+    if (!duel || duel.completedAt !== null) return;
 
-    await this.#duelsRepository.updateDuelStatus(duel.id, DuelStatus.Completed);
+    await this.#duelsRepository.completeDuel(duel.id);
 
     const { codeword, participants, reports } = duel;
     const photos = await Promise.all(
@@ -233,7 +233,7 @@ export class DuelsService {
         message: "Duel not found.",
       });
     }
-    if (duel.status !== DuelStatus.Active) {
+    if (duel.completedAt !== null) {
       throw createApiError({
         code: ApiErrorCode.DuelNotActive,
         message: "Duel not active.",
@@ -242,5 +242,10 @@ export class DuelsService {
 
     await this.#duelsRepository.createDuelReport(duelId, userId, report);
     await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
+  }
+
+  /** Retrieves the duels rating information in the current month for all active users. */
+  async getDuelsRating() {
+    return await this.#duelsRepository.getDuelsRating();
   }
 }

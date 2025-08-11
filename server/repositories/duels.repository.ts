@@ -28,11 +28,11 @@ export class DuelsRepository {
   /**
    * Get full duel information by ID.
    * @param duelId The ID of the duel.
-   * @returns The duel ID, status, and codeword including participants and reports.
+   * @returns The duel ID, codeword, and completion date (indicating if the duel is completed) including participants and reports.
    */
   async getFullDuelInfoById(duelId: number) {
     return await this.#pool.maybeOne(sql.type(
-      DuelSchema.pick({ id: true, status: true, codeword: true })
+      DuelSchema.pick({ id: true, codeword: true, completedAt: true })
         .merge(
           z.object({
             participants: z.array(UserIdAndFullnameSchema).min(2),
@@ -77,7 +77,7 @@ export class DuelsRepository {
       FROM duels AS d
       INNER JOIN duel_participants AS dp ON dp.duel_id = d.id
       INNER JOIN users AS u ON u.id = dp.user_id
-      WHERE d.status = ${DuelStatus.Active}
+      WHERE d.completed_at IS NULL
       GROUP BY d.id
       ORDER BY d.created_at DESC
     `);
@@ -93,7 +93,7 @@ export class DuelsRepository {
         SELECT
         FROM duel_participants AS dp
         JOIN duels AS d ON d.id = dp.duel_id
-        WHERE dp.user_id = u.id AND d.status = ${DuelStatus.Active}
+        WHERE dp.user_id = u.id AND d.completed_at IS NULL
       );
     `);
   }
@@ -176,10 +176,14 @@ export class DuelsRepository {
     });
   }
 
-  async updateDuelStatus(duelId: number, status: DuelStatus) {
+  /**
+   * Completes a duel by specifying the completion date.
+   * @param duelId The ID of the duel to complete.
+   */
+  async completeDuel(duelId: number) {
     await this.#pool.query(sql.typeAlias("void")`
       UPDATE duels
-      SET status = ${status}
+      SET completed_at = NOW()
       WHERE id = ${duelId}
     `);
   }
@@ -221,13 +225,32 @@ export class DuelsRepository {
     const conditionFragments = [];
     if (duelId) conditionFragments.push(sql.fragment`d.id = ${duelId}`);
     conditionFragments.push(sql.fragment`dp.user_id = ${userId}`);
-    conditionFragments.push(sql.fragment`d.status = ${DuelStatus.Active}`);
+    conditionFragments.push(sql.fragment`d.completed_at IS NULL`);
 
     return await this.#pool.exists(sql.typeAlias("void")`
       SELECT
       FROM duel_participants AS dp
       JOIN duels AS d ON d.id = dp.duel_id
       WHERE ${sql.join(conditionFragments, sql.fragment` AND `)}
+    `);
+  }
+
+  /** Retrieves the duels rating information in the current month for all active users. */
+  async getDuelsRating() {
+    return await this.#pool.any(sql.type(DuelsRatingWithUsersInfoSchema)`
+      SELECT
+        dr.user_id,
+        dr.total_duels_won,
+        dr.total_duels_participated,
+        json_build_object(
+          'id', u.id,
+          'fullname', u.fullname,
+          'photo_url', u.photo_url,
+          'stitches_rate', us.stitches_rate
+        ) AS user
+      FROM duels_rating AS dr
+      JOIN users AS u ON u.id = dr.user_id
+      JOIN user_settings AS us ON us.user_id = u.id
     `);
   }
 }

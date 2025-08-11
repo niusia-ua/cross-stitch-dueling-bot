@@ -7,7 +7,7 @@
       <slot name="header-actions" />
     </header>
 
-    <UContainer as="main" class="grow my-4">
+    <UContainer as="main" class="grow my-4 overflow-y-auto">
       <slot name="content" />
     </UContainer>
 

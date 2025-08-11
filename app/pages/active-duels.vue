@@ -64,8 +64,8 @@
       accessorKey: "startedAt",
       header: fluent.$t("table-col-deadline"),
       cell: ({ row }) => {
-        // Calculate the deadline based on the duel's createdAt time.
-        const datetime = dayjs(row.original.createdAt).add(DUEL_PERIOD, "milliseconds").toDate();
+        // Calculate the deadline based on the duel's starting time.
+        const datetime = dayjs(row.original.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
         const absolute = h(NuxtTime, { datetime, locale: $selectedLocale.value, ...DEFAULT_DATETIME_FORMAT_OPTIONS });
         const relative = h(NuxtTime, { datetime, locale: $selectedLocale.value, relative: true });

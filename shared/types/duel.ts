@@ -1,18 +1,13 @@
 import z from "zod";
 
 import { IdSchema } from "./util.js";
-import { UserSchema } from "./user.js";
-
-export enum DuelStatus {
-  Active = "active",
-  Completed = "completed",
-}
+import { UserSchema, UserSettingsSchema } from "./user.js";
 
 export const DuelSchema = z.object({
   id: IdSchema,
   codeword: z.string(),
-  status: z.nativeEnum(DuelStatus),
-  createdAt: z.coerce.date(),
+  startedAt: z.coerce.date(),
+  completedAt: z.coerce.date().nullable(),
 });
 export type Duel = z.infer<typeof DuelSchema>;
 
@@ -52,7 +47,7 @@ export type DuelParticipant = z.infer<typeof DuelParticipantSchema>;
 export const DuelWithParticipantsDataSchema = DuelSchema.pick({
   id: true,
   codeword: true,
-  createdAt: true,
+  startedAt: true,
 }).merge(
   z.object({
     participants: z.array(
@@ -91,3 +86,21 @@ export type DuelReportPhotos = z.infer<typeof DuelReportPhotosSchema>;
 
 export const DuelReportRequestSchema = DuelReportDataSchema.merge(DuelReportPhotosSchema);
 export type DuelReportRequest = z.infer<typeof DuelReportRequestSchema>;
+
+export const DuelsRatingSchema = z.object({
+  userId: IdSchema,
+  totalDuelsWon: z.coerce.number().nonnegative(),
+  totalDuelsParticipated: z.coerce.number().nonnegative(),
+});
+export type DuelsRating = z.infer<typeof DuelsRatingSchema>;
+
+export const DuelsRatingWithUsersInfoSchema = DuelsRatingSchema.merge(
+  z.object({
+    user: UserSchema.pick({
+      id: true,
+      fullname: true,
+      photoUrl: true,
+    }).merge(UserSettingsSchema.pick({ stitchesRate: true })),
+  }),
+);
+export type DuelsRatingWithUsersInfo = z.infer<typeof DuelsRatingWithUsersInfoSchema>;
