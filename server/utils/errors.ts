@@ -26,6 +26,7 @@ function mapApiErrorToHttpStatus(code: ApiErrorCode): [code: number, message: st
 
     case ApiErrorCode.UserAlreadyInDuel:
     case ApiErrorCode.DuelNotActive:
+    case ApiErrorCode.CantDuelTheDayBeforeWeeklyRandomDuels:
       return [409, "Conflict"];
 
     default:

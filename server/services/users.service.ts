@@ -74,4 +74,9 @@ export class UsersService {
     }
     return await this.#usersRepository.updateUserSettings(targetId, data);
   }
+
+  /** Retrieves the users eligible for weekly random duels. */
+  async getUsersForWeeklyRandomDuels() {
+    return await this.#usersRepository.getUsersForWeeklyRandomDuels();
+  }
 }

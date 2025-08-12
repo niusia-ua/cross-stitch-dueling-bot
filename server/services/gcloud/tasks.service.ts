@@ -76,8 +76,15 @@ export class GoogleCloudTasksService {
   /**
    * Schedules a task to complete a duel after the duel period.
    * @param id The ID of the duel to complete.
+   * @param options Options for scheduling the task.
    */
-  async scheduleDuelCompletion(id: number) {
-    await this.#createTask("duel-completion", "complete-duel", { id }, { delay: DUEL_PERIOD });
+  async scheduleDuelCompletion(
+    id: number,
+    options?: {
+      /** An additional delay in milliseconds before the duel is completed. */
+      delay?: number;
+    },
+  ) {
+    await this.#createTask("duel-completion", "complete-duel", { id }, { delay: DUEL_PERIOD + (options?.delay ?? 0) });
   }
 }

@@ -1,5 +1,5 @@
 import { sample } from "es-toolkit";
-import { DUEL_PERIOD } from "#shared/constants/duels.js";
+import { DUEL_PERIOD, SECOND } from "#shared/constants/duels.js";
 
 import type {
   UsersService,
@@ -87,6 +87,14 @@ export class DuelsService {
       });
     }
 
+    if (isItTheDayBeforeWeeklyRandomDuels()) {
+      // Users can't send duel requests the day before weekly random duels.
+      throw createApiError({
+        code: ApiErrorCode.CantDuelTheDayBeforeWeeklyRandomDuels,
+        message: "You can't duel the day before weekly random duels.",
+      });
+    }
+
     const result = await this.#duelsRepository.createDuelRequests(fromUserId, toUserIds);
     if (result.length) {
       // The number of the created duel requests may be less than the number of users requested.
@@ -115,6 +123,13 @@ export class DuelsService {
       throw createApiError({
         code: ApiErrorCode.UserAlreadyInDuel,
         message: "You are already participating in a duel.",
+      });
+    }
+
+    if (isItTheDayBeforeWeeklyRandomDuels()) {
+      throw createApiError({
+        code: ApiErrorCode.CantDuelTheDayBeforeWeeklyRandomDuels,
+        message: "You can't duel the day before weekly random duels.",
       });
     }
 
@@ -185,6 +200,22 @@ export class DuelsService {
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
     await this.#gcloudTasksService.scheduleDuelCompletion(duel.id);
+  }
+
+  async createWeeklyRandomDuels() {
+    const pairs = createUserPairs(await this.#usersService.getUsersForWeeklyRandomDuels());
+
+    const codeword = await getRandomCodeword();
+    const duels = await this.#duelsRepository.createWeeklyRandomDuels(
+      codeword,
+      pairs.map((pair) => pair.map((user) => user.id)),
+    );
+    const deadline = dayjs(duels[0].startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+
+    await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
+    await Promise.all(
+      duels.map((duel, i) => this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * SECOND * 30 })),
+    );
   }
 
   /**

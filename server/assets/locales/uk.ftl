@@ -44,10 +44,23 @@ message-duel-request-accepted = { $user } прийняв(ла) виклик на
 message-duel-request-declined = { $user } відхилив(ла) виклик на дуель!
 message-duel-request-expired = Час дійсності виклику на дуель від { $fromUser } до { $toUser } минув.
 
+message-weekly-random-duels-started =
+  Оголошено щотижневі випадкові дуелі!
+  Кодове слово: <b>{ $codeword }</b>.
+  Дедлайн: <b>{ $deadline }</b>.
+  Ваша пара:
+  { $pair }
+
 message-duel-announcement =
   Оголошено дуель між { $user1 } та { $user2 }!
   Кодове слово: <b>{ $codeword }</b>.
   Дедлайн: <b>{ $deadline }</b>.
+message-weekly-random-duels-announcement =
+  Оголошено щотижневі випадкові дуелі!
+  Кодове слово: <b>{ $codeword }</b>.
+  Дедлайн: <b>{ $deadline }</b>.
+  Пари учасників:
+  { $pairs }
 
 message-duel-completed =
   Дуель завершено!

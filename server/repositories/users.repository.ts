@@ -70,4 +70,15 @@ export class UsersRepository {
       RETURNING *
     `);
   }
+
+  async getUsersForWeeklyRandomDuels() {
+    return await this.#pool.many(sql.type(
+      UserIdAndFullnameSchema.merge(UserSettingsSchema.pick({ stitchesRate: true })),
+    )`
+      SELECT u.id, u.fullname, us.stitches_rate
+      FROM users u
+      JOIN user_settings us ON us.user_id = u.id
+      WHERE u.active AND us.participates_in_weekly_random_duels
+    `);
+  }
 }

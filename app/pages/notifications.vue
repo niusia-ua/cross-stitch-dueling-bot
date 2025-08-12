@@ -87,6 +87,16 @@
           });
           return;
         }
+
+        if (data?.code === ApiErrorCode.CantDuelTheDayBeforeWeeklyRandomDuels) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-cant-duel-the-day-before-weekly-random-duels"),
+          });
+          return;
+        }
       }
 
       console.error("Failed to handle duel request:", error);
@@ -111,6 +121,7 @@ message-success-description-duel-request-declined = Виклик на дуель
 message-error-title = Сталася помилка
 message-error-description-failed-to-fetch-notifications = Не вдалося отримати список повідомлень.
 message-error-description-you-already-in-duel = Ви не можете прийняти або відхилити цей виклик, оскільки вже берете участь у дуелі.
+message-error-description-cant-duel-the-day-before-weekly-random-duels = Ви не можете прийняти або відхилити виклик на дуель напередодні щотижневих випадкових дуелей.
 message-error-description-duel-request-not-found = Запит на дуель більше не дійсний.
 message-error-description-handle-duel-request-not-allowed = Вам не дозволено обробляти цей виклик на дуель.
 message-error-description-unknown =

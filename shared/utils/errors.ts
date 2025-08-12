@@ -16,4 +16,5 @@ export enum ApiErrorCode {
   // Duel errors.
   UserAlreadyInDuel = "UserAlreadyInDuel",
   DuelNotActive = "DuelNotActive",
+  CantDuelTheDayBeforeWeeklyRandomDuels = "CantDuelTheDayBeforeWeeklyRandomDuels",
 }

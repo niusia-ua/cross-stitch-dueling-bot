@@ -115,12 +115,23 @@
     } catch (error) {
       if (error instanceof FetchError) {
         const { data } = error as FetchError<ApiErrorData>;
+
         if (data?.code === ApiErrorCode.UserAlreadyInDuel) {
           console.error(data.message, data.details);
           toast.add({
             color: "error",
             title: fluent.$t("message-error-title"),
             description: fluent.$t("message-error-description-you-already-in-duel"),
+          });
+          return;
+        }
+
+        if (data?.code === ApiErrorCode.CantDuelTheDayBeforeWeeklyRandomDuels) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-cant-duel-the-day-before-weekly-random-duels"),
           });
           return;
         }
@@ -150,6 +161,7 @@ message-success-description-duel-requests-sent = Виклик(и) на дуел�
 message-error-title = Сталася помилка
 message-error-description-failed-to-fetch-available-users = Не вдалося отримати список доступних для дуелі користувачів.
 message-error-description-you-already-in-duel = Ви не можете кинути виклик(и), оскільки вже берете участь у дуелі.
+message-error-description-cant-duel-the-day-before-weekly-random-duels = Ви не можете кинути виклик(и) напередодні щотижневих випадкових дуелей.
 message-error-description-no-users-selected = Будь ласка, виберіть користувачів для виклику на дуель.
 message-error-description-unknown =
   Не вдалося надіслати виклик на дуель.

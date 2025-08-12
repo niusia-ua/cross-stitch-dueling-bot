@@ -1,3 +1,4 @@
+import { zip } from "es-toolkit";
 import z from "zod";
 import { sql, type DatabasePool } from "~~/server/database/";
 
@@ -72,14 +73,14 @@ export class DuelsRepository {
   async getActiveDuelsWithParticipants() {
     return await this.#pool.any(sql.type(DuelWithParticipantsDataSchema)`
       SELECT
-        d.id, d.codeword, d.created_at,
+        d.id, d.codeword, d.started_at,
         JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url)) AS participants
       FROM duels AS d
-      INNER JOIN duel_participants AS dp ON dp.duel_id = d.id
-      INNER JOIN users AS u ON u.id = dp.user_id
+        JOIN duel_participants AS dp ON dp.duel_id = d.id
+        JOIN users AS u ON u.id = dp.user_id
       WHERE d.completed_at IS NULL
       GROUP BY d.id
-      ORDER BY d.created_at DESC
+      ORDER BY d.started_at DESC
     `);
   }
 
@@ -173,6 +174,29 @@ export class DuelsRepository {
       `);
 
       return duel;
+    });
+  }
+
+  async createWeeklyRandomDuels(codeword: string, pairs: number[][]) {
+    return await this.#pool.transaction(async (tx) => {
+      const duels = await tx.many(sql.type(DuelSchema)`
+        INSERT INTO duels (codeword)
+        SELECT *
+        FROM ${sql.unnest(new Array(pairs.length).fill([codeword]), [sql.fragment`text`])}
+        RETURNING *
+      `);
+
+      await tx.many(sql.type(DuelParticipantSchema)`
+        INSERT INTO duel_participants (duel_id, user_id)
+        SELECT *
+        FROM ${sql.unnest(
+          zip(duels, pairs).flatMap(([duel, pair]) => pair.map((userId) => [duel.id, userId])),
+          [sql.fragment`int`, sql.fragment`bigint`],
+        )}
+        RETURNING *
+      `);
+
+      return duels;
     });
   }
 
