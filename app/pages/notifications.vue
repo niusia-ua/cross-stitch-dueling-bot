@@ -50,7 +50,10 @@
       toast.add({
         color: "success",
         title: fluent.$t("message-success-title"),
-        description: fluent.$t(`message-success-description-duel-request-${action}`),
+        description:
+          action === DuelRequestAction.Accept
+            ? fluent.$t("message-success-description-duel-request-accepted")
+            : fluent.$t("message-success-description-duel-request-declined"),
       });
 
       // Remove the processed request from the local data.
