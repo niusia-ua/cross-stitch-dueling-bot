@@ -103,6 +103,13 @@ export class NotificationsService {
     await this.#sendPrivateMessage(toUser.id, message);
   }
 
+  async remindUserAboutDuelReport(userId: number, deadline: Date) {
+    const message = this.#botI18n.t("uk", "message-duel-report-reminder", {
+      deadline: this.#datetimeFormatter.format(deadline),
+    });
+    await this.#sendPrivateMessage(userId, message);
+  }
+
   /**
    * Announces a duel in the group chat.
    * @param codeword The codeword for the duel.

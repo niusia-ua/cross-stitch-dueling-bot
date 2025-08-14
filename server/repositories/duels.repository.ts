@@ -223,6 +223,14 @@ export class DuelsRepository {
     `);
   }
 
+  async getDuelReport(duelId: number, userId: number) {
+    return await this.#pool.maybeOne(sql.type(DuelReportSchema)`
+      SELECT *
+      FROM duel_reports
+      WHERE duel_id = ${duelId} AND user_id = ${userId}
+    `);
+  }
+
   async getDuelReportsByDuelId(duelId: number) {
     return await this.#pool.any(sql.type(DuelReportSchema)`
       SELECT *

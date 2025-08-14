@@ -199,7 +199,10 @@ export class DuelsService {
     const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
+
     await this.#gcloudTasksService.scheduleDuelCompletion(duel.id);
+    await this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user1.id);
+    await this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user2.id);
   }
 
   async createWeeklyRandomDuels() {
@@ -214,7 +217,10 @@ export class DuelsService {
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
-      duels.map((duel, i) => this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * SECOND * 30 })),
+      duels.flatMap((duel, i) => [
+        this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * SECOND * 30 }),
+        ...pairs[i]!.map((user) => this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user.id)),
+      ]),
     );
   }
 
@@ -273,6 +279,18 @@ export class DuelsService {
 
     await this.#duelsRepository.createDuelReport(duelId, userId, report);
     await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
+  }
+
+  async sendDuelReportReminder(duelId: number, userId: number) {
+    const duelReport = await this.#duelsRepository.getDuelReport(duelId, userId);
+    if (duelReport !== null) return;
+
+    const duel = await this.#duelsRepository.getDuelById(duelId);
+    if (!duel) return;
+
+    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+
+    await this.#notificationsService.remindUserAboutDuelReport(userId, deadline);
   }
 
   /** Retrieves the duels rating information in the current month for all active users. */

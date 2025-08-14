@@ -25,6 +25,8 @@ services:
         "projects/cross-stitch-dueling-bot/locations/local/queues/duel-request-cancellation",
         "-queue",
         "projects/cross-stitch-dueling-bot/locations/local/queues/duel-completion",
+        "-queue",
+        "projects/cross-stitch-dueling-bot/locations/local/queues/duel-report-reminder",
       ]
     ports:
       - 8123:8123

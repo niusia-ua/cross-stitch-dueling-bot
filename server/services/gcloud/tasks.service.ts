@@ -1,7 +1,7 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
 import { ChannelCredentials } from "google-gax";
 
-import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD } from "#shared/constants/duels.js";
+import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD, DUEL_REPORT_REMINDER_TIMEOUTS } from "#shared/constants/duels.js";
 
 export class GoogleCloudTasksService {
   #client: CloudTasksClient;
@@ -86,5 +86,18 @@ export class GoogleCloudTasksService {
     },
   ) {
     await this.#createTask("duel-completion", "complete-duel", { id }, { delay: DUEL_PERIOD + (options?.delay ?? 0) });
+  }
+
+  /**
+   * Schedules a task to remind a user about a duel report.
+   * @param duelId The ID of the duel to report.
+   * @param userId The ID of the user to remind.
+   */
+  async scheduleDuelReportReminder(duelId: number, userId: number) {
+    await Promise.all(
+      DUEL_REPORT_REMINDER_TIMEOUTS.map((delay) =>
+        this.#createTask("duel-report-reminder", "remind-user-about-duel-report", { duelId, userId }, { delay }),
+      ),
+    );
   }
 }
