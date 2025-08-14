@@ -20,7 +20,7 @@ composer.command("start", async (ctx) => {
       chat_id: ctx.chat.id,
       menu_button: {
         type: "web_app",
-        text: ctx.t("menu-button-label"),
+        text: ctx.t("label-open"),
         web_app: { url: config.APP_URL },
       },
     });
