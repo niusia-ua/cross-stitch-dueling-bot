@@ -62,7 +62,7 @@
     "@types/telegram-web-app": "9.0.0",
     "@vue/eslint-config-prettier": "10.2.0",
     "eslint": "9.33.0",
-    "node-pg-migrate": "9.0.0-alpha.0",
+    "node-pg-migrate": "9.0.0-alpha.1",
     "prettier": "3.6.2",
     "prettier-plugin-sql": "0.19.2",
     "typescript": "5.9.2",
