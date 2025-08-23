@@ -1,12 +1,15 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
+import { OAuth2Client, type LoginTicket } from "google-auth-library";
 import { ChannelCredentials } from "google-gax";
 
 import { DUEL_PERIOD, DUEL_REQUEST_VALIDITY_PERIOD, DUEL_REPORT_REMINDER_TIMEOUTS } from "#shared/constants/duels.js";
 
 export class GoogleCloudTasksService {
-  #client: CloudTasksClient;
+  #tasksClient: CloudTasksClient;
+  #oauthClient: OAuth2Client;
 
   #projectId: string;
+  #serviceAccountEmail: string;
   #location: string;
 
   #baseUrl: string;
@@ -14,18 +17,27 @@ export class GoogleCloudTasksService {
   constructor() {
     if (import.meta.dev) {
       // In development mode, connect to a local emulator.
-      this.#client = new CloudTasksClient({
+      this.#tasksClient = new CloudTasksClient({
         port: 8123,
         servicePath: "localhost",
         sslCreds: ChannelCredentials.createInsecure(),
       });
+      this.#oauthClient = new OAuth2Client({
+        issuers: ["http://localhost:8980"],
+        endpoints: {
+          // oauth2FederatedSignonPemCertsUrl: "http://localhost:8980/certs",
+          oauth2FederatedSignonJwkCertsUrl: "http://localhost:8980/jwks",
+        },
+      });
     } else {
-      // In production mode, connect to the actual Google Cloud Tasks service using default credentials.
-      this.#client = new CloudTasksClient();
+      // In production mode, connect to the actual Google Cloud services using default credentials.
+      this.#tasksClient = new CloudTasksClient();
+      this.#oauthClient = new OAuth2Client();
     }
 
     const config = useRuntimeConfig();
     this.#projectId = config.GOOGLE_CLOUD_PROJECT_ID;
+    this.#serviceAccountEmail = config.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL;
     this.#location = config.GOOGLE_CLOUD_TASKS_LOCATION;
     this.#baseUrl = config.APP_URL;
   }
@@ -46,14 +58,15 @@ export class GoogleCloudTasksService {
       delay?: number;
     },
   ) {
-    await this.#client.createTask({
-      parent: this.#client.queuePath(this.#projectId, this.#location, queue),
+    await this.#tasksClient.createTask({
+      parent: this.#tasksClient.queuePath(this.#projectId, this.#location, queue),
       task: {
         httpRequest: {
           url: new URL(`/api/tasks/${endpoint}`, this.#baseUrl).toString(),
           httpMethod: "POST",
           headers: { "Content-Type": "application/json" },
           body: Buffer.from(JSON.stringify(payload)),
+          oidcToken: { serviceAccountEmail: this.#serviceAccountEmail },
         },
         scheduleTime: options?.delay !== undefined ? { seconds: (Date.now() + options.delay) / 1000 } : undefined,
       },
@@ -99,5 +112,22 @@ export class GoogleCloudTasksService {
         this.#createTask("duel-report-reminder", "remind-user-about-duel-report", { duelId, userId }, { delay }),
       ),
     );
+  }
+
+  /**
+   * Validates an ID token for authorized endpoints.
+   * @param idToken The ID token to validate.
+   * @returns A promise that resolves to the decoded token if valid, or rejects with an error.
+   */
+  async validateToken(idToken: string) {
+    // Due to this issue, it is impossible to validate the token in development.
+    // https://github.com/aertje/cloud-tasks-emulator/issues/99
+    if (import.meta.dev) return {} as unknown as LoginTicket;
+
+    const endpoints = ["cancel-duel-request", "complete-duel", "remind-user-about-duel-report"];
+    return await this.#oauthClient.verifyIdToken({
+      idToken,
+      audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#baseUrl).toString()),
+    });
   }
 }

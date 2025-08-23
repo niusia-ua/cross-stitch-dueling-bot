@@ -56,6 +56,7 @@ export default defineNuxtConfig({
     DATABASE_URL: undefined,
 
     GOOGLE_CLOUD_PROJECT_ID: undefined,
+    GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: undefined,
     GOOGLE_CLOUD_TASKS_LOCATION: undefined,
   },
 
