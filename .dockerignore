@@ -1,0 +1,9 @@
+# Exclude everything except essential files.
+*
+!app/
+!server/
+!shared/
+!nuxt.config.ts
+!package.json
+!package-lock.json
+!tsconfig.json
