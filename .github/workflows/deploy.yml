@@ -2,8 +2,6 @@ name: Deploy App
 on:
   push:
     branches: [main]
-env:
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,7 +26,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ secrets.DOCKER_IMAGE }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
