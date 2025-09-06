@@ -9,4 +9,5 @@ dayjs.extend(timezone);
 
 dayjs.tz.setDefault(DEFAULT_TIMEZONE);
 
-export { dayjs };
+const configuredDayjs = dayjs;
+export { configuredDayjs as dayjs };
