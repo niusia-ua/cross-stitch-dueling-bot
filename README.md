@@ -44,7 +44,7 @@ Then, talk to [@BotFather](https://t.me/BotFather) to create a bot account.
 When you get the bot's token, set up the webhook:
 
 ```sh
-curl https://api.telegram.org/bot<token>/setWebhook?url=<domain>/bot/webhook&secret_token=<secret>
+curl https://api.telegram.org/bot<token>/setWebhook?url=<domain>/api/bot/webhook&secret_token=<secret>
 ```
 
 where `<token>` is your bot token, `<domain>` is a URL issued by your tunnel service, and `<secret>` is an arbitrary string used to authorize the webhook requests.
