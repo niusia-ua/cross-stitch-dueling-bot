@@ -11,16 +11,19 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ secrets.DOCKER_IMAGE }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -30,3 +33,15 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ secrets.CLOUD_RUN_SERVICE }}
+          image: ${{ secrets.DOCKER_IMAGE }}:main
+          region: ${{ secrets.GCP_REGION }}
