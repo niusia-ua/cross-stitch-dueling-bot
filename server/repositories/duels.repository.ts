@@ -46,7 +46,7 @@ export class DuelsRepository {
     )`
       SELECT
       -- Select base duel fields.
-      d.id, d.status, d.codeword,
+      d.id, d.codeword, d.completed_at
       -- Select the id and fullname of participants.
       JSON_AGG(
         json_build_object('id', u.id, 'fullname', u.fullname)
