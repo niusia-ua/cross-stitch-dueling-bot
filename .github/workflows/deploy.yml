@@ -11,6 +11,16 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/setup-action@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Migrate Database
+        run: pnpm migrate:up
+        env:
+          NUXT_DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
