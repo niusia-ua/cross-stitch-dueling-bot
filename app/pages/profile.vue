@@ -60,10 +60,9 @@
 
 <script setup lang="ts">
   import type { DropdownMenuItem } from "@nuxt/ui";
-  import { FetchError } from "ofetch";
 
   import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "~~/shared/constants/datetime.js";
-  import { UsersApi } from "~/api/";
+  import { UsersApi, FetchError, type ApiError } from "~/api/";
 
   const fluent = useFluent();
   const toast = useToast();
@@ -147,7 +146,8 @@
       await refreshSession();
     } catch (error) {
       if (error instanceof FetchError) {
-        const { data } = error as FetchError<ApiErrorData>;
+        const data = (error as ApiError).data?.data;
+
         if (data?.code === ApiErrorCode.NotAllowed) {
           console.error(data.message, data.details);
           toast.add({
