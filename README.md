@@ -53,11 +53,13 @@ Last, copy the content of [`.env.example`](./.env.example) to `.env` (you need t
 
 ### Running the Application
 
-1. Install dependencies: `npm install`.
-1. Set up additional services (the database, local storage, etc.): `npm run services:up`.
-1. Optionally, load mock data to the database: `npm run db:load-mockdata`.
+> Make sure you have [pnpm installed](https://pnpm.io/installation#using-corepack).
+
+1. Install dependencies: `pnpm install`.
+1. Set up additional services (the database, local storage, etc.): `pnpm services:up`.
+1. Optionally, load mock data to the database: `pnpm db:load-mockdata`.
 1. Run the tunnel service: `ngrok http --url=<your domain> 3000` (this is an example for ngrok, use the command for your tunnel service).
-1. Now, you can run the application: `npm run dev`.
+1. Now, you can run the application: `pnpm dev`.
 
 To try the application, visit your bot, send the `/start` command to it and tap the `Menu` button near to input field.
 Enjoy the Telegram Web App!
