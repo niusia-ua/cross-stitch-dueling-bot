@@ -47,10 +47,9 @@
 
 <script setup lang="ts">
   import type { FormSubmitEvent } from "@nuxt/ui";
-  import { FetchError } from "ofetch";
 
   import { DuelReportRequestSchema } from "#shared/types/duel.js";
-  import { DuelsApi } from "~/api/";
+  import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
   interface DuelReportProps {
     /** The ID of the duel. */
@@ -81,7 +80,8 @@
       open.value = false;
     } catch (error) {
       if (error instanceof FetchError) {
-        const { data } = error as FetchError<ApiErrorData>;
+        const data = (error as ApiError).data?.data;
+
         if (data?.code === ApiErrorCode.NotAllowed) {
           console.error(data.message, data.details);
           toast.add({

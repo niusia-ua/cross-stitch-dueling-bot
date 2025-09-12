@@ -44,9 +44,8 @@
 
 <script setup lang="ts">
   import type { TableColumn } from "@nuxt/ui";
-  import { FetchError } from "ofetch";
 
-  import { DuelsApi } from "~/api/";
+  import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
   const fluent = useFluent();
   const toast = useToast();
@@ -114,7 +113,7 @@
       rowSelection.value = {};
     } catch (error) {
       if (error instanceof FetchError) {
-        const { data } = error as FetchError<ApiErrorData>;
+        const data = (error as ApiError).data?.data;
 
         if (data?.code === ApiErrorCode.UserAlreadyInDuel) {
           console.error(data.message, data.details);
