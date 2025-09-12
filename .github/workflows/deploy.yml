@@ -16,6 +16,7 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
+      - run: pnpm install
 
       - name: Migrate Database
         run: pnpm migrate:up
