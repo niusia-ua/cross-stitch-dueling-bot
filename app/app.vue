@@ -1,5 +1,5 @@
 <template>
-  <UApp :locale="nuxtLocales[$selectedLocale]" :toaster="{ position: 'top-center' }">
+  <UApp :locale="nuxtLocales[$selectedLocale.value]" :toaster="{ position: 'top-center' }">
     <NuxtPage />
   </UApp>
 </template>
