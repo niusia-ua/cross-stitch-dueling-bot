@@ -9,10 +9,6 @@ dist/
 # Node dependencies
 node_modules/
 
-# VS Code configuration
-.vscode/*
-!.vscode/extensions.json
-
 # Local env files
 .env*
 !.env.example
