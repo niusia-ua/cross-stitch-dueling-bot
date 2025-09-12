@@ -77,8 +77,8 @@ export type DuelReportData = z.infer<typeof DuelReportDataSchema>;
 
 export const DuelReportPhotosSchema = z.object({
   photos: z.array(
-    z.instanceof(File, { message: "Please select an image file." }).refine((file) => file.size <= 2 * 1024 * 1024, {
-      message: "The image is too large. Please choose an image smaller than 2MB.",
+    z.instanceof(File, { message: "Please select an image file." }).refine((file) => file.size <= 8 * 1024 * 1024, {
+      message: "The image is too large. Please choose an image smaller than 8 MB.",
     }),
   ),
 });
