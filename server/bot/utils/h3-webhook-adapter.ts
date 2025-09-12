@@ -1,4 +1,4 @@
-import type { Update } from "@grammyjs/types";
+import type { Update } from "grammy/types";
 import { getHeader, readBody, type H3Event } from "h3";
 
 const SECRET_HEADER = "X-Telegram-Bot-Api-Secret-Token";
