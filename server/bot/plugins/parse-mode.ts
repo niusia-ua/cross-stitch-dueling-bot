@@ -12,9 +12,9 @@ export function parseMode(parse_mode: ParseMode): Transformer {
     switch (method) {
       case "sendMediaGroup":
       case "editMessageMedia": {
-        if ("media" in payload && !("parse_mode" in payload.media)) {
-          // @ts-expect-error TypeScript can't prove that `media.parse_mode` exists in `payload`.
-          payload.media.parse_mode = parse_mode;
+        // @ts-expect-error TypeScript can't prove that `media` exists in `payload`.
+        for (const media of payload.media) {
+          media.parse_mode = parse_mode;
         }
         break;
       }
