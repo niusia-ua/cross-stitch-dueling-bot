@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@fluent/bundle": "0.19.1",
-    "@google-cloud/storage": "7.17.0",
+    "@google-cloud/storage": "7.17.1",
     "@google-cloud/tasks": "6.2.0",
     "@grammyjs/auto-retry": "2.0.2",
     "@grammyjs/i18n": "1.1.2",
@@ -48,7 +48,7 @@
     "grammy": "1.38.2",
     "h3": "1.15.4",
     "mime-types": "3.0.1",
-    "nuxt": "4.1.1",
+    "nuxt": "4.1.2",
     "nuxt-auth-utils": "0.5.24",
     "ofetch": "1.4.1",
     "slonik": "48.6.0",
@@ -57,19 +57,19 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "1.2.66",
+    "@iconify-json/lucide": "1.2.68",
     "@nuxt/eslint": "1.9.0",
     "@nuxt/test-utils": "3.19.2",
     "@types/mime-types": "3.0.1",
     "@types/telegram-web-app": "9.0.0",
     "@vue/eslint-config-prettier": "10.2.0",
     "eslint": "9.35.0",
-    "node-pg-migrate": "9.0.0-alpha.2",
+    "node-pg-migrate": "9.0.0-alpha.3",
     "prettier": "3.6.2",
     "prettier-plugin-sql": "0.19.2",
     "tailwindcss": "4.1.13",
     "typescript": "5.9.2",
     "unplugin-fluent-vue": "1.4.1",
-    "vue-tsc": "3.0.6"
+    "vue-tsc": "3.0.7"
   }
 }
