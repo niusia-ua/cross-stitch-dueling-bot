@@ -73,10 +73,12 @@ function configureBotApi(api: Api) {
 
 export async function createBotI18n() {
   const storage = useStorage("assets:server");
+  const decoder = new TextDecoder();
+
   const i18n = new I18n({ defaultLocale: "uk" });
 
-  const uk = (await storage.getItem<string>("locales/uk.ftl"))!;
-  await i18n.fluent.addTranslation({ locales: ["uk"], source: uk });
+  const uk = (await storage.getItem<Uint8Array>("locales/uk.ftl"))!;
+  await i18n.fluent.addTranslation({ locales: ["uk"], source: decoder.decode(uk) });
 
   return i18n;
 }
