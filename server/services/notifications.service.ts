@@ -36,6 +36,11 @@ export class NotificationsService {
     return this.#botApi.sendMessage(chatId, message, options);
   }
 
+  /** Send a private message with a sticker to a user. */
+  #sendPrivateSticker(chatId: number, photo: InputFile) {
+    return this.#botApi.sendSticker(chatId, photo);
+  }
+
   /** Send a group message. */
   #sendGroupMessage(message: string, options?: SendMessageOptions) {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
@@ -215,6 +220,21 @@ export class NotificationsService {
           return this.#sendGroupMediaMessage(media, { disable_notification: true });
         }),
     );
+
+    // To those users, who haven't reported the duel, send a funny sticker.
+    try {
+      await Promise.all(
+        zip(participants, reports)
+          .filter(([_, report]) => !report || report.stitches === 0)
+          .map(async ([user, _]) => {
+            const storage = useStorage("assets:server");
+            const sticker = (await storage.getItemRaw<Uint8Array>("images/sticker.webp"))!;
+            return this.#sendPrivateSticker(user.id, new InputFile(sticker));
+          }),
+      );
+    } catch (error) {
+      console.error("Error sending sticker:", error);
+    }
   }
 }
 
