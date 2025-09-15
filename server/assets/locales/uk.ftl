@@ -66,17 +66,18 @@ message-weekly-random-duels-announcement =
   Пари учасників:
   { $pairs }
 
-message-duel-completed =
+message-duel-completed-with-winner =
   Дуель завершено!
   Кодове слово: <b>{ $codeword }</b>.
   Учасники: { $participants }
-  { $hasWinner ->
-    [true] Переможець(ниця): { $winner }.
-    *[false]
-      На жаль, у цій дуелі немає переможця(ниці).
-  }
+  Переможець(ниця): { $winner }.
 
-message-duel-report =
+message-duel-completed-without-winner =
+  Дуель завершено!
+  Кодове слово: <b>{ $codeword }</b>.
+  На жаль, у цій дуелі немає переможця(ниці).
+
+message-duel-report-with-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
     [one] { $stitches } стібок
@@ -84,13 +85,16 @@ message-duel-report =
     *[many] { $stitches } стібків
   }.
 
-  { $hasAdditionalInfo ->
-    [true]
-      Додаткова інформація:
-      { $additionalInfo }
-    *[false]
-      Додаткової інформації немає.
-  }
+  Додаткова інформація:
+  { $additionalInfo }
+
+message-duel-report-without-additional-info =
+  Звіт учасника(ці) дуелі { $user }.
+  Загалом вишито { $stitches ->
+    [one] { $stitches } стібок
+    [few] { $stitches } стібки
+    *[many] { $stitches } стібків
+  }.
 
 ## Error messages.
 

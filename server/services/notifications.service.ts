@@ -173,13 +173,17 @@ export class NotificationsService {
     winner: UserIdAndFullname | null,
   ) {
     // Post a message with the duel overview.
+    const hasWinner = winner !== null;
     await this.#sendGroupMessage(
-      this.#botI18n.t("uk", "message-duel-completed", {
-        codeword,
-        participants: participants.map((p) => mentionUser(p)).join(", "),
-        hasWinner: String(winner !== null),
-        winner: winner ? mentionUser(winner) : "",
-      }),
+      this.#botI18n.t(
+        "uk",
+        hasWinner ? "message-duel-completed-with-winner" : "message-duel-completed-without-winner",
+        {
+          codeword,
+          participants: participants.map((p) => mentionUser(p)).join(", "),
+          winner: winner ? mentionUser(winner) : "",
+        },
+      ),
     );
 
     // Post each report.
@@ -187,12 +191,18 @@ export class NotificationsService {
       zip(participants, reports)
         .filter(([_, report]) => report && report.stitches > 0)
         .map(([user, report], i) => {
-          const caption = this.#botI18n.t("uk", "message-duel-report", {
-            user: mentionUser(user),
-            stitches: report!.stitches,
-            hasAdditionalInfo: String(report!.additionalInfo !== null),
-            additionalInfo: report!.additionalInfo ?? "",
-          });
+          const hasAdditionalInfo = report!.additionalInfo !== null;
+          const caption = this.#botI18n.t(
+            "uk",
+            hasAdditionalInfo
+              ? "message-duel-report-with-additional-info"
+              : "message-duel-report-without-additional-info",
+            {
+              user: mentionUser(user),
+              stitches: report!.stitches,
+              additionalInfo: report!.additionalInfo ?? "",
+            },
+          );
 
           const media = photos[i].map((buffer, i) => {
             // Attach a caption only to the first photo.
