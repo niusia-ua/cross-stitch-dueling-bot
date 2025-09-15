@@ -77,8 +77,11 @@ export async function createBotI18n() {
 
   const i18n = new I18n({ defaultLocale: "uk" });
 
-  const uk = (await storage.getItem<Uint8Array>("locales/uk.ftl"))!;
-  await i18n.fluent.addTranslation({ locales: ["uk"], source: decoder.decode(uk) });
+  const uk = (await storage.getItem("locales/uk.ftl"))!;
+  await i18n.fluent.addTranslation({
+    locales: ["uk"],
+    source: import.meta.dev ? (uk as string) : decoder.decode(uk as Uint8Array),
+  });
 
   return i18n;
 }
