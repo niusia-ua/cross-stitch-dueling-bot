@@ -28,7 +28,7 @@ group-message-welcome =
 
 message-about =
   <b>Репозиторій:</b> https://github.com/niusia-ua/cross-stitch-dueling-bot
-  <b>Розробник:</b> Назар Антонюк, @niusia_ua, antoniuk.nazar09@gmail.com
+  <b>Розробник:</b> Назар Антонюк, @niusia_ua, nazarantoniuk18@gmail.com
 
 message-help =
   <b>Довідка бота:</b>

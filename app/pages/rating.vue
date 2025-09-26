@@ -71,8 +71,8 @@ page-title = Рейтинг
 table-col-rank = Місце
 table-col-user = Користувач
 table-col-stitches-rate = Швидкість вишивання
-table-col-duels-participated = Зіграні дуелі
-table-col-duels-won = Перемоги
+table-col-duels-participated = Зіграно
+table-col-duels-won = Переможено
 
 message-error-title = Сталася помилка
 message-error-description-failed-to-fetch-duels-rating = Не вдалося отримати рейтинг дуелей.
