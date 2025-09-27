@@ -20,6 +20,6 @@
         ]
       }
     ],
-    "@semantic-release/npm"
+    "semantic-release-export-data"
   ]
 }
