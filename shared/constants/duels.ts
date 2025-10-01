@@ -4,7 +4,7 @@ export const HOUR = MINUTE * 60;
 export const DAY = HOUR * 24;
 
 export const DUEL_REQUEST_VALIDITY_PERIOD = HOUR;
-export const DUEL_PERIOD = SECOND * 10;
+export const DUEL_PERIOD = DAY;
 
 export const DUEL_REPORT_REMINDER_TIMEOUTS = [
   HOUR * 20, // 4 hours before the deadline.
