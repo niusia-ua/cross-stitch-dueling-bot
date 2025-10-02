@@ -159,6 +159,16 @@ export class DuelsService {
     const result = await this.#duelsRepository.removeDuelRequest(requestId);
     if (result) {
       const { fromUser, toUser } = result;
+
+      // Check if the user who sent the request is already in a duel.
+      const fromUserParticipatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(fromUser.id);
+      if (fromUserParticipatesInDuel) {
+        throw createApiError({
+          code: ApiErrorCode.OtherUserAlreadyInDuel,
+          message: "The other user is already participating in a duel.",
+        });
+      }
+
       await this.createDuel(fromUser, toUser);
       await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
     }
