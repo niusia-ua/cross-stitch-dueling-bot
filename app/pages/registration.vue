@@ -3,7 +3,11 @@
     <template #title>{{ $t("page-title") }}</template>
     <template #content>
       <div class="space-y-2">
-        <UserInfo v-bind="user" />
+        <UUser
+          :name="user.fullname"
+          :description="user.username ? `@${user.username}` : undefined"
+          :avatar="user.photoUrl ? { src: user.photoUrl } : undefined"
+        />
 
         <USeparator decorative />
 

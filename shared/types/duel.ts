@@ -55,7 +55,7 @@ export const DuelWithParticipantsDataSchema = DuelSchema.pick({
         id: true,
         fullname: true,
         photoUrl: true,
-      }),
+      }).merge(UserSettingsSchema.pick({ stitchesRate: true })),
     ),
   }),
 );

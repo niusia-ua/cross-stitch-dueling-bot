@@ -29,7 +29,7 @@
   const { $selectedLocale } = useNuxtApp();
   const { loggedIn, session } = useUserSession();
 
-  const UserInfo = resolveComponent("UserInfo");
+  const UUser = resolveComponent("UUser");
   const NuxtTime = resolveComponent("NuxtTime");
 
   const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
@@ -50,11 +50,13 @@
         return h(
           "div",
           { class: "space-y-2" },
-          row.original.participants.map((p) =>
-            h(UserInfo, {
-              key: p.id,
-              variant: "simple",
-              ...p,
+          row.original.participants.map((user) =>
+            h(UUser, {
+              key: user.id,
+              size: "sm",
+              name: user.fullname,
+              description: getStitchesRateLabel(user.stitchesRate),
+              avatar: user.photoUrl ? { src: user.photoUrl } : undefined,
             }),
           ),
         );

@@ -74,10 +74,11 @@ export class DuelsRepository {
     return await this.#pool.any(sql.type(DuelWithParticipantsDataSchema)`
       SELECT
         d.id, d.codeword, d.started_at,
-        JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url)) AS participants
+        JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url, 'stitches_rate', us.stitches_rate)) AS participants
       FROM duels AS d
         JOIN duel_participants AS dp ON dp.duel_id = d.id
         JOIN users AS u ON u.id = dp.user_id
+        JOIN user_settings AS us ON us.user_id = u.id
       WHERE d.completed_at IS NULL
       GROUP BY d.id
       ORDER BY d.started_at DESC

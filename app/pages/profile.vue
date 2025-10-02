@@ -11,7 +11,11 @@
       <div class="space-y-2">
         <div>
           <div class="flex items-center justify-between">
-            <UserInfo v-bind="user" />
+            <UUser
+              :name="user.fullname"
+              :description="user.username ? `@${user.username}` : undefined"
+              :avatar="user.photoUrl ? { src: user.photoUrl } : undefined"
+            />
             <UBadge
               :color="user.active ? 'success' : 'error'"
               :label="$t(user.active ? 'badge-label-active' : 'badge-label-inactive')"
