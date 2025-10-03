@@ -21,7 +21,13 @@
           </UFormField>
 
           <UFormField name="stitches" :label="$t('form-field-stitches-label')">
-            <UInputNumber v-model="report.stitches" orientation="vertical" :min="0" class="w-full" />
+            <UInputNumber
+              v-model="report.stitches"
+              orientation="vertical"
+              :min="0"
+              :step-snapping="false"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField
