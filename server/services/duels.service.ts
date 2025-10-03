@@ -249,8 +249,8 @@ export class DuelsService {
 
     // Determine the winner based on the reports.
     const highestScore = Math.max(...reports.filter((r) => r !== null).map((r) => r.stitches));
-    const winningReportIndex = sample(reports.filter((r) => r?.stitches === highestScore).map((_r, i) => i));
-    const winner = winningReportIndex !== undefined ? participants[winningReportIndex] : null;
+    const winnerIndex = sample(reports.map((r, i) => (r?.stitches === highestScore ? i : -1)).filter((i) => i !== -1));
+    const winner = winnerIndex !== undefined ? participants[winnerIndex] : null;
 
     await this.#duelsRepository.completeDuel(duel.id, winner?.id);
     await this.#notificationsService.postDuelResults(codeword, participants, reports, photos, winner);
