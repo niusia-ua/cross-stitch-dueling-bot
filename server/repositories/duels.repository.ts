@@ -223,7 +223,7 @@ export class DuelsRepository {
       }
 
       await tx.query(sql.typeAlias("void")`
-        REFRESH MATERIALIZED VIEW CONCURRENTLY duels_rating
+        REFRESH MATERIALIZED VIEW duels_rating
       `);
     });
   }
