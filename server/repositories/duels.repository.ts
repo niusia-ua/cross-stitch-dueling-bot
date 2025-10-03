@@ -202,15 +202,30 @@ export class DuelsRepository {
   }
 
   /**
-   * Completes a duel by specifying the completion date.
+   * Completes a duel by setting the completion date, winner, and refreshing the rating.
    * @param duelId The ID of the duel to complete.
+   * @param winnerId The ID of the winner (optional).
    */
-  async completeDuel(duelId: number) {
-    await this.#pool.query(sql.typeAlias("void")`
-      UPDATE duels
-      SET completed_at = NOW()
-      WHERE id = ${duelId}
-    `);
+  async completeDuel(duelId: number, winnerId?: number) {
+    await this.#pool.transaction(async (tx) => {
+      await tx.query(sql.typeAlias("void")`
+        UPDATE duels
+        SET completed_at = NOW()
+        WHERE id = ${duelId}
+      `);
+
+      if (winnerId) {
+        await tx.query(sql.typeAlias("void")`
+          INSERT INTO duel_winners (duel_id, user_id)
+          VALUES (${duelId}, ${winnerId})
+          ON CONFLICT DO NOTHING
+        `);
+      }
+
+      await tx.query(sql.typeAlias("void")`
+        REFRESH MATERIALIZED VIEW CONCURRENTLY duels_rating
+      `);
+    });
   }
 
   async createDuelReport(duelId: number, userId: number, report: DuelReportData) {
@@ -237,14 +252,6 @@ export class DuelsRepository {
       SELECT *
       FROM duel_reports
       WHERE duel_id = ${duelId}
-    `);
-  }
-
-  async setDuelWinner(duelId: number, userId: number) {
-    await this.#pool.query(sql.typeAlias("void")`
-      INSERT INTO duel_winners (duel_id, user_id)
-      VALUES (${duelId}, ${userId})
-      ON CONFLICT DO NOTHING
     `);
   }
 

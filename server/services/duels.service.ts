@@ -242,8 +242,6 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getFullDuelInfoById(duelId);
     if (!duel || duel.completedAt !== null) return;
 
-    await this.#duelsRepository.completeDuel(duel.id);
-
     const { codeword, participants, reports } = duel;
     const photos = await Promise.all(
       participants.map((p) => this.#gcloudStorageService.downloadDuelReportPhotos(duel.id, p.id)),
@@ -253,8 +251,8 @@ export class DuelsService {
     const highestScore = Math.max(...reports.filter((r) => r !== null).map((r) => r.stitches));
     const winningReportIndex = sample(reports.filter((r) => r?.stitches === highestScore).map((_r, i) => i));
     const winner = winningReportIndex !== undefined ? participants[winningReportIndex] : null;
-    if (winner) await this.#duelsRepository.setDuelWinner(duelId, winner.id);
 
+    await this.#duelsRepository.completeDuel(duel.id, winner?.id);
     await this.#notificationsService.postDuelResults(codeword, participants, reports, photos, winner);
   }
 
