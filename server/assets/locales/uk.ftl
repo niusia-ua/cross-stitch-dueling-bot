@@ -71,12 +71,12 @@ message-duel-completed-with-winner =
   Кодове слово: <b>{ $codeword }</b>.
   Учасники: { $participants }
   Переможець(ниця): { $winner }.
-
 message-duel-completed-without-winner =
   Дуель завершено!
   Кодове слово: <b>{ $codeword }</b>.
   На жаль, у цій дуелі немає переможця(ниці).
 
+message-duel-no-report = Звіт учасника(ці) дуелі { $user } відстуній.
 message-duel-report-with-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
@@ -87,7 +87,6 @@ message-duel-report-with-additional-info =
 
   Додаткова інформація:
   { $additionalInfo }
-
 message-duel-report-without-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->

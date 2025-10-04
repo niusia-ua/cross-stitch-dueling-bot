@@ -1,6 +1,6 @@
 import { zip } from "es-toolkit";
 import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "grammy";
-import type { InputMediaPhoto } from "grammy/types";
+import type { InputMediaPhoto, Message } from "grammy/types";
 
 import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 import type { BotApi, BotI18n } from "~~/server/bot/";
@@ -177,12 +177,15 @@ export class NotificationsService {
     photos: Buffer[][],
     winner: UserIdAndFullname | null,
   ) {
+    // Get a funny sticker for those who haven't sent a report.
+    const storage = useStorage("assets:server");
+    const sticker = (await storage.getItemRaw<Uint8Array>("images/sticker.webp"))!;
+
     // Post a message with the duel overview.
-    const hasWinner = winner !== null;
     await this.#sendGroupMessage(
       this.#botI18n.t(
         "uk",
-        hasWinner ? "message-duel-completed-with-winner" : "message-duel-completed-without-winner",
+        winner !== null ? "message-duel-completed-with-winner" : "message-duel-completed-without-winner",
         {
           codeword,
           participants: participants.map((p) => mentionUser(p)).join(", "),
@@ -192,49 +195,41 @@ export class NotificationsService {
     );
 
     // Post each report.
-    await Promise.all(
-      zip(participants, reports)
-        .filter(([_, report]) => report && report.stitches > 0)
-        .map(([user, report], i) => {
-          const hasAdditionalInfo = report!.additionalInfo !== null;
-          const caption = this.#botI18n.t(
-            "uk",
-            hasAdditionalInfo
-              ? "message-duel-report-with-additional-info"
-              : "message-duel-report-without-additional-info",
-            {
-              user: mentionUser(user),
-              stitches: report!.stitches,
-              additionalInfo: report!.additionalInfo ?? "",
-            },
-          );
+    await Promise.allSettled(
+      zip(participants, reports).flatMap<Promise<Message | Message[]>>(([user, report], i) => {
+        if (!report || report.stitches === 0) {
+          return [
+            // Send a message about the lack of report.
+            this.#sendGroupMessage(this.#botI18n.t("uk", "message-duel-no-report", { user: mentionUser(user) }), {
+              disable_notification: true,
+            }),
+            // Send a funny sticker to this user.
+            this.#sendPrivateSticker(user.id, new InputFile(sticker)),
+          ];
+        }
 
-          const media = photos[i].map((buffer, i) => {
+        const caption = this.#botI18n.t(
+          "uk",
+          report.additionalInfo !== null
+            ? "message-duel-report-with-additional-info"
+            : "message-duel-report-without-additional-info",
+          {
+            user: mentionUser(user),
+            stitches: report.stitches,
+            additionalInfo: report.additionalInfo ?? "",
+          },
+        );
+        const media = photos[i].map((buffer, i) => {
+          return InputMediaBuilder.photo(new InputFile(buffer), {
             // Attach a caption only to the first photo.
             // This way, the caption will be shown for the entire album.
-            return InputMediaBuilder.photo(new InputFile(buffer), {
-              caption: i === 0 ? caption : undefined,
-            });
+            caption: i === 0 ? caption : undefined,
           });
+        });
 
-          return this.#sendGroupMediaMessage(media, { disable_notification: true });
-        }),
+        return this.#sendGroupMediaMessage(media, { disable_notification: true });
+      }),
     );
-
-    // To those users, who haven't reported the duel, send a funny sticker.
-    try {
-      await Promise.all(
-        zip(participants, reports)
-          .filter(([_, report]) => !report || report.stitches === 0)
-          .map(async ([user, _]) => {
-            const storage = useStorage("assets:server");
-            const sticker = (await storage.getItemRaw<Uint8Array>("images/sticker.webp"))!;
-            return this.#sendPrivateSticker(user.id, new InputFile(sticker));
-          }),
-      );
-    } catch (error) {
-      console.error("Error sending sticker:", error);
-    }
   }
 }
 
