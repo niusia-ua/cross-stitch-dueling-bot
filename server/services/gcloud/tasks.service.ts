@@ -124,7 +124,12 @@ export class GoogleCloudTasksService {
     // https://github.com/aertje/cloud-tasks-emulator/issues/99
     if (import.meta.dev) return {} as unknown as LoginTicket;
 
-    const endpoints = ["cancel-duel-request", "complete-duel", "remind-user-about-duel-report"];
+    const endpoints = [
+      "cancel-duel-request",
+      "complete-duel",
+      "remind-user-about-duel-report",
+      "create-weekly-random-duels",
+    ];
     return await this.#oauthClient.verifyIdToken({
       idToken,
       audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#baseUrl).toString()),
