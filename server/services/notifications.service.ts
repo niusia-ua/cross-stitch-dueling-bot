@@ -36,11 +36,6 @@ export class NotificationsService {
     return this.#botApi.sendMessage(chatId, message, options);
   }
 
-  /** Send a private message with a sticker to a user. */
-  #sendPrivateSticker(chatId: number, photo: InputFile) {
-    return this.#botApi.sendSticker(chatId, photo);
-  }
-
   /** Send a group message. */
   #sendGroupMessage(message: string, options?: SendMessageOptions) {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
@@ -52,6 +47,11 @@ export class NotificationsService {
     });
   }
 
+  /** Send a private message with a media group (an album). */
+  #sendPrivateMediaMessage(chatId: number, media: InputMediaPhoto[], options?: SendMessageOptions) {
+    return this.#botApi.sendMediaGroup(chatId, media, options);
+  }
+
   /** Send a group message with a media group (an album). */
   #sendGroupMediaMessage(media: InputMediaPhoto[], options?: SendMessageOptions) {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
@@ -61,6 +61,11 @@ export class NotificationsService {
       message_thread_id: this.#targetThreadId,
       media,
     });
+  }
+
+  /** Send a private message with a sticker to a user. */
+  #sendPrivateSticker(chatId: number, photo: InputFile) {
+    return this.#botApi.sendSticker(chatId, photo);
   }
 
   /**
@@ -174,7 +179,7 @@ export class NotificationsService {
     codeword: string,
     participants: readonly UserIdAndFullname[],
     reports: readonly (DuelReportData | null)[],
-    photos: Buffer[][],
+    photos: InputFileSource[][],
     winner: UserIdAndFullname | null,
   ) {
     // Get a funny sticker for those who haven't sent a report.
@@ -231,6 +236,35 @@ export class NotificationsService {
       }),
     );
   }
+
+  /**
+   * Send the report preview to the user in a private chat.
+   * @param userId The ID of the user to send the report preview to.
+   * @param report The report data to send.
+   * @param photos The photos to send as a media group.
+   */
+  sendReportPreview(user: UserIdAndFullname, report: DuelReportData, photos: InputFileSource[]) {
+    const caption = this.#botI18n.t(
+      "uk",
+      report.additionalInfo !== null
+        ? "message-duel-report-with-additional-info"
+        : "message-duel-report-without-additional-info",
+      {
+        user: mentionUser(user),
+        stitches: report.stitches,
+        additionalInfo: report.additionalInfo ?? "",
+      },
+    );
+    const media = photos.map((buffer, i) => {
+      return InputMediaBuilder.photo(new InputFile(buffer), {
+        // Attach a caption only to the first photo.
+        // This way, the caption will be shown for the entire album.
+        caption: i === 0 ? caption : undefined,
+      });
+    });
+
+    return this.#sendPrivateMediaMessage(user.id, media);
+  }
 }
 
 function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boolean }) {
@@ -240,3 +274,5 @@ function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boole
 }
 
 type SendMessageOptions = Omit<Parameters<RawApi["sendMessage"]>[0], "chat_id" | "text">;
+
+type InputFileSource = ConstructorParameters<typeof InputFile>[0];

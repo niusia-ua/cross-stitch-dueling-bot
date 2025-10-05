@@ -262,7 +262,7 @@ export class DuelsService {
    * @param userId The ID of the user reporting the duel.
    * @param report The report data.
    */
-  async createDuelReport(duelId: number, userId: number, report: DuelReportRequest) {
+  async createDuelReport(duelId: number, userId: number, reportRequest: DuelReportRequest) {
     const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(userId, duelId);
     if (!participatesInDuel) {
       throw createApiError({
@@ -285,8 +285,15 @@ export class DuelsService {
       });
     }
 
-    await this.#duelsRepository.createDuelReport(duelId, userId, report);
-    await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
+    const createdReport = await this.#duelsRepository.createDuelReport(duelId, userId, reportRequest);
+    const uploadedPhotos = await this.#gcloudStorageService.uploadDuelReportPhotos(
+      duelId,
+      userId,
+      reportRequest.photos,
+    );
+
+    const user = (await this.#usersService.getUserIdAndFullname(userId))!;
+    await this.#notificationsService.sendReportPreview(user, createdReport, uploadedPhotos);
   }
 
   async sendDuelReportReminder(duelId: number, userId: number) {
