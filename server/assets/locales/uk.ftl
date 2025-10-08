@@ -76,7 +76,7 @@ message-duel-completed-without-winner =
   Кодове слово: <b>{ $codeword }</b>.
   На жаль, у цій дуелі немає переможця(ниці).
 
-message-duel-no-report = Звіт учасника(ці) дуелі { $user } відстуній.
+message-duel-no-report = Звіт учасника(ці) дуелі { $user } відсутній.
 message-duel-report-with-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
