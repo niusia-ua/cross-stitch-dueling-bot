@@ -29,6 +29,9 @@ importers:
       '@roziscoding/grammy-autoquote':
         specifier: 2.0.9
         version: 2.0.9(grammy@1.38.2)
+      '@tanstack/vue-table':
+        specifier: 8.21.3
+        version: 8.21.3(vue@3.5.22(typescript@5.9.2))
       '@telegram-apps/init-data-node':
         specifier: 2.0.10
         version: 2.0.10(typescript@5.9.2)

@@ -5,7 +5,7 @@
       <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
     </template>
     <template #content>
-      <UTable sticky :loading="pending" :columns="columns" :data="data" />
+      <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
     </template>
     <template v-if="loggedIn" #footer>
       <LazyModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
   import type { TableColumn } from "@nuxt/ui";
+  import type { SortingState } from "@tanstack/vue-table";
 
   import { dayjs } from "#shared/utils/datetime.js";
   import { DUEL_PERIOD } from "#shared/constants/duels.js";
@@ -29,6 +30,7 @@
   const { $selectedLocale } = useNuxtApp();
   const { loggedIn, session } = useUserSession();
 
+  const UButton = resolveComponent("UButton");
   const UUser = resolveComponent("UUser");
   const NuxtTime = resolveComponent("NuxtTime");
 
@@ -63,8 +65,22 @@
       },
     },
     {
+      id: "deadline",
       accessorKey: "startedAt",
-      header: fluent.$t("table-col-deadline"),
+      header: ({ column }) => {
+        const isSorted = column.getIsSorted();
+        return h(UButton, {
+          color: "neutral",
+          variant: "ghost",
+          label: fluent.$t("table-col-deadline"),
+          icon: isSorted
+            ? isSorted === "asc"
+              ? "i-lucide:arrow-up-narrow-wide"
+              : "i-lucide:arrow-down-wide-narrow"
+            : "i-lucide:arrow-up-down",
+          onClick: () => column.toggleSorting(isSorted === "asc"),
+        });
+      },
       cell: ({ row }) => {
         // Calculate the deadline based on the duel's starting time.
         const datetime = dayjs(row.original.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
@@ -76,6 +92,7 @@
       },
     },
   ]);
+  const sorting = ref<SortingState>([{ id: "deadline", desc: false }]);
 
   const { data, pending, error, refresh } = await useAsyncData(
     "active-duels",
