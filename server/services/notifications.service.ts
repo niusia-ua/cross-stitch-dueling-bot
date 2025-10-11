@@ -259,6 +259,33 @@ export class NotificationsService {
 
     return this.#sendPrivateMediaMessage(user.id, media);
   }
+
+  /**
+   * Posts the monthly rating and winners celebration in the group chat.
+   * @param rating The rating records.
+   * @param winners The winners.
+   */
+  async postMonthlyRatingAndWinners<T extends DuelsRatingWithUsersInfo>(rating: readonly T[], winners: readonly T[]) {
+    // Get the month in a genitive case.
+    const month = this.#datetimeFormatter.formatToParts(new Date()).find((part) => part.type === "month")!.value;
+
+    const ratingMessage = this.#botI18n.t("uk", "message-monthly-rating", {
+      month,
+      rating: rating
+        .map(
+          (record, i) =>
+            `${i + 1}. ${mentionUser(record.user, { skipFormatting: true })} (${record.user.stitchesRate}) — ${record.totalDuelsParticipated}/${record.totalDuelsWon}`,
+        )
+        .join("\n"),
+    });
+    await this.#sendGroupMessage(ratingMessage);
+
+    const winnersMessage = this.#botI18n.t("uk", "message-monthly-winners", {
+      month,
+      winners: winners.map((w) => mentionUser(w.user)).join(", "),
+    });
+    await this.#sendGroupMessage(winnersMessage);
+  }
 }
 
 function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boolean }) {

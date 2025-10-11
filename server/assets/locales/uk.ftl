@@ -1,4 +1,5 @@
 -club = ДК "Дуельний клуб"
+-community = Посиденьки з пʼяльцями
 
 ## Common labels.
 
@@ -94,6 +95,13 @@ message-duel-report-without-additional-info =
     [few] { $stitches } стібки
     *[many] { $stitches } стібків
   }.
+
+message-monthly-rating =
+  <b>Загальний рейтинг { $month }:</b>
+  { $rating }
+message-monthly-winners =
+  Вітаємо переможців { $month }: { $winners }!
+  Ви отримуєте знижку 20% на схеми дизайнерів спільноти <i>{ -community }</i>.
 
 ## Error messages.
 

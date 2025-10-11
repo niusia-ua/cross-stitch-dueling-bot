@@ -293,4 +293,11 @@ export class DuelsRepository {
       JOIN user_settings AS us ON us.user_id = u.id
     `);
   }
+
+  /** Refreshes the materialized view for duels rating. */
+  async refreshDuelsRating() {
+    await this.#pool.query(sql.typeAlias("void")`
+      REFRESH MATERIALIZED VIEW duels_rating
+    `);
+  }
 }

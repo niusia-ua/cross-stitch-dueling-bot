@@ -318,4 +318,14 @@ export class DuelsService {
   async getDuelsRating() {
     return await this.#duelsRepository.getDuelsRating();
   }
+
+  /** Publishes the monthly rating and celebrates the winners. */
+  async publishMonthlyRatingAndWinners() {
+    await this.#duelsRepository.refreshDuelsRating();
+
+    const rating = await this.#duelsRepository.getDuelsRating();
+    const winners = getRatingWinners(rating);
+
+    await this.#notificationsService.postMonthlyRatingAndWinners(rating, winners);
+  }
 }
