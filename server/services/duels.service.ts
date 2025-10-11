@@ -1,5 +1,4 @@
 import { sample } from "es-toolkit";
-import { DUEL_PERIOD, SECOND } from "#shared/constants/duels.js";
 
 import type {
   UsersService,
@@ -20,6 +19,8 @@ interface Dependencies {
 
 /** Duel service for managing duel-related operations. */
 export class DuelsService {
+  #config = useRuntimeConfig();
+
   #duelsRepository: DuelsRepository;
   #usersService: UsersService;
   #notificationsService: NotificationsService;
@@ -47,7 +48,11 @@ export class DuelsService {
    * @returns The list of active duels with participants.
    */
   async getActiveDuelsWithParticipants() {
-    return await this.#duelsRepository.getActiveDuelsWithParticipants();
+    const duels = await this.#duelsRepository.getActiveDuelsWithParticipants();
+    return duels.map<ActiveDuelRecord>(({ startedAt, ...duel }) => ({
+      ...duel,
+      deadline: dayjs(startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate(),
+    }));
   }
 
   /**
@@ -206,7 +211,7 @@ export class DuelsService {
   private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
-    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
 
@@ -223,12 +228,12 @@ export class DuelsService {
       codeword,
       pairs.map((pair) => pair.map((user) => user.id)),
     );
-    const deadline = dayjs(duels[0].startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
       duels.flatMap((duel, i) => [
-        this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * SECOND * 30 }),
+        this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * 30_000 }), // Delay the completion of each duel by 30 seconds.
         ...pairs[i]!.map((user) => this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user.id)),
       ]),
     );
@@ -303,7 +308,7 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getDuelById(duelId);
     if (!duel) return;
 
-    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.remindUserAboutDuelReport(userId, deadline);
   }

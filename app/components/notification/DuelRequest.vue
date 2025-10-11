@@ -11,15 +11,13 @@
       relative
       :locale="$selectedLocale"
       :datetime="createdAt"
-      v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
+      v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
       class="text-xs text-dimmed"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
-
   // For some reason, Vue can't resolve the auto-imported `UserDuelRequest` type.
   // It throws an error: `[@vue/compiler-sfc] Unresolvable type reference or unsupported built-in utility type`.
   interface DuelRequestProps {
@@ -37,5 +35,6 @@
     decline: [id: number];
   }>();
 
+  const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
 </script>

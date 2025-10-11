@@ -3,9 +3,9 @@ export async function getDuelsRating() {
   return await DuelsRatingWithUsersInfoSchema.array().parseAsync(data);
 }
 
-export async function getActiveDuelsWithParticipants() {
+export async function getActiveDuels() {
   const data = await $fetch("/api/duels/active");
-  return await DuelWithParticipantsDataSchema.array().parseAsync(data);
+  return await ActiveDuelRecordSchema.array().parseAsync(data);
 }
 
 export async function getAvailableUsersForDuel(excludeUserId?: number) {

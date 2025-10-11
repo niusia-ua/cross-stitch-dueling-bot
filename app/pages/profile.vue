@@ -24,7 +24,11 @@
 
           <i18n path="message-last-updated-at" class="text-xs text-dimmed">
             <template #datetime>
-              <NuxtTime :datetime="user.updatedAt" :locale="$selectedLocale" v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS" />
+              <NuxtTime
+                :datetime="user.updatedAt"
+                :locale="$selectedLocale"
+                v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
+              />
             </template>
           </i18n>
         </div>
@@ -53,7 +57,7 @@
             <NuxtTime
               :datetime="settings.updatedAt"
               :locale="$selectedLocale"
-              v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
+              v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
             />
           </template>
         </i18n>
@@ -65,12 +69,12 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from "@nuxt/ui";
 
-  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "~~/shared/constants/datetime.js";
   import { UsersApi, FetchError, type ApiError } from "~/api/";
 
   const fluent = useFluent();
   const toast = useToast();
 
+  const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
   const { session, fetch: refreshSession } = useUserSession();
 

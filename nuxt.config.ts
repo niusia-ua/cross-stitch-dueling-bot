@@ -1,3 +1,8 @@
+const SECOND = 1000;
+const MINUTE = SECOND * 60;
+const HOUR = MINUTE * 60;
+const DAY = HOUR * 24;
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
@@ -58,6 +63,24 @@ export default defineNuxtConfig({
     GOOGLE_CLOUD_PROJECT_ID: undefined,
     GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: undefined,
     GOOGLE_CLOUD_TASKS_LOCATION: undefined,
+
+    public: {
+      DEFAULT_TIMEZONE: "Europe/Kyiv",
+      DEFAULT_DATETIME_FORMAT_OPTIONS: {
+        dateStyle: "long",
+        timeStyle: "short",
+        timeZone: "Europe/Kyiv",
+      },
+
+      DUEL_REQUEST_VALIDITY_PERIOD: HOUR,
+      DUEL_PERIOD: DAY,
+
+      DUEL_REPORT_REMINDER_TIMEOUTS: [
+        HOUR * 20, // 4 hours before the deadline.
+        HOUR * 23, // 1 hour before the deadline.
+        HOUR * 23 + MINUTE * 45, // 15 minutes before the deadline.
+      ],
+    },
   },
 
   experimental: {

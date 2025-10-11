@@ -2,7 +2,6 @@ import { zip } from "es-toolkit";
 import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "grammy";
 import type { InputMediaPhoto, Message } from "grammy/types";
 
-import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 import type { BotApi, BotI18n } from "~~/server/bot/";
 import type { UserIdAndFullname } from "~~/shared/types/user.js";
 
@@ -15,20 +14,12 @@ export class NotificationsService {
   #botApi: BotApi;
   #botI18n: BotI18n;
 
-  #datetimeFormatter = new Intl.DateTimeFormat("uk", DEFAULT_DATETIME_FORMAT_OPTIONS);
-
-  #webAppUrl: string;
-  #targetChatId: number;
-  #targetThreadId: number;
+  #config = useRuntimeConfig();
+  #datetimeFormatter = new Intl.DateTimeFormat("uk", this.#config.public.DEFAULT_DATETIME_FORMAT_OPTIONS);
 
   constructor({ botApi, botI18n }: Dependencies) {
     this.#botApi = botApi;
     this.#botI18n = botI18n;
-
-    const config = useRuntimeConfig();
-    this.#webAppUrl = config.APP_URL;
-    this.#targetChatId = config.TARGET_CHAT_ID;
-    this.#targetThreadId = config.TARGET_THREAD_ID;
   }
 
   /** Send a private message to a user. */
@@ -41,8 +32,8 @@ export class NotificationsService {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMessage({
       ...options,
-      chat_id: this.#targetChatId,
-      message_thread_id: this.#targetThreadId,
+      chat_id: this.#config.TARGET_CHAT_ID,
+      message_thread_id: this.#config.TARGET_THREAD_ID,
       text: message,
     });
   }
@@ -57,8 +48,8 @@ export class NotificationsService {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMediaGroup({
       ...options,
-      chat_id: this.#targetChatId,
-      message_thread_id: this.#targetThreadId,
+      chat_id: this.#config.TARGET_CHAT_ID,
+      message_thread_id: this.#config.TARGET_THREAD_ID,
       media,
     });
   }
@@ -75,7 +66,10 @@ export class NotificationsService {
    */
   async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
-    const keyboard = new InlineKeyboard().webApp(this.#botI18n.t("uk", "label-open"), this.#webAppUrl);
+    const keyboard = new InlineKeyboard().webApp(
+      this.#botI18n.t("uk", "label-open"),
+      new URL("/notifications", this.#config.APP_URL).href,
+    );
     await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });
   }
 

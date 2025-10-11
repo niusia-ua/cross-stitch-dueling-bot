@@ -61,6 +61,11 @@ export const DuelWithParticipantsDataSchema = DuelSchema.pick({
 );
 export type DuelWithParticipantsData = z.infer<typeof DuelWithParticipantsDataSchema>;
 
+export const ActiveDuelRecordSchema = DuelWithParticipantsDataSchema.omit({ startedAt: true }).merge(
+  z.object({ deadline: z.coerce.date() }),
+);
+export type ActiveDuelRecord = z.infer<typeof ActiveDuelRecordSchema>;
+
 export const DuelReportSchema = z.object({
   duelId: IdSchema,
   userId: IdSchema,

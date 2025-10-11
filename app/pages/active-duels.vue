@@ -18,15 +18,12 @@
   import type { TableColumn } from "@nuxt/ui";
   import type { SortingState } from "@tanstack/vue-table";
 
-  import { dayjs } from "#shared/utils/datetime.js";
-  import { DUEL_PERIOD } from "#shared/constants/duels.js";
-  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
-
   import { DuelsApi } from "~/api/index.js";
 
   const fluent = useFluent();
   const toast = useToast();
 
+  const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
   const { loggedIn, session } = useUserSession();
 
@@ -34,7 +31,7 @@
   const UUser = resolveComponent("UUser");
   const NuxtTime = resolveComponent("NuxtTime");
 
-  const columns = computed<TableColumn<DuelWithParticipantsData>[]>(() => [
+  const columns = computed<TableColumn<ActiveDuelRecord>[]>(() => [
     {
       accessorKey: "codeword",
       header: fluent.$t("table-col-codeword"),
@@ -65,8 +62,7 @@
       },
     },
     {
-      id: "deadline",
-      accessorKey: "startedAt",
+      accessorKey: "deadline",
       header: ({ column }) => {
         const isSorted = column.getIsSorted();
         return h(UButton, {
@@ -82,25 +78,25 @@
         });
       },
       cell: ({ row }) => {
-        // Calculate the deadline based on the duel's starting time.
-        const datetime = dayjs(row.original.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
-
-        const absolute = h(NuxtTime, { datetime, locale: $selectedLocale.value, ...DEFAULT_DATETIME_FORMAT_OPTIONS });
-        const relative = h(NuxtTime, { datetime, locale: $selectedLocale.value, relative: true });
-
+        const absolute = h(NuxtTime, {
+          datetime: row.original.deadline,
+          locale: $selectedLocale.value,
+          ...config.public.DEFAULT_DATETIME_FORMAT_OPTIONS,
+        });
+        const relative = h(NuxtTime, {
+          datetime: row.original.deadline,
+          locale: $selectedLocale.value,
+          relative: true,
+        });
         return h("div", [absolute, h("br"), "(", relative, ")"]);
       },
     },
   ]);
   const sorting = ref<SortingState>([{ id: "deadline", desc: false }]);
 
-  const { data, pending, error, refresh } = await useAsyncData(
-    "active-duels",
-    () => DuelsApi.getActiveDuelsWithParticipants(),
-    {
-      lazy: true,
-    },
-  );
+  const { data, pending, error, refresh } = await useAsyncData("active-duels", () => DuelsApi.getActiveDuels(), {
+    lazy: true,
+  });
   const ownDuel = computed(() =>
     data.value?.find((duel) => duel.participants.some((p) => p.id === session.value?.user?.id)),
   );
