@@ -7,6 +7,7 @@ import type {
   GoogleCloudStorageService,
 } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
+import { dayjs } from "~~/server/utils/datetime.js";
 
 interface Dependencies {
   duelsRepository: DuelsRepository;
