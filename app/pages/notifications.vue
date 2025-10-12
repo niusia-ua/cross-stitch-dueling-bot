@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-  import { DuelRequestAction } from "#shared/types/duel.js";
+  import { DuelRequestAction } from "#shared/types/duels.js";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 

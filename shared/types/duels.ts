@@ -1,7 +1,7 @@
 import z from "zod";
 
-import { IdSchema, ImageFileSchema } from "./util.js";
-import { UserSchema, UserSettingsSchema } from "./user.js";
+import { IdSchema, ImageFileSchema } from "./utils.js";
+import { UserSchema, UserSettingsSchema } from "./users.js";
 
 export const DuelSchema = z.object({
   id: IdSchema,

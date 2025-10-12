@@ -3,7 +3,7 @@ import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "gramm
 import type { InputMediaPhoto, Message } from "grammy/types";
 
 import type { BotApi, BotI18n } from "~~/server/bot/";
-import type { UserIdAndFullname } from "~~/shared/types/user.js";
+import type { UserIdAndFullname } from "~~/shared/types/users.js";
 
 interface Dependencies {
   botApi: BotApi;

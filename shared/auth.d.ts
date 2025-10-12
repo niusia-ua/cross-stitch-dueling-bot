@@ -1,4 +1,4 @@
-import type { User as UserType } from "./types/user.js";
+import type { User as UserType } from "./types/users.js";
 
 declare module "#auth-utils" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type

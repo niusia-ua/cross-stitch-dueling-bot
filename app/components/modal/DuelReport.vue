@@ -54,7 +54,7 @@
 <script setup lang="ts">
   import type { FormSubmitEvent } from "@nuxt/ui";
 
-  import { DuelReportRequestSchema } from "#shared/types/duel.js";
+  import { DuelReportRequestSchema } from "#shared/types/duels.js";
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
   interface DuelReportProps {
