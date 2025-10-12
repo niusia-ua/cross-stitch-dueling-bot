@@ -1,11 +1,14 @@
 <template>
   <NuxtLayout name="main">
-    <template #header>{{ $t("page-title") }}</template>
-    <template #header-actions>
-      <UDropdownMenu :items="menuOptions">
-        <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
-      </UDropdownMenu>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
     </template>
+
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
     </template>
@@ -15,6 +18,7 @@
 <script setup lang="ts">
   import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
   import type { SortingState } from "@tanstack/vue-table";
+  import { capitalize } from "es-toolkit";
 
   import { DuelsApi } from "~/api/index.js";
 
@@ -32,12 +36,7 @@
     {
       accessorKey: "codeword",
       header: fluent.$t("table-col-codeword"),
-      cell: ({ row }) => {
-        const value = row.original.codeword;
-
-        // Capitalize the first letter of the codeword.
-        return value[0]!.toUpperCase() + value.slice(1);
-      },
+      cell: ({ row }) => capitalize(row.original.codeword),
     },
     {
       accessorKey: "participants",
@@ -113,13 +112,21 @@
         onSelect: () => refresh(),
       },
     ],
+    [
+      {
+        icon: "i-lucide:archive",
+        label: fluent.$t("menu-opt-archive"),
+        to: "/duels/archive",
+      },
+    ],
   ]);
 </script>
 
 <fluent locale="uk">
-page-title = Активні дуелі
+page-title = Дуелі
 
 menu-opt-refresh = Оновити
+menu-opt-archive = Архів
 
 table-col-codeword = КС
 table-col-participants = Учасники

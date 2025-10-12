@@ -11,6 +11,19 @@ export class UsersRepository {
     this.#pool = pool;
   }
 
+  /**
+   * Retrieves all users with their settings for duels display.
+   * @returns All users with their settings.
+   */
+  async getAllUsersWithSettings() {
+    return await this.#pool.any(sql.type(UserAvailableForDuelSchema)`
+      SELECT u.id, u.fullname, u.photo_url, us.stitches_rate
+      FROM users u
+      JOIN user_settings us ON us.user_id = u.id
+      ORDER BY u.id
+    `);
+  }
+
   async createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
     return await this.#pool.transaction(async (tx) => {
       const u = await tx.one(sql.type(UserSchema)`

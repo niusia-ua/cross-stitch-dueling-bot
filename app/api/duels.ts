@@ -8,6 +8,13 @@ export async function getActiveDuels() {
   return await ActiveDuelRecordSchema.array().parseAsync(data);
 }
 
+export async function getArchivedDuels(year: number, month: number) {
+  const data = await $fetch("/api/duels/archive", {
+    query: { year, month },
+  });
+  return await ArchivedDuelRecordSchema.array().parseAsync(data);
+}
+
 export async function getAvailableUsersForDuel(excludeUserId?: number) {
   const data = await $fetch("/api/duels/users/available", {
     query: { excludeUserId },

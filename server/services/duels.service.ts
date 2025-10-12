@@ -57,6 +57,16 @@ export class DuelsService {
   }
 
   /**
+   * Retrieves completed duels for a specific month.
+   * @param year The year to filter by.
+   * @param month The month to filter by (1-12).
+   * @returns The list of completed duels for the specified month.
+   */
+  async getCompletedDuelsByMonth(year: number, month: number) {
+    return await this.#duelsRepository.getCompletedDuelsByMonth(year, month);
+  }
+
+  /**
    * Retrieves the list of users who are available for a duel.
    * @param options.excludeUserId The user ID to exclude from the results.
    * @returns The list of available users for a duel.

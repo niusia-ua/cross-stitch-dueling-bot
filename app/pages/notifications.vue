@@ -1,11 +1,14 @@
 <template>
   <NuxtLayout name="main">
-    <template #header>{{ $t("page-title") }}</template>
-    <template #header-actions>
-      <UDropdownMenu :items="menuOptions">
-        <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
-      </UDropdownMenu>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
     </template>
+
     <template #content>
       <UProgress v-if="pending" size="xs" />
       <div v-if="data?.length" class="flex flex-col gap-y-2">

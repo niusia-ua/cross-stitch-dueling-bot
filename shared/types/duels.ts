@@ -66,6 +66,18 @@ export const ActiveDuelRecordSchema = DuelWithParticipantsDataSchema.omit({ star
 );
 export type ActiveDuelRecord = z.infer<typeof ActiveDuelRecordSchema>;
 
+export const ArchivedDuelRecordSchema = DuelSchema.pick({
+  id: true,
+  codeword: true,
+  completedAt: true,
+}).merge(
+  z.object({
+    winnerId: IdSchema.nullable(),
+    participants: z.array(IdSchema).min(2),
+  }),
+);
+export type ArchivedDuelRecord = z.infer<typeof ArchivedDuelRecordSchema>;
+
 export const DuelReportSchema = z.object({
   duelId: IdSchema,
   userId: IdSchema,

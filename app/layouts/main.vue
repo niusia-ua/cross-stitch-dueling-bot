@@ -1,18 +1,12 @@
 <template>
-  <div class="size-full flex flex-col">
-    <header class="flex items-center justify-between border-b border-default px-4 py-2">
-      <h1 class="text-2xl font-bold">
-        <slot name="header" />
-      </h1>
-      <slot name="header-actions" />
-    </header>
+  <BaseLayout v-bind="$attrs">
+    <!-- Pass the rest of slots. -->
+    <template v-for="(_, name) in $slots" #[name]>
+      <slot :name="name" />
+    </template>
 
-    <UContainer as="main" class="grow my-4 overflow-y-auto">
-      <slot name="content" />
-    </UContainer>
-
-    <footer>
-      <div class="flex items-center justify-center border-t border-default py-2">
+    <template #footer>
+      <ClientOnly>
         <UNavigationMenu
           :items="navigationItems"
           type="single"
@@ -23,9 +17,9 @@
             link: 'flex-col gap-0.5 before:bg-transparent hover:before:bg-transparent font-normal text-xs',
           }"
         />
-      </div>
-    </footer>
-  </div>
+      </ClientOnly>
+    </template>
+  </BaseLayout>
 </template>
 
 <script setup lang="ts">
