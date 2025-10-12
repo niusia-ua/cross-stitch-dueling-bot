@@ -1,6 +1,6 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
+  <NuxtLayout name="main">
+    <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
       <UDropdownMenu :items="userProfileActions">
         <UButton :loading="updatingUser" color="neutral" variant="ghost" icon="i-lucide:menu" />

@@ -1,6 +1,6 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
+  <NuxtLayout name="main">
+    <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
       <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
     </template>

@@ -1,15 +1,11 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
+  <NuxtLayout name="main">
+    <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
       <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
     </template>
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
-    </template>
-    <template v-if="loggedIn" #footer>
-      <LazyModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
-      <LazyModalDuelRequest v-else />
     </template>
   </NuxtLayout>
 </template>
@@ -25,7 +21,6 @@
 
   const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
-  const { loggedIn, session } = useUserSession();
 
   const UButton = resolveComponent("UButton");
   const UUser = resolveComponent("UUser");
@@ -97,9 +92,6 @@
   const { data, pending, error, refresh } = await useAsyncData("active-duels", () => DuelsApi.getActiveDuels(), {
     lazy: true,
   });
-  const ownDuel = computed(() =>
-    data.value?.find((duel) => duel.participants.some((p) => p.id === session.value?.user?.id)),
-  );
 
   watch(error, (err) => {
     if (err) {

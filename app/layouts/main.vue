@@ -1,15 +1,30 @@
 <template>
-  <div class="flex items-center justify-center border-t border-default py-2">
-    <UNavigationMenu
-      :items="navigationItems"
-      type="single"
-      :ui="{
-        root: 'w-full [&>div]:not-last:w-full',
-        list: 'w-full justify-evenly',
-        item: 'p-0',
-        link: 'flex-col gap-0.5 before:bg-transparent hover:before:bg-transparent font-normal text-xs',
-      }"
-    />
+  <div class="size-full flex flex-col">
+    <header class="flex items-center justify-between border-b border-default px-4 py-2">
+      <h1 class="text-2xl font-bold">
+        <slot name="header" />
+      </h1>
+      <slot name="header-actions" />
+    </header>
+
+    <UContainer as="main" class="grow my-4 overflow-y-auto">
+      <slot name="content" />
+    </UContainer>
+
+    <footer>
+      <div class="flex items-center justify-center border-t border-default py-2">
+        <UNavigationMenu
+          :items="navigationItems"
+          type="single"
+          :ui="{
+            root: 'w-full [&>div]:not-last:w-full',
+            list: 'w-full justify-evenly',
+            item: 'p-0',
+            link: 'flex-col gap-0.5 before:bg-transparent hover:before:bg-transparent font-normal text-xs',
+          }"
+        />
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -29,9 +44,9 @@
         label: fluent.$t("label-nav-rating"),
       },
       {
-        to: "/active-duels",
+        to: "/duels",
         icon: "i-lucide:swords",
-        label: fluent.$t("label-nav-active-duels"),
+        label: fluent.$t("label-nav-duels"),
       },
       {
         to: "/notifications",
@@ -55,8 +70,7 @@
 
 <fluent locale="uk">
 label-nav-rating = Рейтинг
-label-nav-active-duels = Активні дуелі
+label-nav-duels = Дуелі
 label-nav-notifications = Повідомлення
 label-nav-profile = Профіль
-label-nav-registration = Реєстрація
 </fluent>
