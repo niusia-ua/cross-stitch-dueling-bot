@@ -2,7 +2,9 @@
   <NuxtLayout name="main">
     <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
-      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+      <UDropdownMenu :items="menuOptions">
+        <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+      </UDropdownMenu>
     </template>
     <template #content>
       <UProgress v-if="pending" size="xs" />
@@ -23,6 +25,8 @@
 </template>
 
 <script setup lang="ts">
+  import type { DropdownMenuItem } from "@nuxt/ui";
+
   import { DuelRequestAction } from "#shared/types/duels.js";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
@@ -43,6 +47,16 @@
       });
     }
   });
+
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
+    [
+      {
+        icon: "i-lucide:refresh-cw",
+        label: fluent.$t("menu-opt-refresh"),
+        onSelect: () => refresh(),
+      },
+    ],
+  ]);
 
   async function handleDuelRequest(requestId: number, action: DuelRequestAction) {
     try {
@@ -125,6 +139,8 @@
 
 <fluent locale="uk">
 page-title = Повідомлення
+
+menu-opt-refresh = Оновити
 
 message-no-notifications = Немає нових повідомлень.
 

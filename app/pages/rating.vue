@@ -2,7 +2,9 @@
   <NuxtLayout name="main">
     <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
-      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+      <UDropdownMenu :items="menuOptions">
+        <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+      </UDropdownMenu>
     </template>
     <template #content>
       <UTable sticky :loading="pending" :columns="columns" :data="data" />
@@ -11,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { TableColumn } from "@nuxt/ui";
+  import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 
   import { DuelsApi } from "~/api/index.js";
 
@@ -61,10 +63,22 @@
       });
     }
   });
+
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
+    [
+      {
+        icon: "i-lucide:refresh-cw",
+        label: fluent.$t("menu-opt-refresh"),
+        onSelect: () => refresh(),
+      },
+    ],
+  ]);
 </script>
 
 <fluent locale="uk">
 page-title = Рейтинг
+
+menu-opt-refresh = Оновити
 
 table-col-rank = Місце
 table-col-user = Користувач

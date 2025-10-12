@@ -2,8 +2,8 @@
   <NuxtLayout name="main">
     <template #header>{{ $t("page-title") }}</template>
     <template #header-actions>
-      <UDropdownMenu :items="userProfileActions">
-        <UButton :loading="updatingUser" color="neutral" variant="ghost" icon="i-lucide:menu" />
+      <UDropdownMenu :items="menuOptions">
+        <UButton :loading="updatingUser" color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
       </UDropdownMenu>
     </template>
 
@@ -88,7 +88,7 @@
     { label: "≥1000", value: StitchesRate.High },
   ];
 
-  const userProfileActions = computed<DropdownMenuItem[][]>(() => [
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
     [
       {
         icon: "i-lucide:refresh-cw",
