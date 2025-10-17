@@ -47,14 +47,18 @@ export class GoogleCloudTasksService {
     },
   ) {
     await this.#tasksClient.createTask({
-      parent: this.#tasksClient.queuePath(this.#config.projectId, this.#config.location, queue),
+      parent: this.#tasksClient.queuePath(
+        this.#config.GOOGLE_CLOUD_PROJECT_ID,
+        this.#config.GOOGLE_CLOUD_TASKS_LOCATION,
+        queue,
+      ),
       task: {
         httpRequest: {
-          url: new URL(`/api/tasks/${endpoint}`, this.#config.baseUrl).toString(),
+          url: new URL(`/api/tasks/${endpoint}`, this.#config.APP_URL).toString(),
           httpMethod: "POST",
           headers: { "Content-Type": "application/json" },
           body: Buffer.from(JSON.stringify(payload)),
-          oidcToken: { serviceAccountEmail: this.#config.serviceAccountEmail },
+          oidcToken: { serviceAccountEmail: this.#config.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL },
         },
         scheduleTime: options?.delay !== undefined ? { seconds: (Date.now() + options.delay) / 1000 } : undefined,
       },
@@ -126,7 +130,7 @@ export class GoogleCloudTasksService {
     ];
     return await this.#oauthClient.verifyIdToken({
       idToken,
-      audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#config.baseUrl).toString()),
+      audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#config.APP_URL).toString()),
     });
   }
 }
