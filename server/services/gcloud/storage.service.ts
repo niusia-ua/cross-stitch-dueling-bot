@@ -34,8 +34,12 @@ export class GoogleCloudStorageService {
    * @param files An array of File objects representing the photos to upload.
    */
   async uploadDuelReportPhotos(duelId: number, userId: number, files: File[]) {
-    // Delete previous files.
-    await this.deleteDuelReportPhotos(duelId, userId);
+    try {
+      // Delete previous files.
+      await this.deleteDuelReportPhotos(duelId, userId);
+    } catch (error) {
+      console.error("Failed to delete previous duel report photos:", error);
+    }
 
     // Upload new files.
     return await Promise.all(

@@ -10,7 +10,28 @@
     </template>
 
     <template #content>
-      <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
+      <div class="h-full flex flex-col gap-y-2">
+        <div class="grow overflow-y-auto">
+          <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
+        </div>
+
+        <ClientOnly v-if="loggedIn">
+          <UButton
+            v-if="ownDuel"
+            :to="`/duels/${ownDuel.id}/report`"
+            icon="i-lucide:file-plus"
+            :label="$t('label-send-duel-report')"
+            class="w-full justify-center"
+          />
+          <UButton
+            v-else
+            to="/duels/requests"
+            icon="i-lucide:sword"
+            :label="$t('label-send-duel-request')"
+            class="w-full justify-center"
+          />
+        </ClientOnly>
+      </div>
     </template>
   </NuxtLayout>
 </template>
@@ -27,6 +48,7 @@
 
   const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
+  const { loggedIn, session } = useUserSession();
 
   const UButton = resolveComponent("UButton");
   const UUser = resolveComponent("UUser");
@@ -93,6 +115,9 @@
   const { data, pending, error, refresh } = await useAsyncData("active-duels", () => DuelsApi.getActiveDuels(), {
     lazy: true,
   });
+  const ownDuel = computed(() =>
+    data.value?.find((duel) => duel.participants.some((p) => p.id === session.value?.user?.id)),
+  );
 
   watch(error, (err) => {
     if (err) {
@@ -131,6 +156,9 @@ menu-opt-archive = Архів
 table-col-codeword = КС
 table-col-participants = Учасники
 table-col-deadline = Дедлайн
+
+label-send-duel-request = Кинути виклик
+label-send-duel-report = Надіслати звіт
 
 message-error-title = Сталася помилка
 message-error-description-failed-to-fetch-active-duels = Не вдалося отримати список активних дуелей.

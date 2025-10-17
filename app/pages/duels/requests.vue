@@ -1,14 +1,16 @@
 <template>
-  <UModal
-    v-model:open="open"
-    fullscreen
-    :title="$t('dialog-title')"
-    @after:enter="() => execute()"
-    @after:leave="() => clear()"
-  >
-    <UButton icon="i-lucide:sword" :label="$t('label-send-duel-request')" class="w-full justify-center" />
+  <NuxtLayout>
+    <template #header>
+      <div class="flex items-center justify-between gap-x-2">
+        <UButton icon="i-lucide:arrow-left" color="neutral" variant="ghost" @click="router.back()" />
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions" class="ml-auto">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
+    </template>
 
-    <template #body>
+    <template #content>
       <UTable v-model:row-selection="rowSelection" sticky :loading="pending" :data="data" :columns="columns">
         <template #selection-header="{ table }">
           <UCheckbox
@@ -39,20 +41,33 @@
         @click="sendDuelRequests"
       />
     </template>
-  </UModal>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-  import type { TableColumn } from "@nuxt/ui";
+  import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
+  definePageMeta({
+    middleware: [
+      async () => {
+        try {
+          const userParticipatesInDuel = await DuelsApi.getUserDuelParticipation();
+          if (userParticipatesInDuel) return navigateTo("/duels");
+        } catch (error) {
+          console.error("Failed to get user duel participation:", error);
+          return navigateTo("/duels");
+        }
+      },
+    ],
+  });
+
+  const router = useRouter();
   const fluent = useFluent();
   const toast = useToast();
 
   const { session } = useUserSession();
-
-  const open = ref(false);
 
   const columns = computed<TableColumn<UserAvailableForDuel>[]>(() => [
     { id: "selection" },
@@ -65,14 +80,13 @@
       },
     },
   ]);
+  const rowSelection = ref<Record<number, boolean>>({});
 
-  const { data, pending, error, execute, clear } = await useAsyncData(
+  const { data, pending, error, refresh } = await useAsyncData(
     "available-users",
     () => DuelsApi.getAvailableUsersForDuel(session.value?.user?.id),
     {
-      server: false,
       lazy: true,
-      immediate: false,
     },
   );
 
@@ -86,7 +100,15 @@
     }
   });
 
-  const rowSelection = ref<Record<number, boolean>>({});
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
+    [
+      {
+        icon: "i-lucide:refresh-cw",
+        label: fluent.$t("menu-opt-refresh"),
+        onSelect: () => refresh(),
+      },
+    ],
+  ]);
 
   async function sendDuelRequests() {
     const selectedUsers = Object.keys(rowSelection.value)
@@ -108,9 +130,7 @@
         title: fluent.$t("message-success-title"),
         description: fluent.$t("message-success-description-duel-requests-sent"),
       });
-
-      open.value = false;
-      rowSelection.value = {};
+      router.push("/duels");
     } catch (error) {
       if (error instanceof FetchError) {
         const data = (error as ApiError).data?.data;
@@ -147,7 +167,9 @@
 </script>
 
 <fluent locale="uk">
-dialog-title = Виклик на дуель
+page-title = Виклик на дуель
+
+menu-opt-refresh = Оновити
 
 table-col-user = Користувач
 table-col-stitches-rate = Швидкість вишивання
@@ -158,6 +180,7 @@ message-success-title = Успіх
 message-success-description-duel-requests-sent = Виклик(и) на дуель надіслано.
 
 message-error-title = Сталася помилка
+message-error-description-already-in-duel = Ви не можете переглянути цю сторінку, оскільки вже берете участь у дуелі.
 message-error-description-failed-to-fetch-available-users = Не вдалося отримати список доступних для дуелі користувачів.
 message-error-description-you-already-in-duel = Ви не можете кинути виклик(и), оскільки вже берете участь у дуелі.
 message-error-description-cant-duel-the-day-before-weekly-random-duels = Ви не можете кинути виклик(и) напередодні щотижневих випадкових дуелей.

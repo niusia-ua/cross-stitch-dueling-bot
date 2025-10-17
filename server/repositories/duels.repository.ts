@@ -279,12 +279,12 @@ export class DuelsRepository {
   }
 
   /**
-   * Check if a user is participating in a duel (the provided one or any).
+   * Returns `true` if a user is participating in a duel (the provided one or any).
    * @param userId The ID of the user to check.
    * @param duelId The ID of the duel to check (optional).
    * @returns True if the user is participating in the duel, false otherwise.
    */
-  async checkUserParticipationInDuel(userId: number, duelId?: number) {
+  async getUserDuelParticipation(userId: number, duelId?: number) {
     const conditionFragments = [];
     if (duelId) conditionFragments.push(sql.fragment`d.id = ${duelId}`);
     conditionFragments.push(sql.fragment`dp.user_id = ${userId}`);

@@ -1,3 +1,5 @@
+import z from "zod";
+
 export async function getDuelsRating() {
   const data = await $fetch("/api/duels/rating");
   return await DuelsRatingWithUsersInfoSchema.array().parseAsync(data);
@@ -20,6 +22,12 @@ export async function getAvailableUsersForDuel(excludeUserId?: number) {
     query: { excludeUserId },
   });
   return await UserAvailableForDuelSchema.array().parseAsync(data);
+}
+
+export async function getUserDuelParticipation(query?: { userId?: number; duelId?: number }) {
+  const data = await $fetch("/api/duels/participation", { query });
+  const { participation } = await z.object({ participation: z.boolean() }).parseAsync(data);
+  return participation;
 }
 
 export async function sendDuelRequests(toUserIds: number[]) {

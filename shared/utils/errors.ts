@@ -10,6 +10,7 @@ export interface ApiErrorData {
 
 export enum ApiErrorCode {
   // General errors.
+  BadRequest = "BadRequest",
   NotFound = "NotFound",
   NotAllowed = "NotAllowed",
 
