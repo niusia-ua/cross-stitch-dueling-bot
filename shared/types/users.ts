@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { IdSchema } from "./util.js";
+import { IdSchema } from "./utils.js";
 
 export const UserSchema = z.object({
   id: IdSchema,

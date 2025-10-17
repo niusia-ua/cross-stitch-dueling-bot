@@ -1,5 +1,4 @@
 import { sample } from "es-toolkit";
-import { DUEL_PERIOD, SECOND } from "#shared/constants/duels.js";
 
 import type {
   UsersService,
@@ -8,6 +7,7 @@ import type {
   GoogleCloudStorageService,
 } from "~~/server/services/";
 import type { DuelsRepository } from "~~/server/repositories/";
+import { dayjs } from "~~/server/utils/datetime.js";
 
 interface Dependencies {
   duelsRepository: DuelsRepository;
@@ -20,6 +20,8 @@ interface Dependencies {
 
 /** Duel service for managing duel-related operations. */
 export class DuelsService {
+  #config = useRuntimeConfig();
+
   #duelsRepository: DuelsRepository;
   #usersService: UsersService;
   #notificationsService: NotificationsService;
@@ -47,7 +49,11 @@ export class DuelsService {
    * @returns The list of active duels with participants.
    */
   async getActiveDuelsWithParticipants() {
-    return await this.#duelsRepository.getActiveDuelsWithParticipants();
+    const duels = await this.#duelsRepository.getActiveDuelsWithParticipants();
+    return duels.map<ActiveDuelRecord>(({ startedAt, ...duel }) => ({
+      ...duel,
+      deadline: dayjs(startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate(),
+    }));
   }
 
   /**
@@ -159,6 +165,16 @@ export class DuelsService {
     const result = await this.#duelsRepository.removeDuelRequest(requestId);
     if (result) {
       const { fromUser, toUser } = result;
+
+      // Check if the user who sent the request is already in a duel.
+      const fromUserParticipatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(fromUser.id);
+      if (fromUserParticipatesInDuel) {
+        throw createApiError({
+          code: ApiErrorCode.OtherUserAlreadyInDuel,
+          message: "The other user is already participating in a duel.",
+        });
+      }
+
       await this.createDuel(fromUser, toUser);
       await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
     }
@@ -196,7 +212,7 @@ export class DuelsService {
   private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
-    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
 
@@ -213,12 +229,12 @@ export class DuelsService {
       codeword,
       pairs.map((pair) => pair.map((user) => user.id)),
     );
-    const deadline = dayjs(duels[0].startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
       duels.flatMap((duel, i) => [
-        this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * SECOND * 30 }),
+        this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * 30_000 }), // Delay the completion of each duel by 30 seconds.
         ...pairs[i]!.map((user) => this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user.id)),
       ]),
     );
@@ -232,8 +248,6 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getFullDuelInfoById(duelId);
     if (!duel || duel.completedAt !== null) return;
 
-    await this.#duelsRepository.completeDuel(duel.id);
-
     const { codeword, participants, reports } = duel;
     const photos = await Promise.all(
       participants.map((p) => this.#gcloudStorageService.downloadDuelReportPhotos(duel.id, p.id)),
@@ -241,10 +255,10 @@ export class DuelsService {
 
     // Determine the winner based on the reports.
     const highestScore = Math.max(...reports.filter((r) => r !== null).map((r) => r.stitches));
-    const winningReportIndex = sample(reports.filter((r) => r?.stitches === highestScore).map((_r, i) => i));
-    const winner = winningReportIndex !== undefined ? participants[winningReportIndex] : null;
-    if (winner) await this.#duelsRepository.setDuelWinner(duelId, winner.id);
+    const winnerIndex = sample(reports.map((r, i) => (r?.stitches === highestScore ? i : -1)).filter((i) => i !== -1));
+    const winner = winnerIndex !== undefined ? participants[winnerIndex] : null;
 
+    await this.#duelsRepository.completeDuel(duel.id, winner?.id);
     await this.#notificationsService.postDuelResults(codeword, participants, reports, photos, winner);
   }
 
@@ -254,7 +268,7 @@ export class DuelsService {
    * @param userId The ID of the user reporting the duel.
    * @param report The report data.
    */
-  async createDuelReport(duelId: number, userId: number, report: DuelReportRequest) {
+  async createDuelReport(duelId: number, userId: number, reportRequest: DuelReportRequest) {
     const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(userId, duelId);
     if (!participatesInDuel) {
       throw createApiError({
@@ -277,8 +291,15 @@ export class DuelsService {
       });
     }
 
-    await this.#duelsRepository.createDuelReport(duelId, userId, report);
-    await this.#gcloudStorageService.uploadDuelReportPhotos(duelId, userId, report.photos);
+    const createdReport = await this.#duelsRepository.createDuelReport(duelId, userId, reportRequest);
+    const uploadedPhotos = await this.#gcloudStorageService.uploadDuelReportPhotos(
+      duelId,
+      userId,
+      reportRequest.photos,
+    );
+
+    const user = (await this.#usersService.getUserIdAndFullname(userId))!;
+    await this.#notificationsService.sendReportPreview(user, createdReport, uploadedPhotos);
   }
 
   async sendDuelReportReminder(duelId: number, userId: number) {
@@ -288,7 +309,7 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getDuelById(duelId);
     if (!duel) return;
 
-    const deadline = dayjs(duel.startedAt).add(DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
 
     await this.#notificationsService.remindUserAboutDuelReport(userId, deadline);
   }
@@ -296,5 +317,15 @@ export class DuelsService {
   /** Retrieves the duels rating information in the current month for all active users. */
   async getDuelsRating() {
     return await this.#duelsRepository.getDuelsRating();
+  }
+
+  /** Publishes the monthly rating and celebrates the winners. */
+  async publishMonthlyRatingAndWinners() {
+    await this.#duelsRepository.refreshDuelsRating();
+
+    const rating = await this.#duelsRepository.getDuelsRating();
+    const winners = getRatingWinners(rating);
+
+    await this.#notificationsService.postMonthlyRatingAndWinners(rating, winners);
   }
 }

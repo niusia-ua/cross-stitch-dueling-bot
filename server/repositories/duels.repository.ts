@@ -74,10 +74,11 @@ export class DuelsRepository {
     return await this.#pool.any(sql.type(DuelWithParticipantsDataSchema)`
       SELECT
         d.id, d.codeword, d.started_at,
-        JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url)) AS participants
+        JSON_AGG(json_build_object('id', u.id, 'fullname', u.fullname, 'photo_url', u.photo_url, 'stitches_rate', us.stitches_rate)) AS participants
       FROM duels AS d
         JOIN duel_participants AS dp ON dp.duel_id = d.id
         JOIN users AS u ON u.id = dp.user_id
+        JOIN user_settings AS us ON us.user_id = u.id
       WHERE d.completed_at IS NULL
       GROUP BY d.id
       ORDER BY d.started_at DESC
@@ -201,15 +202,30 @@ export class DuelsRepository {
   }
 
   /**
-   * Completes a duel by specifying the completion date.
+   * Completes a duel by setting the completion date, winner, and refreshing the rating.
    * @param duelId The ID of the duel to complete.
+   * @param winnerId The ID of the winner (optional).
    */
-  async completeDuel(duelId: number) {
-    await this.#pool.query(sql.typeAlias("void")`
-      UPDATE duels
-      SET completed_at = NOW()
-      WHERE id = ${duelId}
-    `);
+  async completeDuel(duelId: number, winnerId?: number) {
+    await this.#pool.transaction(async (tx) => {
+      await tx.query(sql.typeAlias("void")`
+        UPDATE duels
+        SET completed_at = NOW()
+        WHERE id = ${duelId}
+      `);
+
+      if (winnerId) {
+        await tx.query(sql.typeAlias("void")`
+          INSERT INTO duel_winners (duel_id, user_id)
+          VALUES (${duelId}, ${winnerId})
+          ON CONFLICT DO NOTHING
+        `);
+      }
+
+      await tx.query(sql.typeAlias("void")`
+        REFRESH MATERIALIZED VIEW duels_rating
+      `);
+    });
   }
 
   async createDuelReport(duelId: number, userId: number, report: DuelReportData) {
@@ -236,14 +252,6 @@ export class DuelsRepository {
       SELECT *
       FROM duel_reports
       WHERE duel_id = ${duelId}
-    `);
-  }
-
-  async setDuelWinner(duelId: number, userId: number) {
-    await this.#pool.query(sql.typeAlias("void")`
-      INSERT INTO duel_winners (duel_id, user_id)
-      VALUES (${duelId}, ${userId})
-      ON CONFLICT DO NOTHING
     `);
   }
 
@@ -283,6 +291,13 @@ export class DuelsRepository {
       FROM duels_rating AS dr
       JOIN users AS u ON u.id = dr.user_id
       JOIN user_settings AS us ON us.user_id = u.id
+    `);
+  }
+
+  /** Refreshes the materialized view for duels rating. */
+  async refreshDuelsRating() {
+    await this.#pool.query(sql.typeAlias("void")`
+      REFRESH MATERIALIZED VIEW duels_rating
     `);
   }
 }

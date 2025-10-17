@@ -11,7 +11,11 @@
       <div class="space-y-2">
         <div>
           <div class="flex items-center justify-between">
-            <UserInfo v-bind="user" />
+            <UUser
+              :name="user.fullname"
+              :description="user.username ? `@${user.username}` : undefined"
+              :avatar="user.photoUrl ? { src: user.photoUrl } : undefined"
+            />
             <UBadge
               :color="user.active ? 'success' : 'error'"
               :label="$t(user.active ? 'badge-label-active' : 'badge-label-inactive')"
@@ -20,7 +24,11 @@
 
           <i18n path="message-last-updated-at" class="text-xs text-dimmed">
             <template #datetime>
-              <NuxtTime :datetime="user.updatedAt" :locale="$selectedLocale" v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS" />
+              <NuxtTime
+                :datetime="user.updatedAt"
+                :locale="$selectedLocale"
+                v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
+              />
             </template>
           </i18n>
         </div>
@@ -49,7 +57,7 @@
             <NuxtTime
               :datetime="settings.updatedAt"
               :locale="$selectedLocale"
-              v-bind="DEFAULT_DATETIME_FORMAT_OPTIONS"
+              v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
             />
           </template>
         </i18n>
@@ -61,12 +69,12 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from "@nuxt/ui";
 
-  import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "~~/shared/constants/datetime.js";
   import { UsersApi, FetchError, type ApiError } from "~/api/";
 
   const fluent = useFluent();
   const toast = useToast();
 
+  const config = useRuntimeConfig();
   const { $selectedLocale } = useNuxtApp();
   const { session, fetch: refreshSession } = useUserSession();
 

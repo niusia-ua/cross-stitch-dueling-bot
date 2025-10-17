@@ -21,7 +21,13 @@
           </UFormField>
 
           <UFormField name="stitches" :label="$t('form-field-stitches-label')">
-            <UInputNumber v-model="report.stitches" orientation="vertical" :min="0" class="w-full" />
+            <UInputNumber
+              v-model="report.stitches"
+              orientation="vertical"
+              :min="0"
+              :step-snapping="false"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField
@@ -48,7 +54,7 @@
 <script setup lang="ts">
   import type { FormSubmitEvent } from "@nuxt/ui";
 
-  import { DuelReportRequestSchema } from "#shared/types/duel.js";
+  import { DuelReportRequestSchema } from "#shared/types/duels.js";
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
   interface DuelReportProps {

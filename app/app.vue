@@ -1,4 +1,5 @@
 <template>
+  <!-- @vue-ignore -->
   <UApp :locale="nuxtLocales[$selectedLocale.value]" :toaster="{ position: 'top-center' }">
     <NuxtPage />
   </UApp>

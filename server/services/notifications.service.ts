@@ -1,10 +1,9 @@
 import { zip } from "es-toolkit";
 import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "grammy";
-import type { InputMediaPhoto } from "grammy/types";
+import type { InputMediaPhoto, Message } from "grammy/types";
 
-import { DEFAULT_DATETIME_FORMAT_OPTIONS } from "#shared/constants/datetime.js";
 import type { BotApi, BotI18n } from "~~/server/bot/";
-import type { UserIdAndFullname } from "~~/shared/types/user.js";
+import type { UserIdAndFullname } from "~~/shared/types/users.js";
 
 interface Dependencies {
   botApi: BotApi;
@@ -15,20 +14,12 @@ export class NotificationsService {
   #botApi: BotApi;
   #botI18n: BotI18n;
 
-  #datetimeFormatter = new Intl.DateTimeFormat("uk", DEFAULT_DATETIME_FORMAT_OPTIONS);
-
-  #webAppUrl: string;
-  #targetChatId: number;
-  #targetThreadId: number;
+  #config = useRuntimeConfig();
+  #datetimeFormatter = new Intl.DateTimeFormat("uk", this.#config.public.DEFAULT_DATETIME_FORMAT_OPTIONS);
 
   constructor({ botApi, botI18n }: Dependencies) {
     this.#botApi = botApi;
     this.#botI18n = botI18n;
-
-    const config = useRuntimeConfig();
-    this.#webAppUrl = config.APP_URL;
-    this.#targetChatId = config.TARGET_CHAT_ID;
-    this.#targetThreadId = config.TARGET_THREAD_ID;
   }
 
   /** Send a private message to a user. */
@@ -36,20 +27,20 @@ export class NotificationsService {
     return this.#botApi.sendMessage(chatId, message, options);
   }
 
-  /** Send a private message with a sticker to a user. */
-  #sendPrivateSticker(chatId: number, photo: InputFile) {
-    return this.#botApi.sendSticker(chatId, photo);
-  }
-
   /** Send a group message. */
   #sendGroupMessage(message: string, options?: SendMessageOptions) {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMessage({
       ...options,
-      chat_id: this.#targetChatId,
-      message_thread_id: this.#targetThreadId,
+      chat_id: this.#config.TARGET_CHAT_ID,
+      message_thread_id: this.#config.TARGET_THREAD_ID,
       text: message,
     });
+  }
+
+  /** Send a private message with a media group (an album). */
+  #sendPrivateMediaMessage(chatId: number, media: InputMediaPhoto[], options?: SendMessageOptions) {
+    return this.#botApi.sendMediaGroup(chatId, media, options);
   }
 
   /** Send a group message with a media group (an album). */
@@ -57,10 +48,15 @@ export class NotificationsService {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMediaGroup({
       ...options,
-      chat_id: this.#targetChatId,
-      message_thread_id: this.#targetThreadId,
+      chat_id: this.#config.TARGET_CHAT_ID,
+      message_thread_id: this.#config.TARGET_THREAD_ID,
       media,
     });
+  }
+
+  /** Send a private message with a sticker to a user. */
+  #sendPrivateSticker(chatId: number, photo: InputFile) {
+    return this.#botApi.sendSticker(chatId, photo);
   }
 
   /**
@@ -70,7 +66,10 @@ export class NotificationsService {
    */
   async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
-    const keyboard = new InlineKeyboard().webApp(this.#botI18n.t("uk", "label-open"), this.#webAppUrl);
+    const keyboard = new InlineKeyboard().webApp(
+      this.#botI18n.t("uk", "label-open"),
+      new URL("/notifications", this.#config.APP_URL).href,
+    );
     await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });
   }
 
@@ -174,15 +173,18 @@ export class NotificationsService {
     codeword: string,
     participants: readonly UserIdAndFullname[],
     reports: readonly (DuelReportData | null)[],
-    photos: Buffer[][],
+    photos: InputFileSource[][],
     winner: UserIdAndFullname | null,
   ) {
+    // Get a funny sticker for those who haven't sent a report.
+    const storage = useStorage("assets:server");
+    const sticker = (await storage.getItemRaw<Uint8Array>("images/sticker.webp"))!;
+
     // Post a message with the duel overview.
-    const hasWinner = winner !== null;
     await this.#sendGroupMessage(
       this.#botI18n.t(
         "uk",
-        hasWinner ? "message-duel-completed-with-winner" : "message-duel-completed-without-winner",
+        winner !== null ? "message-duel-completed-with-winner" : "message-duel-completed-without-winner",
         {
           codeword,
           participants: participants.map((p) => mentionUser(p)).join(", "),
@@ -192,49 +194,97 @@ export class NotificationsService {
     );
 
     // Post each report.
-    await Promise.all(
-      zip(participants, reports)
-        .filter(([_, report]) => report && report.stitches > 0)
-        .map(([user, report], i) => {
-          const hasAdditionalInfo = report!.additionalInfo !== null;
-          const caption = this.#botI18n.t(
-            "uk",
-            hasAdditionalInfo
-              ? "message-duel-report-with-additional-info"
-              : "message-duel-report-without-additional-info",
-            {
-              user: mentionUser(user),
-              stitches: report!.stitches,
-              additionalInfo: report!.additionalInfo ?? "",
-            },
-          );
+    await Promise.allSettled(
+      zip(participants, reports).flatMap<Promise<Message | Message[]>>(([user, report], i) => {
+        if (!report || report.stitches === 0) {
+          return [
+            // Send a message about the lack of report.
+            this.#sendGroupMessage(this.#botI18n.t("uk", "message-duel-no-report", { user: mentionUser(user) }), {
+              disable_notification: true,
+            }),
+            // Send a funny sticker to this user.
+            this.#sendPrivateSticker(user.id, new InputFile(sticker)),
+          ];
+        }
 
-          const media = photos[i].map((buffer, i) => {
+        const caption = this.#botI18n.t(
+          "uk",
+          report.additionalInfo !== null
+            ? "message-duel-report-with-additional-info"
+            : "message-duel-report-without-additional-info",
+          {
+            user: mentionUser(user),
+            stitches: report.stitches,
+            additionalInfo: report.additionalInfo ?? "",
+          },
+        );
+        const media = photos[i].map((buffer, i) => {
+          return InputMediaBuilder.photo(new InputFile(buffer), {
             // Attach a caption only to the first photo.
             // This way, the caption will be shown for the entire album.
-            return InputMediaBuilder.photo(new InputFile(buffer), {
-              caption: i === 0 ? caption : undefined,
-            });
+            caption: i === 0 ? caption : undefined,
           });
+        });
 
-          return this.#sendGroupMediaMessage(media, { disable_notification: true });
-        }),
+        return this.#sendGroupMediaMessage(media, { disable_notification: true });
+      }),
     );
+  }
 
-    // To those users, who haven't reported the duel, send a funny sticker.
-    try {
-      await Promise.all(
-        zip(participants, reports)
-          .filter(([_, report]) => !report || report.stitches === 0)
-          .map(async ([user, _]) => {
-            const storage = useStorage("assets:server");
-            const sticker = (await storage.getItemRaw<Uint8Array>("images/sticker.webp"))!;
-            return this.#sendPrivateSticker(user.id, new InputFile(sticker));
-          }),
-      );
-    } catch (error) {
-      console.error("Error sending sticker:", error);
-    }
+  /**
+   * Send the report preview to the user in a private chat.
+   * @param userId The ID of the user to send the report preview to.
+   * @param report The report data to send.
+   * @param photos The photos to send as a media group.
+   */
+  sendReportPreview(user: UserIdAndFullname, report: DuelReportData, photos: InputFileSource[]) {
+    const caption = this.#botI18n.t(
+      "uk",
+      report.additionalInfo !== null
+        ? "message-duel-report-with-additional-info"
+        : "message-duel-report-without-additional-info",
+      {
+        user: mentionUser(user),
+        stitches: report.stitches,
+        additionalInfo: report.additionalInfo ?? "",
+      },
+    );
+    const media = photos.map((buffer, i) => {
+      return InputMediaBuilder.photo(new InputFile(buffer), {
+        // Attach a caption only to the first photo.
+        // This way, the caption will be shown for the entire album.
+        caption: i === 0 ? caption : undefined,
+      });
+    });
+
+    return this.#sendPrivateMediaMessage(user.id, media);
+  }
+
+  /**
+   * Posts the monthly rating and winners celebration in the group chat.
+   * @param rating The rating records.
+   * @param winners The winners.
+   */
+  async postMonthlyRatingAndWinners<T extends DuelsRatingWithUsersInfo>(rating: readonly T[], winners: readonly T[]) {
+    // Get the month in a genitive case.
+    const month = this.#datetimeFormatter.formatToParts(new Date()).find((part) => part.type === "month")!.value;
+
+    const ratingMessage = this.#botI18n.t("uk", "message-monthly-rating", {
+      month,
+      rating: rating
+        .map(
+          (record, i) =>
+            `${i + 1}. ${mentionUser(record.user, { skipFormatting: true })} (${record.user.stitchesRate}) — ${record.totalDuelsParticipated}/${record.totalDuelsWon}`,
+        )
+        .join("\n"),
+    });
+    await this.#sendGroupMessage(ratingMessage);
+
+    const winnersMessage = this.#botI18n.t("uk", "message-monthly-winners", {
+      month,
+      winners: winners.map((w) => mentionUser(w.user)).join(", "),
+    });
+    await this.#sendGroupMessage(winnersMessage);
   }
 }
 
@@ -245,3 +295,5 @@ function mentionUser(user: UserIdAndFullname, options?: { skipFormatting?: boole
 }
 
 type SendMessageOptions = Omit<Parameters<RawApi["sendMessage"]>[0], "chat_id" | "text">;
+
+type InputFileSource = ConstructorParameters<typeof InputFile>[0];

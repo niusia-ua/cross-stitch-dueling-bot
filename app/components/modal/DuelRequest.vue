@@ -21,10 +21,10 @@
         </template>
 
         <template #user-cell="{ row }">
-          <UserInfo
-            :fullname="row.original.fullname"
-            :photo-url="row.original.photoUrl ?? undefined"
-            variant="simple"
+          <UUser
+            size="sm"
+            :name="row.original.fullname"
+            :avatar="row.original.photoUrl ? { src: row.original.photoUrl } : undefined"
           />
         </template>
       </UTable>

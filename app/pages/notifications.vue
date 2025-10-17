@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-  import { DuelRequestAction } from "#shared/types/duel.js";
+  import { DuelRequestAction } from "#shared/types/duels.js";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
@@ -101,6 +101,16 @@
           });
           return;
         }
+
+        if (data?.code === ApiErrorCode.OtherUserAlreadyInDuel) {
+          console.error(data.message, data.details);
+          toast.add({
+            color: "error",
+            title: fluent.$t("message-error-title"),
+            description: fluent.$t("message-error-description-other-user-already-in-duel"),
+          });
+          return;
+        }
       }
 
       console.error("Failed to handle duel request:", error);
@@ -128,6 +138,7 @@ message-error-description-you-already-in-duel = Ви не можете прий�
 message-error-description-cant-duel-the-day-before-weekly-random-duels = Ви не можете прийняти або відхилити виклик на дуель напередодні щотижневих випадкових дуелей.
 message-error-description-duel-request-not-found = Запит на дуель більше не дійсний.
 message-error-description-handle-duel-request-not-allowed = Вам не дозволено обробляти цей виклик на дуель.
+message-error-description-other-user-already-in-duel = Користувач, який надіслав виклик, вже бере участь у іншій дуелі.
 message-error-description-unknown =
   Не вдалося прийняти або відхилити виклик на дуель.
   Будь ласка, спробуйте ще раз.

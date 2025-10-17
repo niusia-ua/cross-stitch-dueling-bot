@@ -1,7 +1,7 @@
 import z from "zod";
 
-import { IdSchema } from "./util.js";
-import { UserSchema, UserSettingsSchema } from "./user.js";
+import { IdSchema, ImageFileSchema } from "./utils.js";
+import { UserSchema, UserSettingsSchema } from "./users.js";
 
 export const DuelSchema = z.object({
   id: IdSchema,
@@ -55,11 +55,16 @@ export const DuelWithParticipantsDataSchema = DuelSchema.pick({
         id: true,
         fullname: true,
         photoUrl: true,
-      }),
+      }).merge(UserSettingsSchema.pick({ stitchesRate: true })),
     ),
   }),
 );
 export type DuelWithParticipantsData = z.infer<typeof DuelWithParticipantsDataSchema>;
+
+export const ActiveDuelRecordSchema = DuelWithParticipantsDataSchema.omit({ startedAt: true }).merge(
+  z.object({ deadline: z.coerce.date() }),
+);
+export type ActiveDuelRecord = z.infer<typeof ActiveDuelRecordSchema>;
 
 export const DuelReportSchema = z.object({
   duelId: IdSchema,
@@ -76,11 +81,22 @@ export const DuelReportDataSchema = DuelReportSchema.pick({
 export type DuelReportData = z.infer<typeof DuelReportDataSchema>;
 
 export const DuelReportPhotosSchema = z.object({
-  photos: z.array(
-    z.instanceof(File, { message: "Please select an image file." }).refine((file) => file.size <= 8 * 1024 * 1024, {
-      message: "The image is too large. Please choose an image smaller than 8 MB.",
+  photos: z
+    .array(z.instanceof(File))
+    .min(2)
+    .superRefine((files, ctx) => {
+      files.forEach((file, index) => {
+        const result = ImageFileSchema.safeParse(file);
+        if (!result.success) {
+          result.error.issues.forEach((issue) => {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `File ${index + 1}: ${issue.message}`,
+            });
+          });
+        }
+      });
     }),
-  ),
 });
 export type DuelReportPhotos = z.infer<typeof DuelReportPhotosSchema>;
 

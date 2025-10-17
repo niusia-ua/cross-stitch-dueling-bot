@@ -1,4 +1,4 @@
-import { Storage, type Bucket } from "@google-cloud/storage";
+import { type Bucket, Storage } from "@google-cloud/storage";
 import { extension as getMimeTypeExtension } from "mime-types";
 
 const DUEL_REPORTS_BUCKET_NAME = "duel-reports";
@@ -38,10 +38,14 @@ export class GoogleCloudStorageService {
     await this.deleteDuelReportPhotos(duelId, userId);
 
     // Upload new files.
-    await Promise.all(
+    return await Promise.all(
       files.map(async (file, index) => {
         const destPath = `${duelId}/${userId}/${index}.${getMimeTypeExtension(file.type)}`;
-        await this.#duelReportsBucket.file(destPath).save(await file.bytes());
+
+        const buffer = await file.bytes();
+        await this.#duelReportsBucket.file(destPath).save(buffer);
+
+        return buffer;
       }),
     );
   }
@@ -60,7 +64,7 @@ export class GoogleCloudStorageService {
     return await Promise.all(
       files.map(async (file) => {
         const [buffer] = await file.download();
-        return buffer;
+        return Uint8Array.from(buffer);
       }),
     );
   }

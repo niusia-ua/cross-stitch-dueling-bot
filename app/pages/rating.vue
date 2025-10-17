@@ -18,7 +18,7 @@
   const fluent = useFluent();
   const toast = useToast();
 
-  const UserInfo = resolveComponent("UserInfo");
+  const UUser = resolveComponent("UUser");
 
   const columns = computed<TableColumn<DuelsRatingWithUsersInfo>[]>(() => [
     {
@@ -29,16 +29,14 @@
       header: fluent.$t("table-col-user"),
       cell: ({ row }) => {
         const user = row.original.user;
-        return h(UserInfo, {
+        return h(UUser, {
           key: user.id,
-          variant: "simple",
-          ...user,
+          size: "sm",
+          name: user.fullname,
+          description: getStitchesRateLabel(user.stitchesRate),
+          avatar: user.photoUrl ? { src: user.photoUrl } : undefined,
         });
       },
-    },
-    {
-      header: fluent.$t("table-col-stitches-rate"),
-      cell: ({ row }) => getStitchesRateLabel(row.original.user.stitchesRate),
     },
     {
       accessorKey: "totalDuelsParticipated",
@@ -70,7 +68,6 @@ page-title = Рейтинг
 
 table-col-rank = Місце
 table-col-user = Користувач
-table-col-stitches-rate = Швидкість вишивання
 table-col-duels-participated = Зіграно
 table-col-duels-won = Переможено
 

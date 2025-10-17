@@ -1,4 +1,5 @@
 -club = ДК "Дуельний клуб"
+-community = Посиденьки з пʼяльцями
 
 ## Common labels.
 
@@ -71,12 +72,12 @@ message-duel-completed-with-winner =
   Кодове слово: <b>{ $codeword }</b>.
   Учасники: { $participants }
   Переможець(ниця): { $winner }.
-
 message-duel-completed-without-winner =
   Дуель завершено!
   Кодове слово: <b>{ $codeword }</b>.
   На жаль, у цій дуелі немає переможця(ниці).
 
+message-duel-no-report = Звіт учасника(ці) дуелі { $user } відсутній.
 message-duel-report-with-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
@@ -87,7 +88,6 @@ message-duel-report-with-additional-info =
 
   Додаткова інформація:
   { $additionalInfo }
-
 message-duel-report-without-additional-info =
   Звіт учасника(ці) дуелі { $user }.
   Загалом вишито { $stitches ->
@@ -95,6 +95,13 @@ message-duel-report-without-additional-info =
     [few] { $stitches } стібки
     *[many] { $stitches } стібків
   }.
+
+message-monthly-rating =
+  <b>Загальний рейтинг { $month }:</b>
+  { $rating }
+message-monthly-winners =
+  Вітаємо переможців { $month }: { $winners }!
+  Ви отримуєте знижку 20% на схеми дизайнерів спільноти <i>{ -community }</i>.
 
 ## Error messages.
 
