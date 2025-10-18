@@ -21,14 +21,4 @@ export function isItTheDayBeforeWeeklyRandomDuels() {
   return (day === 5 && hour >= 7) || (day === 6 && hour <= 7);
 }
 
-/**
- * Checks if today is the last day of the month.
- * @returns True if it is the last day of the month, false otherwise.
- */
-export function isLastDayOfMonth() {
-  const today = dayjs().utc();
-  const tomorrow = today.add(1, "day");
-  return today.month() !== tomorrow.month();
-}
-
 export { dayjs };

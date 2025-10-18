@@ -321,9 +321,7 @@ export class DuelsService {
 
   /** Publishes the monthly rating and celebrates the winners. */
   async publishMonthlyRatingAndWinners() {
-    await this.#duelsRepository.refreshDuelsRating();
-
-    const rating = await this.#duelsRepository.getDuelsRating();
+    const rating = await this.#duelsRepository.getPreviousMonthDuelsRating();
     const winners = getRatingWinners(rating);
 
     await this.#notificationsService.postMonthlyRatingAndWinners(rating, winners);
