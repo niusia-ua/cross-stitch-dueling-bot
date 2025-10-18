@@ -1,4 +1,4 @@
-import { sample } from "es-toolkit";
+import { sample, zip } from "es-toolkit";
 
 import type {
   UsersService,
@@ -233,9 +233,9 @@ export class DuelsService {
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
-      duels.flatMap((duel, i) => [
+      zip(duels, pairs).flatMap(([duel, participants], i) => [
         this.#gcloudTasksService.scheduleDuelCompletion(duel.id, { delay: i * 30_000 }), // Delay the completion of each duel by 30 seconds.
-        ...pairs[i]!.map((user) => this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user.id)),
+        participants.map((user) => this.#gcloudTasksService.scheduleDuelReportReminder(duel.id, user.id)),
       ]),
     );
   }
