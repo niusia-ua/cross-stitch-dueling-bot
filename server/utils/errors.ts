@@ -18,6 +18,9 @@ export function createApiError(data: ApiErrorData) {
  */
 function mapApiErrorToHttpStatus(code: ApiErrorCode): [code: number, message: string] {
   switch (code) {
+    case ApiErrorCode.BadRequest:
+      return [400, "Bad Request"];
+
     case ApiErrorCode.NotFound:
       return [404, "Not Found"];
 

@@ -1,8 +1,13 @@
 <template>
-  <UModal v-model:open="open" fullscreen :title="$t('dialog-title')" @after:leave="() => clear()">
-    <UButton icon="i-lucide:file-plus" :label="$t('label-send-duel-report')" class="w-full justify-center" />
+  <NuxtLayout>
+    <template #header>
+      <div class="flex items-center gap-x-2">
+        <UButton icon="i-lucide:arrow-left" color="neutral" variant="ghost" @click="router.back()" />
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+      </div>
+    </template>
 
-    <template #body>
+    <template #content>
       <UForm
         :schema="DuelReportRequestSchema"
         :state="report"
@@ -48,7 +53,7 @@
         />
       </UForm>
     </template>
-  </UModal>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
@@ -57,17 +62,27 @@
   import { DuelReportRequestSchema } from "#shared/types/duels";
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 
-  interface DuelReportProps {
-    /** The ID of the duel. */
-    id: number;
-  }
+  definePageMeta({
+    validate: (route) => IdSchema.safeParse(route.params.id).success,
+    middleware: [
+      async (to) => {
+        const duelId = Number(to.params.id);
+        try {
+          const userParticipatesInDuel = await DuelsApi.getUserDuelParticipation({ duelId });
+          if (!userParticipatesInDuel) return navigateTo("/duels");
+        } catch (error) {
+          console.error("Failed to get user duel participation:", error);
+          return navigateTo("/duels");
+        }
+      },
+    ],
+  });
 
+  const route = useRoute();
+  const router = useRouter();
   const toast = useToast();
   const fluent = useFluent();
 
-  const { id } = defineProps<DuelReportProps>();
-
-  const open = ref(false);
   const report = reactive<DuelReportRequest>({
     photos: [],
     stitches: 0,
@@ -76,14 +91,13 @@
 
   async function handleSubmit(e: FormSubmitEvent<DuelReportRequest>) {
     try {
-      await DuelsApi.sendDuelReport(id, e.data);
+      await DuelsApi.sendDuelReport(Number(route.params.id), e.data);
       toast.add({
         color: "success",
         title: fluent.$t("message-success-title"),
         description: fluent.$t("message-success-description-duel-report-submitted"),
       });
-
-      open.value = false;
+      router.push("/duels");
     } catch (error) {
       if (error instanceof FetchError) {
         const data = (error as ApiError).data?.data;
@@ -127,16 +141,10 @@
       });
     }
   }
-
-  function clear() {
-    report.photos = [];
-    report.stitches = 0;
-    report.additionalInfo = null;
-  }
 </script>
 
 <fluent locale="uk">
-dialog-title = Звіт дуелі
+page-title = Звіт дуелі
 
 form-field-photos-label = Фото прогресу
 form-field-photos-description = Натисніть, щоб завантажити фото
@@ -152,8 +160,9 @@ message-success-title = Успіх
 message-success-description-duel-report-submitted = Звіт дуелі надіслано успішно!
 
 message-error-title = Сталася помилка
-message-error-description-duel-report-not-allowed = Вам не дозволено надсилати звіт цієї дуелі.
 message-error-description-duel-not-found = Дуель не знайдено.
+message-error-description-not-participant = Ви не можете надіслати звіт, оскільки не берете участь у цій дуелі.
+message-error-description-duel-report-not-allowed = Вам не дозволено надсилати звіт цієї дуелі.
 message-error-description-duel-not-active = Дуель вже завершена.
 message-error-description-unknown =
   Не вдалося надіслати звіт дуелі.

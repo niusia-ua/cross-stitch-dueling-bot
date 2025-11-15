@@ -1,10 +1,12 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
-    <template #header-actions>
-      <UDropdownMenu :items="userProfileActions">
-        <UButton :loading="updatingUser" color="neutral" variant="ghost" icon="i-lucide:menu" />
-      </UDropdownMenu>
+  <NuxtLayout name="main">
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
     </template>
 
     <template #content>
@@ -88,7 +90,7 @@
     { label: "≥1000", value: StitchesRate.High },
   ];
 
-  const userProfileActions = computed<DropdownMenuItem[][]>(() => [
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
     [
       {
         icon: "i-lucide:refresh-cw",

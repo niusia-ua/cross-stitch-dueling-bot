@@ -1,22 +1,45 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
-    <template #header-actions>
-      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+  <NuxtLayout name="main">
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
     </template>
+
     <template #content>
-      <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
-    </template>
-    <template v-if="loggedIn" #footer>
-      <LazyModalDuelReport v-if="ownDuel" :id="ownDuel.id" />
-      <LazyModalDuelRequest v-else />
+      <div class="h-full flex flex-col gap-y-2">
+        <div class="grow overflow-y-auto">
+          <UTable sticky :loading="pending" :columns="columns" :data="data" :sorting="sorting" />
+        </div>
+
+        <ClientOnly v-if="loggedIn">
+          <UButton
+            v-if="ownDuel"
+            :to="`/duels/${ownDuel.id}/report`"
+            icon="i-lucide:file-plus"
+            :label="$t('label-send-duel-report')"
+            class="w-full justify-center"
+          />
+          <UButton
+            v-else
+            to="/duels/requests"
+            icon="i-lucide:sword"
+            :label="$t('label-send-duel-request')"
+            class="w-full justify-center"
+          />
+        </ClientOnly>
+      </div>
     </template>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-  import type { TableColumn } from "@nuxt/ui";
+  import type { DropdownMenuItem, TableColumn } from "@nuxt/ui";
   import type { SortingState } from "@tanstack/vue-table";
+  import { capitalize } from "es-toolkit";
 
   import { DuelsApi } from "~/api/index.js";
 
@@ -35,12 +58,7 @@
     {
       accessorKey: "codeword",
       header: fluent.$t("table-col-codeword"),
-      cell: ({ row }) => {
-        const value = row.original.codeword;
-
-        // Capitalize the first letter of the codeword.
-        return value[0]!.toUpperCase() + value.slice(1);
-      },
+      cell: ({ row }) => capitalize(row.original.codeword),
     },
     {
       accessorKey: "participants",
@@ -110,14 +128,37 @@
       });
     }
   });
+
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
+    [
+      {
+        icon: "i-lucide:refresh-cw",
+        label: fluent.$t("menu-opt-refresh"),
+        onSelect: () => refresh(),
+      },
+    ],
+    [
+      {
+        icon: "i-lucide:archive",
+        label: fluent.$t("menu-opt-archive"),
+        to: "/duels/archive",
+      },
+    ],
+  ]);
 </script>
 
 <fluent locale="uk">
-page-title = Активні дуелі
+page-title = Дуелі
+
+menu-opt-refresh = Оновити
+menu-opt-archive = Архів
 
 table-col-codeword = КС
 table-col-participants = Учасники
 table-col-deadline = Дедлайн
+
+label-send-duel-request = Кинути виклик
+label-send-duel-report = Надіслати звіт
 
 message-error-title = Сталася помилка
 message-error-description-failed-to-fetch-active-duels = Не вдалося отримати список активних дуелей.

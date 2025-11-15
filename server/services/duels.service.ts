@@ -57,6 +57,16 @@ export class DuelsService {
   }
 
   /**
+   * Retrieves completed duels for a specific month.
+   * @param year The year to filter by.
+   * @param month The month to filter by (1-12).
+   * @returns The list of completed duels for the specified month.
+   */
+  async getCompletedDuelsByMonth(year: number, month: number) {
+    return await this.#duelsRepository.getCompletedDuelsByMonth(year, month);
+  }
+
+  /**
    * Retrieves the list of users who are available for a duel.
    * @param options.excludeUserId The user ID to exclude from the results.
    * @returns The list of available users for a duel.
@@ -79,12 +89,22 @@ export class DuelsService {
   }
 
   /**
+   * Check user's participation in active duels.
+   * @param userId The ID of the user to check.
+   * @param duelId The ID of the duel to check (optional).
+   * @returns Object indicating participation and duel ID if participating.
+   */
+  async getUserDuelParticipation(userId: number, duelId?: number) {
+    return await this.#duelsRepository.getUserDuelParticipation(userId, duelId);
+  }
+
+  /**
    * Sends duel requests from one user to multiple users.
    * @param fromUserId The ID of the user sending the requests.
    * @param toUserIds The IDs of the users receiving the requests.
    */
   async sendDuelRequests(fromUserId: number, toUserIds: number[]) {
-    const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(fromUserId);
+    const participatesInDuel = await this.#duelsRepository.getUserDuelParticipation(fromUserId);
     if (participatesInDuel) {
       // Users can't send duel requests if they are already in a duel.
       throw createApiError({
@@ -122,7 +142,7 @@ export class DuelsService {
    * @param action The action to perform (accept or decline).
    */
   async handleDuelRequest(userId: number, requestId: number, action: DuelRequestAction) {
-    const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(userId);
+    const participatesInDuel = await this.#duelsRepository.getUserDuelParticipation(userId);
     if (participatesInDuel) {
       // Users can't handle duel requests if they are already in a duel.
       await this.#duelsRepository.removeDuelRequest(requestId);
@@ -167,7 +187,7 @@ export class DuelsService {
       const { fromUser, toUser } = result;
 
       // Check if the user who sent the request is already in a duel.
-      const fromUserParticipatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(fromUser.id);
+      const fromUserParticipatesInDuel = await this.#duelsRepository.getUserDuelParticipation(fromUser.id);
       if (fromUserParticipatesInDuel) {
         throw createApiError({
           code: ApiErrorCode.OtherUserAlreadyInDuel,
@@ -269,7 +289,7 @@ export class DuelsService {
    * @param report The report data.
    */
   async createDuelReport(duelId: number, userId: number, reportRequest: DuelReportRequest) {
-    const participatesInDuel = await this.#duelsRepository.checkUserParticipationInDuel(userId, duelId);
+    const participatesInDuel = await this.#duelsRepository.getUserDuelParticipation(userId, duelId);
     if (!participatesInDuel) {
       throw createApiError({
         code: ApiErrorCode.NotAllowed,

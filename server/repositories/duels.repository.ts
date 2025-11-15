@@ -85,6 +85,29 @@ export class DuelsRepository {
     `);
   }
 
+  /**
+   * Retrieves completed duels with participant IDs for a specific month.
+   * @param year The year to filter by.
+   * @param month The month to filter by (1-12).
+   * @returns The list of completed duels with participant IDs for the specified month.
+   */
+  async getCompletedDuelsByMonth(year: number, month: number) {
+    return await this.#pool.any(sql.type(ArchivedDuelRecordSchema)`
+      SELECT
+        d.id, d.codeword, d.completed_at,
+        dw.user_id AS winner_id,
+        JSON_AGG(dp.user_id ORDER BY dp.user_id) AS participants
+      FROM duels AS d
+        JOIN duel_participants AS dp ON dp.duel_id = d.id
+        LEFT JOIN duel_winners AS dw ON dw.duel_id = d.id
+      WHERE d.completed_at IS NOT NULL
+        AND EXTRACT(YEAR FROM d.completed_at) = ${year}
+        AND EXTRACT(MONTH FROM d.completed_at) = ${month}
+      GROUP BY d.id, dw.user_id
+      ORDER BY d.completed_at DESC
+    `);
+  }
+
   async getAvailableUsersForDuel() {
     return await this.#pool.any(sql.type(UserAvailableForDuelSchema)`
       SELECT u.id, u.fullname, u.photo_url, us.stitches_rate
@@ -256,12 +279,12 @@ export class DuelsRepository {
   }
 
   /**
-   * Check if a user is participating in a duel (the provided one or any).
+   * Returns `true` if a user is participating in a duel (the provided one or any).
    * @param userId The ID of the user to check.
    * @param duelId The ID of the duel to check (optional).
    * @returns True if the user is participating in the duel, false otherwise.
    */
-  async checkUserParticipationInDuel(userId: number, duelId?: number) {
+  async getUserDuelParticipation(userId: number, duelId?: number) {
     const conditionFragments = [];
     if (duelId) conditionFragments.push(sql.fragment`d.id = ${duelId}`);
     conditionFragments.push(sql.fragment`dp.user_id = ${userId}`);

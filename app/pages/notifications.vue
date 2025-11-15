@@ -1,9 +1,14 @@
 <template>
-  <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
-    <template #header-actions>
-      <UButton loading-auto variant="ghost" color="neutral" icon="i-lucide:refresh-cw" @click="() => refresh()" />
+  <NuxtLayout name="main">
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t("page-title") }}</h1>
+        <UDropdownMenu :items="menuOptions">
+          <UButton color="neutral" variant="ghost" icon="i-lucide:ellipsis-vertical" />
+        </UDropdownMenu>
+      </div>
     </template>
+
     <template #content>
       <UProgress v-if="pending" size="xs" />
       <div v-if="data?.length" class="flex flex-col gap-y-2">
@@ -23,6 +28,8 @@
 </template>
 
 <script setup lang="ts">
+  import type { DropdownMenuItem } from "@nuxt/ui";
+
   import { DuelRequestAction } from "#shared/types/duels";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
@@ -43,6 +50,16 @@
       });
     }
   });
+
+  const menuOptions = computed<DropdownMenuItem[][]>(() => [
+    [
+      {
+        icon: "i-lucide:refresh-cw",
+        label: fluent.$t("menu-opt-refresh"),
+        onSelect: () => refresh(),
+      },
+    ],
+  ]);
 
   async function handleDuelRequest(requestId: number, action: DuelRequestAction) {
     try {
@@ -125,6 +142,8 @@
 
 <fluent locale="uk">
 page-title = Повідомлення
+
+menu-opt-refresh = Оновити
 
 message-no-notifications = Немає нових повідомлень.
 

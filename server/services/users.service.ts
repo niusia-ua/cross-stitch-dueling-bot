@@ -12,6 +12,11 @@ export class UsersService {
     this.#usersRepository = usersRepository;
   }
 
+  /** Retrieves all users with their settings. */
+  async getAllUsersWithSettings() {
+    return await this.#usersRepository.getAllUsersWithSettings();
+  }
+
   /**
    * Creates a new user.
    * @param id The ID of the user.

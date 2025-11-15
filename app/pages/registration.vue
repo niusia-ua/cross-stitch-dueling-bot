@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
-    <template #title>{{ $t("page-title") }}</template>
+    <template #header>{{ $t("page-title") }}</template>
     <template #content>
       <div class="space-y-2">
         <UUser
@@ -12,7 +12,7 @@
         <USeparator decorative />
 
         <UFormField :label="$t('form-label-stitches-rate')" :description="$t('form-description-stitches-rate')">
-          <USelect v-model="settings.stitchesRate" :items="stitchesRateOptions" class="w-full" />
+          <USelect v-model="settings.stitchesRate" :items="STITCHES_RATE_OPTIONS" class="w-full" />
         </UFormField>
 
         <USwitch
@@ -32,12 +32,6 @@
 
   const fluent = useFluent();
   const toast = useToast();
-
-  const stitchesRateOptions = [
-    { label: "50-499", value: StitchesRate.Low },
-    { label: "500-999", value: StitchesRate.Medium },
-    { label: "≥1000", value: StitchesRate.High },
-  ];
 
   // At this point, the Telegram user data must be available.
   const tgUser = window.Telegram.WebApp.initDataUnsafe.user!;

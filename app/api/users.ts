@@ -1,3 +1,8 @@
+export async function getAllUsers() {
+  const data = await $fetch("/api/users");
+  return await UserAvailableForDuelSchema.array().parseAsync(data);
+}
+
 export async function createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
   const data = await $fetch(`/api/users/${id}`, {
     method: "POST",
