@@ -1,3 +1,5 @@
+import { StitchesRate } from "../types/users.js";
+
 export const STITCHES_RATE_OPTIONS = [
   { label: "50-499", value: StitchesRate.Low },
   { label: "500-999", value: StitchesRate.Medium },

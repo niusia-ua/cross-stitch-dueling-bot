@@ -272,10 +272,11 @@ export class NotificationsService {
     const ratingMessage = this.#botI18n.t("uk", "message-monthly-rating", {
       month,
       rating: rating
-        .map(
-          (record, i) =>
-            `${i + 1}. ${mentionUser(record.user, { skipFormatting: true })} (${record.user.stitchesRate}) — ${record.totalDuelsParticipated}/${record.totalDuelsWon}`,
-        )
+        .map((record, i) => {
+          const user = mentionUser(record.user, { skipFormatting: true });
+          const stitchesRate = getStitchesRateLabel(record.user.stitchesRate);
+          return `${i + 1}. ${user} (${stitchesRate}) — ${record.totalDuelsParticipated}/${record.totalDuelsWon}`;
+        })
         .join("\n"),
     });
     await this.#sendGroupMessage(ratingMessage);
