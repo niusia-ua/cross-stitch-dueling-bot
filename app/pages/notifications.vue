@@ -30,7 +30,7 @@
 <script setup lang="ts">
   import type { DropdownMenuItem } from "@nuxt/ui";
 
-  import { DuelRequestAction } from "#shared/types/duels.js";
+  import { DuelRequestAction } from "#shared/types/duels";
 
   import { DuelsApi, FetchError, type ApiError } from "~/api/";
 

@@ -126,7 +126,7 @@ export class GoogleCloudTasksService {
       "complete-duel",
       "remind-user-about-duel-report",
       "create-weekly-random-duels",
-      "publish-montly-rating-and-winners",
+      "publish-monthly-rating-and-winners",
     ];
     return await this.#oauthClient.verifyIdToken({
       idToken,
