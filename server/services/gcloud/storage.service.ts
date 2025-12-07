@@ -28,7 +28,7 @@ export class GoogleCloudStorageService {
   }
 
   /**
-   * Uploads duel report photos to Google Cloud Storage.
+   * Uploads duel report photos to the storage.
    * @param duelId The ID of the duel.
    * @param userId The ID of the user who is uploading the report.
    * @param files An array of File objects representing the photos to upload.
@@ -36,7 +36,7 @@ export class GoogleCloudStorageService {
   async uploadDuelReportPhotos(duelId: number, userId: number, files: File[]) {
     try {
       // Delete previous files.
-      await this.deleteDuelReportPhotos(duelId, userId);
+      await this.deleteUserDuelReportPhotos(duelId, userId);
     } catch (error) {
       console.error("Failed to delete previous duel report photos:", error);
     }
@@ -55,7 +55,7 @@ export class GoogleCloudStorageService {
   }
 
   /**
-   * Downloads duel report photos from Google Cloud Storage.
+   * Downloads duel report photos from the storage.
    * @param duelId The ID of the duel.
    * @param userId The ID of the user who uploaded the report.
    * @returns An array of Buffers containing the downloaded photos data.
@@ -73,7 +73,20 @@ export class GoogleCloudStorageService {
     );
   }
 
-  async deleteDuelReportPhotos(duelId: number, userId: number) {
+  /**
+   * Deletes all report photos from the storage.
+   * @param duelId The ID of the duel.
+   */
+  async deleteDuelReportPhotos(duelId: number) {
+    await this.#duelReportsBucket.deleteFiles({ prefix: `${duelId}/` });
+  }
+
+  /**
+   * Deletes user's duel report photos from the storage.
+   * @param duelId The ID of the duel.
+   * @param userId The ID of the user..
+   */
+  async deleteUserDuelReportPhotos(duelId: number, userId: number) {
     await this.#duelReportsBucket.deleteFiles({ prefix: `${duelId}/${userId}/` });
   }
 }
