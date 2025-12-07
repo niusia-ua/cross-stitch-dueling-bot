@@ -49,34 +49,41 @@ export default defineNuxtConfig({
 
   // See `.env.example` for examples, descriptions and instructions.
   runtimeConfig: {
-    APP_URL: undefined,
+    appUrl: undefined,
+    databaseUrl: undefined,
 
-    BOT_TOKEN: undefined,
-    BOT_WEBHOOK_SECRET_TOKEN: undefined,
-    BOT_INFO: undefined,
-
-    TARGET_CHAT_ID: undefined,
-    TARGET_THREAD_ID: undefined,
-
-    DATABASE_URL: undefined,
-
-    GOOGLE_CLOUD_USE_EMULATORS: undefined,
-    GOOGLE_CLOUD_PROJECT_ID: undefined,
-    GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: undefined,
-    GOOGLE_CLOUD_TASKS_LOCATION: undefined,
-
-    public: {
-      DEFAULT_TIMEZONE: "Europe/Kyiv",
-      DEFAULT_DATETIME_FORMAT_OPTIONS: {
-        dateStyle: "long",
-        timeStyle: "short",
-        timeZone: "Europe/Kyiv",
+    telegram: {
+      bot: {
+        token: undefined,
+        info: undefined,
+        webhookSecretToken: undefined,
       },
 
-      DUEL_REQUEST_VALIDITY_PERIOD: HOUR,
-      DUEL_PERIOD: DAY,
+      targetChatId: undefined,
+      targetThreadId: undefined,
+    },
 
-      DUEL_REPORT_REMINDER_TIMEOUTS: [
+    gcloud: {
+      useEmulators: false,
+      projectId: undefined,
+      serviceAccountEmail: undefined,
+      tasksLocation: undefined,
+    },
+
+    public: {
+      datetime: {
+        defaultTimezone: "Europe/Kyiv",
+        defaultFormatOptions: {
+          dateStyle: "long",
+          timeStyle: "short",
+          timeZone: "Europe/Kyiv",
+        },
+      },
+
+      duelPeriod: DAY,
+      duelRequestValidityPeriod: HOUR,
+
+      duelReportReminderTimeouts: [
         HOUR * 20, // 4 hours before the deadline.
         HOUR * 23, // 1 hour before the deadline.
         HOUR * 23 + MINUTE * 45, // 15 minutes before the deadline.

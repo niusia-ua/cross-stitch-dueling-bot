@@ -52,7 +52,7 @@ export class DuelsService {
     const duels = await this.#duelsRepository.getActiveDuelsWithParticipants();
     return duels.map<ActiveDuelRecord>(({ startedAt, ...duel }) => ({
       ...duel,
-      deadline: dayjs(startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate(),
+      deadline: dayjs(startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate(),
     }));
   }
 
@@ -259,7 +259,7 @@ export class DuelsService {
   private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
-    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
 
@@ -276,7 +276,7 @@ export class DuelsService {
       codeword,
       pairs.map((pair) => pair.map((user) => user.id)),
     );
-    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
@@ -357,7 +357,7 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getDuelById(duelId);
     if (!duel) return;
 
-    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.remindUserAboutDuelReport(userId, deadline);
   }

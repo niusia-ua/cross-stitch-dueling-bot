@@ -29,7 +29,7 @@
               <NuxtTime
                 :datetime="user.updatedAt"
                 :locale="$selectedLocale"
-                v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
+                v-bind="config.public.datetime.defaultFormatOptions"
               />
             </template>
           </i18n>
@@ -59,7 +59,7 @@
             <NuxtTime
               :datetime="settings.updatedAt"
               :locale="$selectedLocale"
-              v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
+              v-bind="config.public.datetime.defaultFormatOptions"
             />
           </template>
         </i18n>

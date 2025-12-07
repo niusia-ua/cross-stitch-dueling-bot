@@ -16,7 +16,7 @@ export class NotificationsService {
   #botI18n: BotI18n;
 
   #config = useRuntimeConfig();
-  #datetimeFormatter = new Intl.DateTimeFormat("uk", this.#config.public.DEFAULT_DATETIME_FORMAT_OPTIONS);
+  #datetimeFormatter = new Intl.DateTimeFormat("uk", this.#config.public.datetime.defaultFormatOptions);
 
   constructor({ botApi, botI18n }: Dependencies) {
     this.#botApi = botApi;
@@ -33,8 +33,8 @@ export class NotificationsService {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMessage({
       ...options,
-      chat_id: this.#config.TARGET_CHAT_ID,
-      message_thread_id: this.#config.TARGET_THREAD_ID,
+      chat_id: this.#config.telegram.targetChatId,
+      message_thread_id: this.#config.telegram.targetThreadId,
       text: message,
     });
   }
@@ -49,8 +49,8 @@ export class NotificationsService {
     // Use the Raw API call to ensure that the `chat_id` and `message_thread_id` are set correctly.
     return this.#botApi.raw.sendMediaGroup({
       ...options,
-      chat_id: this.#config.TARGET_CHAT_ID,
-      message_thread_id: this.#config.TARGET_THREAD_ID,
+      chat_id: this.#config.telegram.targetChatId,
+      message_thread_id: this.#config.telegram.targetThreadId,
       media,
     });
   }
@@ -70,7 +70,7 @@ export class NotificationsService {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
     const keyboard = new InlineKeyboard().webApp(
       this.#botI18n.t("uk", "label-open"),
-      new URL("/notifications", this.#config.APP_URL).href,
+      new URL("/notifications", this.#config.appUrl).href,
     );
 
     const { message_id } = await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });

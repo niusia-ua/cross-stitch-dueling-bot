@@ -2,30 +2,38 @@ import type { UserFromGetMe } from "grammy/types";
 
 declare module "nuxt/schema" {
   interface RuntimeConfig {
-    APP_URL: string;
+    appUrl: string;
+    databaseUrl: string;
 
-    BOT_TOKEN: string;
-    BOT_WEBHOOK_SECRET_TOKEN: string;
-    BOT_INFO: UserFromGetMe;
+    telegram: {
+      bot: {
+        token: string;
+        info: UserFromGetMe;
+        webhookSecretToken: string;
+      };
 
-    TARGET_CHAT_ID: number;
-    TARGET_THREAD_ID: number;
+      targetChatId: number;
+      targetThreadId: number;
+    };
 
-    DATABASE_URL: string;
-
-    GOOGLE_CLOUD_USE_EMULATORS: boolean;
-    GOOGLE_CLOUD_PROJECT_ID: string;
-    GOOGLE_CLOUD_TASKS_LOCATION: string;
+    gcloud: {
+      useEmulators: boolean;
+      projectId: string;
+      serviceAccountEmail: string;
+      tasksLocation: string;
+    };
   }
 
   interface PublicRuntimeConfig {
-    DEFAULT_TIMEZONE: string;
-    DEFAULT_DATETIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions;
+    datetime: {
+      defaultTimezone: string;
+      defaultFormatOptions: Intl.DateTimeFormatOptions;
+    };
 
-    DUEL_REQUEST_VALIDITY_PERIOD: number;
-    DUEL_PERIOD: number;
+    duelPeriod: number;
+    duelRequestValidityPeriod: number;
 
-    DUEL_REPORT_REMINDER_TIMEOUTS: number[];
+    duelReportReminderTimeouts: number[];
   }
 }
 

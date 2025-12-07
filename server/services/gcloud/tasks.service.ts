@@ -9,7 +9,7 @@ export class GoogleCloudTasksService {
   #oauthClient: OAuth2Client;
 
   constructor() {
-    if (this.#config.GOOGLE_CLOUD_USE_EMULATORS) {
+    if (this.#config.gcloud.useEmulators) {
       this.#tasksClient = new CloudTasksClient({
         port: 8123,
         servicePath: "localhost",
@@ -45,18 +45,14 @@ export class GoogleCloudTasksService {
     },
   ) {
     await this.#tasksClient.createTask({
-      parent: this.#tasksClient.queuePath(
-        this.#config.GOOGLE_CLOUD_PROJECT_ID,
-        this.#config.GOOGLE_CLOUD_TASKS_LOCATION,
-        queue,
-      ),
+      parent: this.#tasksClient.queuePath(this.#config.gcloud.projectId, this.#config.gcloud.tasksLocation, queue),
       task: {
         httpRequest: {
-          url: new URL(`/api/tasks/${endpoint}`, this.#config.APP_URL).toString(),
+          url: new URL(`/api/tasks/${endpoint}`, this.#config.appUrl).toString(),
           httpMethod: "POST",
           headers: { "Content-Type": "application/json" },
           body: Buffer.from(JSON.stringify(payload)),
-          oidcToken: { serviceAccountEmail: this.#config.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL },
+          oidcToken: { serviceAccountEmail: this.#config.gcloud.serviceAccountEmail },
         },
         scheduleTime: options?.delay !== undefined ? { seconds: (Date.now() + options.delay) / 1000 } : undefined,
       },
@@ -72,7 +68,7 @@ export class GoogleCloudTasksService {
       "duel-request-cancellation",
       "cancel-duel-request",
       { id },
-      { delay: this.#config.public.DUEL_REQUEST_VALIDITY_PERIOD },
+      { delay: this.#config.public.duelRequestValidityPeriod },
     );
   }
 
@@ -92,7 +88,7 @@ export class GoogleCloudTasksService {
       "duel-completion",
       "complete-duel",
       { id },
-      { delay: this.#config.public.DUEL_PERIOD + (options?.delay ?? 0) },
+      { delay: this.#config.public.duelPeriod + (options?.delay ?? 0) },
     );
   }
 
@@ -103,7 +99,7 @@ export class GoogleCloudTasksService {
    */
   async scheduleDuelReportReminder(duelId: number, userId: number) {
     await Promise.all(
-      this.#config.public.DUEL_REPORT_REMINDER_TIMEOUTS.map((delay) =>
+      this.#config.public.duelReportReminderTimeouts.map((delay) =>
         this.#createTask("duel-report-reminder", "remind-user-about-duel-report", { duelId, userId }, { delay }),
       ),
     );
@@ -128,7 +124,7 @@ export class GoogleCloudTasksService {
     ];
     return await this.#oauthClient.verifyIdToken({
       idToken,
-      audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#config.APP_URL).toString()),
+      audience: endpoints.map((endpoint) => new URL(`/api/tasks/${endpoint}`, this.#config.appUrl).toString()),
     });
   }
 }

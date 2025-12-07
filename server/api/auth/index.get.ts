@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const initData = new URLSearchParams(getQuery(event));
   try {
-    validate(initData, config.BOT_TOKEN);
+    validate(initData, config.telegram.bot.token);
   } catch (error) {
     throw createError({
       status: 400,

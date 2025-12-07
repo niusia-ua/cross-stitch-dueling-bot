@@ -152,7 +152,7 @@
         const absolute = h(NuxtTime, {
           datetime: row.original.completedAt,
           locale: $selectedLocale.value,
-          ...config.public.DEFAULT_DATETIME_FORMAT_OPTIONS,
+          ...config.public.datetime.defaultFormatOptions,
         });
         const relative = h(NuxtTime, {
           datetime: row.original.completedAt,

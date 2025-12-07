@@ -4,7 +4,7 @@ import { createCamelCaseKeysInterceptor, createResultParserInterceptor } from ".
 
 export function createDbPool() {
   const config = useRuntimeConfig();
-  return createPool(config.DATABASE_URL, {
+  return createPool(config.databaseUrl, {
     interceptors: [createCamelCaseKeysInterceptor(), createResultParserInterceptor()],
   });
 }
