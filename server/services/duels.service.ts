@@ -199,7 +199,7 @@ export class DuelsService {
       await this.createDuel(fromUser, toUser);
 
       await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
-      await this.deleteSiblingRequests(fromUser.id, requestId, fromUser.fullname);
+      await this.deleteSiblingRequests(fromUser.id, requestId, fromUser);
     }
   }
 
@@ -220,10 +220,14 @@ export class DuelsService {
    * @param requestId The ID of the duel request.
    */
   async removeExpiredDuelRequest(requestId: number) {
-    const result = await this.#duelsRepository.removeDuelRequest(requestId);
-    if (result) {
-      const { fromUser, toUser } = result;
-      await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
+    const request = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (request) {
+      const { fromUser, toUser, telegramMessageId } = request;
+      await this.#notificationsService.notifyUserDuelRequestExpired(fromUser.id, toUser);
+
+      if (telegramMessageId !== null) {
+        await this.#notificationsService.notifyUserDuelRequestInvalidated(toUser.id, telegramMessageId, fromUser);
+      }
     }
   }
 
@@ -231,9 +235,9 @@ export class DuelsService {
    * Deletes all sibling duel requests and edits their Telegram messages.
    * @param fromUserId The ID of the user who sent the requests.
    * @param acceptedRequestId The ID of the request that was accepted.
-   * @param fromUserName The name of the user who sent the requests.
+   * @param fromUser The user who sent the requests.
    */
-  private async deleteSiblingRequests(fromUserId: number, acceptedRequestId: number, fromUserName: string) {
+  private async deleteSiblingRequests(fromUserId: number, acceptedRequestId: number, fromUser: UserIdAndFullname) {
     const siblingRequests = await this.#duelsRepository.getSiblingRequests(fromUserId, acceptedRequestId);
     if (siblingRequests.length === 0) return;
 
@@ -244,7 +248,7 @@ export class DuelsService {
           await this.#notificationsService.notifyUserDuelRequestInvalidated(
             req.toUserId,
             req.telegramMessageId!,
-            fromUserName,
+            fromUser,
           );
           await this.#duelsRepository.removeDuelRequest(req.id);
         }),

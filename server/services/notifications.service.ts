@@ -79,56 +79,45 @@ export class NotificationsService {
 
   /**
    * Notifies a user that their duel request has been accepted.
-   * @param toUserId The ID of the user who received the notification.
-   * @param fromUser The user who sent the duel request.
+   * @param fromUserId The ID of the user who sent the duel request.
+   * @param toUser The user who received the notification.
    */
-  async notifyUserDuelRequestAccepted(toUserId: number, fromUser: UserIdAndFullname) {
-    const message = this.#botI18n.t("uk", "message-duel-request-accepted", { user: mentionUser(fromUser) });
-    await this.#sendPrivateMessage(toUserId, message);
+  async notifyUserDuelRequestAccepted(fromUserId: number, toUser: UserIdAndFullname) {
+    const message = this.#botI18n.t("uk", "message-duel-request-accepted", { user: mentionUser(toUser) });
+    await this.#sendPrivateMessage(fromUserId, message);
   }
 
   /**
    * Notifies a user that their duel request has been declined.
-   * @param toUserId The ID of the user who received the notification.
-   * @param fromUser The user who sent the duel request.
+   * @param fromUserId The ID of the user who sent the duel request.
+   * @param toUser The user who received the notification.
    */
-  async notifyUserDuelRequestDeclined(toUserId: number, fromUser: UserIdAndFullname) {
-    const message = this.#botI18n.t("uk", "message-duel-request-declined", { user: mentionUser(fromUser) });
-    await this.#sendPrivateMessage(toUserId, message);
+  async notifyUserDuelRequestDeclined(fromUserId: number, toUser: UserIdAndFullname) {
+    const message = this.#botI18n.t("uk", "message-duel-request-declined", { user: mentionUser(toUser) });
+    await this.#sendPrivateMessage(fromUserId, message);
   }
 
   /**
-   * Notifies both users about an expired duel request.
-   * @param fromUser The user who sent the duel request.
+   * Notifies a user that their duel request has expired.
+   * @param fromUserId The ID of the user who sent the duel request.
    * @param toUser The user who received the duel request.
    */
-  async notifyUsersDuelRequestExpired(fromUser: UserIdAndFullname, toUser: UserIdAndFullname) {
-    const message = this.#botI18n.t("uk", "message-duel-request-expired", {
-      fromUser: mentionUser(fromUser),
-      toUser: mentionUser(toUser),
-    });
-    await this.#sendPrivateMessage(fromUser.id, message);
-    await this.#sendPrivateMessage(toUser.id, message);
+  async notifyUserDuelRequestExpired(fromUserId: number, toUser: UserIdAndFullname) {
+    const message = this.#botI18n.t("uk", "message-duel-request-expired", { user: mentionUser(toUser) });
+    await this.#sendPrivateMessage(fromUserId, message);
   }
 
   /**
    * Appends an invalidation notice to an existing duel request message.
-   * @param userId The ID of the user whose message should be edited.
+   * @param toUserId The ID of the user whose message should be edited.
    * @param messageId The Telegram message ID to edit.
    * @param fromUserName The name of the user who sent the original request.
    */
-  async notifyUserDuelRequestInvalidated(userId: number, messageId: number, fromUserName: string) {
-    try {
-      const originalMessage = this.#botI18n.t("uk", "message-duel-requested", {
-        user: mentionUser({ id: userId, fullname: fromUserName }),
-      });
-      const invalidationText = this.#botI18n.t("uk", "message-duel-request-invalidated");
-
-      // Edit message and remove inline keyboard
-      await this.#botApi.editMessageText(userId, messageId, `${originalMessage}\n\n${invalidationText}`);
-    } catch (error) {
-      console.error(`Failed to edit message ${messageId} for user ${userId}:`, error);
-    }
+  async notifyUserDuelRequestInvalidated(toUserId: number, messageId: number, fromUser: UserIdAndFullname) {
+    const message = this.#botI18n.t("uk", "message-duel-request-invalidated", {
+      user: mentionUser(fromUser),
+    });
+    await this.#botApi.editMessageText(toUserId, messageId, message);
   }
 
   async remindUserAboutDuelReport(userId: number, deadline: Date) {
