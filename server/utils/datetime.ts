@@ -6,7 +6,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const config = useRuntimeConfig();
-dayjs.tz.setDefault(config.public.DEFAULT_TIMEZONE);
+dayjs.tz.setDefault(config.public.datetime.defaultTimezone);
 
 /**
  * Checks if the current time is the day before the weekly random duels (after 10:00 Friday and before 10:00 Saturday by UTC).

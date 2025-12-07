@@ -11,14 +11,12 @@ export class GoogleCloudStorageService {
   constructor() {
     const config = useRuntimeConfig();
 
-    if (import.meta.dev) {
-      // In development mode, connect to a local emulator.
+    if (config.GOOGLE_CLOUD_USE_EMULATORS) {
       this.#client = new Storage({
         projectId: config.GOOGLE_CLOUD_PROJECT_ID,
         apiEndpoint: "http://localhost:4443",
       });
     } else {
-      // In production mode, connect to the actual Google Cloud Storage service using default credentials.
       this.#client = new Storage({
         projectId: config.GOOGLE_CLOUD_PROJECT_ID,
       });
@@ -78,7 +76,9 @@ export class GoogleCloudStorageService {
    * @param duelId The ID of the duel.
    */
   async deleteDuelReportPhotos(duelId: number) {
-    await this.#duelReportsBucket.deleteFiles({ prefix: `${duelId}/` });
+    const prefix = `${duelId}/`;
+    await this.#duelReportsBucket.deleteFiles({ prefix });
+    await this.#duelReportsBucket.file(prefix).delete();
   }
 
   /**

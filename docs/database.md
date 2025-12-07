@@ -32,6 +32,7 @@ erDiagram
     int id PK
     bigint from_user_id FK, UK
     bigint to_user_id FK, UK
+    bigint telegram_message_id
     timestamptz created_at
   }
 

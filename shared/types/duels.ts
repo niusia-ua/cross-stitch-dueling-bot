@@ -21,6 +21,7 @@ export const DuelRequestSchema = z.object({
   id: IdSchema,
   fromUserId: IdSchema,
   toUserId: IdSchema,
+  telegramMessageId: z.coerce.number().nullable(),
   createdAt: z.coerce.date(),
 });
 export type DuelRequest = z.infer<typeof DuelRequestSchema>;

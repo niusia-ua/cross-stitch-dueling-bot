@@ -52,7 +52,7 @@ export class DuelsService {
     const duels = await this.#duelsRepository.getActiveDuelsWithParticipants();
     return duels.map<ActiveDuelRecord>(({ startedAt, ...duel }) => ({
       ...duel,
-      deadline: dayjs(startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate(),
+      deadline: dayjs(startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate(),
     }));
   }
 
@@ -128,7 +128,8 @@ export class DuelsService {
       const fromUser = await this.#usersService.getUserIdAndFullname(fromUserId);
       await Promise.all(
         result.map(async (request) => {
-          await this.#notificationsService.notifyUserDuelRequested(request.toUserId, fromUser!);
+          const messageId = await this.#notificationsService.notifyUserDuelRequested(request.toUserId, fromUser!);
+          await this.#duelsRepository.setDuelRequestMessageId(request.id, messageId);
           await this.#gcloudTasksService.scheduleDuelRequestCancellation(request.id);
         }),
       );
@@ -196,7 +197,9 @@ export class DuelsService {
       }
 
       await this.createDuel(fromUser, toUser);
+
       await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
+      await this.deleteSiblingRequests(fromUser.id, requestId, fromUser);
     }
   }
 
@@ -217,11 +220,39 @@ export class DuelsService {
    * @param requestId The ID of the duel request.
    */
   async removeExpiredDuelRequest(requestId: number) {
-    const result = await this.#duelsRepository.removeDuelRequest(requestId);
-    if (result) {
-      const { fromUser, toUser } = result;
-      await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
+    const request = await this.#duelsRepository.removeDuelRequest(requestId);
+    if (request) {
+      const { fromUser, toUser, telegramMessageId } = request;
+      await this.#notificationsService.notifyUserDuelRequestExpired(fromUser.id, toUser);
+
+      if (telegramMessageId !== null) {
+        await this.#notificationsService.notifyUserDuelRequestInvalidated(toUser.id, telegramMessageId, fromUser);
+      }
     }
+  }
+
+  /**
+   * Deletes all sibling duel requests and edits their Telegram messages.
+   * @param fromUserId The ID of the user who sent the requests.
+   * @param acceptedRequestId The ID of the request that was accepted.
+   * @param fromUser The user who sent the requests.
+   */
+  private async deleteSiblingRequests(fromUserId: number, acceptedRequestId: number, fromUser: UserIdAndFullname) {
+    const siblingRequests = await this.#duelsRepository.getSiblingRequests(fromUserId, acceptedRequestId);
+    if (siblingRequests.length === 0) return;
+
+    await Promise.all(
+      siblingRequests
+        .filter((req) => req.telegramMessageId !== null)
+        .map(async (req) => {
+          await this.#notificationsService.notifyUserDuelRequestInvalidated(
+            req.toUserId,
+            req.telegramMessageId!,
+            fromUser,
+          );
+          await this.#duelsRepository.removeDuelRequest(req.id);
+        }),
+    );
   }
 
   /**
@@ -232,7 +263,7 @@ export class DuelsService {
   private async createDuel(user1: UserIdAndFullname, user2: UserIdAndFullname) {
     const codeword = await getRandomCodeword();
     const duel = await this.#duelsRepository.createDuel(codeword, user1.id, user2.id);
-    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.announceDuel(codeword, deadline, user1, user2);
 
@@ -249,7 +280,7 @@ export class DuelsService {
       codeword,
       pairs.map((pair) => pair.map((user) => user.id)),
     );
-    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
@@ -330,7 +361,7 @@ export class DuelsService {
     const duel = await this.#duelsRepository.getDuelById(duelId);
     if (!duel) return;
 
-    const deadline = dayjs(duel.startedAt).add(this.#config.public.DUEL_PERIOD, "milliseconds").toDate();
+    const deadline = dayjs(duel.startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#notificationsService.remindUserAboutDuelReport(userId, deadline);
   }

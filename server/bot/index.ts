@@ -12,7 +12,7 @@ import type { BotContext } from "./types.js";
 export async function createBotWebhookHandler() {
   const config = useRuntimeConfig();
 
-  const bot = new Bot<BotContext>(config.BOT_TOKEN, { botInfo: config.BOT_INFO });
+  const bot = new Bot<BotContext>(config.telegram.bot.token, { botInfo: config.telegram.bot.info });
   configureBotApi(bot.api);
 
   bot.chatType(["group", "supergroup"]).use(autoQuote());
@@ -23,12 +23,12 @@ export async function createBotWebhookHandler() {
     .drop(async (ctx) => {
       const isGroup = ctx.hasChatType(["group", "supergroup"]);
 
-      if (isGroup && ctx.chat.id !== config.TARGET_CHAT_ID) {
+      if (isGroup && ctx.chat.id !== config.telegram.targetChatId) {
         await ctx.reply(ctx.t("message-error-not-target-chat"));
         return true;
       }
 
-      if (isGroup && ctx.message?.message_thread_id !== config.TARGET_THREAD_ID) {
+      if (isGroup && ctx.message?.message_thread_id !== config.telegram.targetThreadId) {
         return true;
       }
 
@@ -36,7 +36,7 @@ export async function createBotWebhookHandler() {
     })
     .use(commands);
 
-  const handleUpdate = webhookCallback(bot, h3, { secretToken: config.BOT_WEBHOOK_SECRET_TOKEN });
+  const handleUpdate = webhookCallback(bot, h3, { secretToken: config.telegram.bot.webhookSecretToken });
   return async (event: H3Event) => {
     try {
       return await handleUpdate(event);
@@ -59,7 +59,7 @@ export async function createBotWebhookHandler() {
 export function createBotApi() {
   const config = useRuntimeConfig();
 
-  const api = new Api(config.BOT_TOKEN);
+  const api = new Api(config.telegram.bot.token);
   configureBotApi(api);
 
   return api;

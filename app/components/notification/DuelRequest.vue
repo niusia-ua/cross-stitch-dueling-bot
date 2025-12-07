@@ -11,7 +11,7 @@
       relative
       :locale="$selectedLocale"
       :datetime="createdAt"
-      v-bind="config.public.DEFAULT_DATETIME_FORMAT_OPTIONS"
+      v-bind="config.public.datetime.defaultFormatOptions"
       class="text-xs text-dimmed"
     />
   </div>
