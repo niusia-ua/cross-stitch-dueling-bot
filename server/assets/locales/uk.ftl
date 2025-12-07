@@ -44,6 +44,7 @@ message-duel-requested =
 message-duel-request-accepted = { $user } прийняв(ла) виклик на дуель!
 message-duel-request-declined = { $user } відхилив(ла) виклик на дуель!
 message-duel-request-expired = Час дійсності виклику на дуель від { $fromUser } до { $toUser } минув.
+message-duel-request-invalidated = <b>UPD:</b> Цей запит на дуель більше не актуальний.
 
 message-duel-report-reminder =
   Нагадування про звіт дуелі! 🔔

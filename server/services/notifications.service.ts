@@ -64,6 +64,7 @@ export class NotificationsService {
    * Notifies a user that they have been requested to a duel.
    * @param toUserId The ID of the user who received the notification.
    * @param fromUser The user who sent the duel request.
+   * @returns The Telegram message ID of the sent notification.
    */
   async notifyUserDuelRequested(toUserId: number, fromUser: UserIdAndFullname) {
     const message = this.#botI18n.t("uk", "message-duel-requested", { user: mentionUser(fromUser) });
@@ -71,7 +72,9 @@ export class NotificationsService {
       this.#botI18n.t("uk", "label-open"),
       new URL("/notifications", this.#config.APP_URL).href,
     );
-    await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });
+
+    const { message_id } = await this.#sendPrivateMessage(toUserId, message, { reply_markup: keyboard });
+    return message_id;
   }
 
   /**
@@ -106,6 +109,26 @@ export class NotificationsService {
     });
     await this.#sendPrivateMessage(fromUser.id, message);
     await this.#sendPrivateMessage(toUser.id, message);
+  }
+
+  /**
+   * Appends an invalidation notice to an existing duel request message.
+   * @param userId The ID of the user whose message should be edited.
+   * @param messageId The Telegram message ID to edit.
+   * @param fromUserName The name of the user who sent the original request.
+   */
+  async notifyUserDuelRequestInvalidated(userId: number, messageId: number, fromUserName: string) {
+    try {
+      const originalMessage = this.#botI18n.t("uk", "message-duel-requested", {
+        user: mentionUser({ id: userId, fullname: fromUserName }),
+      });
+      const invalidationText = this.#botI18n.t("uk", "message-duel-request-invalidated");
+
+      // Edit message and remove inline keyboard
+      await this.#botApi.editMessageText(userId, messageId, `${originalMessage}\n\n${invalidationText}`);
+    } catch (error) {
+      console.error(`Failed to edit message ${messageId} for user ${userId}:`, error);
+    }
   }
 
   async remindUserAboutDuelReport(userId: number, deadline: Date) {

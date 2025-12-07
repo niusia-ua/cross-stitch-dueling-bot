@@ -163,6 +163,7 @@ export class DuelsRepository {
       z.object({
         fromUser: UserIdAndFullnameSchema,
         toUser: UserIdAndFullnameSchema,
+        telegramMessageId: z.coerce.number().nullable(),
       }),
     )`
       DELETE FROM duel_requests AS dr
@@ -172,7 +173,35 @@ export class DuelsRepository {
         AND tu.id = dr.to_user_id
       RETURNING
         json_build_object('id', fu.id, 'fullname', fu.fullname) AS from_user,
-        json_build_object('id', tu.id, 'fullname', tu.fullname) AS to_user
+        json_build_object('id', tu.id, 'fullname', tu.fullname) AS to_user,
+        dr.telegram_message_id
+    `);
+  }
+
+  /**
+   * Sets the telegram message ID for a duel request.
+   * @param requestId The ID of the duel request.
+   * @param messageId The Telegram message ID to store.
+   */
+  async setDuelRequestMessageId(requestId: number, messageId: number) {
+    await this.#pool.query(sql.typeAlias("void")`
+      UPDATE duel_requests
+      SET telegram_message_id = ${messageId}
+      WHERE id = ${requestId}
+    `);
+  }
+
+  /**
+   * Returns all sibling duel requests from the same sender, excluding the specified request.
+   * @param fromUserId The ID of the user who sent the requests.
+   * @param excludeRequestId The ID of the request to exclude.
+   * @returns All other pending requests from the same sender.
+   */
+  async getSiblingRequests(fromUserId: number, excludeRequestId: number) {
+    return await this.#pool.any(sql.type(DuelRequestSchema)`
+      SELECT *
+      FROM duel_requests
+      WHERE from_user_id = ${fromUserId} AND id != ${excludeRequestId}
     `);
   }
 

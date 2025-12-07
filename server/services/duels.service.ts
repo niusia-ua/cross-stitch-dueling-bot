@@ -128,7 +128,8 @@ export class DuelsService {
       const fromUser = await this.#usersService.getUserIdAndFullname(fromUserId);
       await Promise.all(
         result.map(async (request) => {
-          await this.#notificationsService.notifyUserDuelRequested(request.toUserId, fromUser!);
+          const messageId = await this.#notificationsService.notifyUserDuelRequested(request.toUserId, fromUser!);
+          await this.#duelsRepository.setDuelRequestMessageId(request.id, messageId);
           await this.#gcloudTasksService.scheduleDuelRequestCancellation(request.id);
         }),
       );
@@ -196,7 +197,9 @@ export class DuelsService {
       }
 
       await this.createDuel(fromUser, toUser);
+
       await this.#notificationsService.notifyUserDuelRequestAccepted(fromUser.id, toUser);
+      await this.deleteSiblingRequests(fromUser.id, requestId, fromUser.fullname);
     }
   }
 
@@ -222,6 +225,30 @@ export class DuelsService {
       const { fromUser, toUser } = result;
       await this.#notificationsService.notifyUsersDuelRequestExpired(fromUser, toUser);
     }
+  }
+
+  /**
+   * Deletes all sibling duel requests and edits their Telegram messages.
+   * @param fromUserId The ID of the user who sent the requests.
+   * @param acceptedRequestId The ID of the request that was accepted.
+   * @param fromUserName The name of the user who sent the requests.
+   */
+  private async deleteSiblingRequests(fromUserId: number, acceptedRequestId: number, fromUserName: string) {
+    const siblingRequests = await this.#duelsRepository.getSiblingRequests(fromUserId, acceptedRequestId);
+    if (siblingRequests.length === 0) return;
+
+    await Promise.all(
+      siblingRequests
+        .filter((req) => req.telegramMessageId !== null)
+        .map(async (req) => {
+          await this.#notificationsService.notifyUserDuelRequestInvalidated(
+            req.toUserId,
+            req.telegramMessageId!,
+            fromUserName,
+          );
+          await this.#duelsRepository.removeDuelRequest(req.id);
+        }),
+    );
   }
 
   /**

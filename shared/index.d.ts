@@ -13,6 +13,7 @@ declare module "nuxt/schema" {
 
     DATABASE_URL: string;
 
+    GOOGLE_CLOUD_USE_EMULATORS: boolean;
     GOOGLE_CLOUD_PROJECT_ID: string;
     GOOGLE_CLOUD_TASKS_LOCATION: string;
   }

@@ -9,8 +9,7 @@ export class GoogleCloudTasksService {
   #oauthClient: OAuth2Client;
 
   constructor() {
-    if (import.meta.dev) {
-      // In development mode, connect to a local emulator.
+    if (this.#config.GOOGLE_CLOUD_USE_EMULATORS) {
       this.#tasksClient = new CloudTasksClient({
         port: 8123,
         servicePath: "localhost",
@@ -24,7 +23,6 @@ export class GoogleCloudTasksService {
         },
       });
     } else {
-      // In production mode, connect to the actual Google Cloud services using default credentials.
       this.#tasksClient = new CloudTasksClient();
       this.#oauthClient = new OAuth2Client();
     }
