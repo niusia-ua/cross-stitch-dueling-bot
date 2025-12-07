@@ -3,6 +3,7 @@ import { InlineKeyboard, InputFile, InputMediaBuilder, type RawApi } from "gramm
 import type { InputMediaPhoto, Message } from "grammy/types";
 
 import type { BotApi, BotI18n } from "~~/server/bot/";
+import { dayjs } from "~~/server/utils/datetime.js";
 import type { UserIdAndFullname } from "~~/shared/types/users.js";
 
 interface Dependencies {
@@ -266,8 +267,10 @@ export class NotificationsService {
    * @param winners The winners.
    */
   async postMonthlyRatingAndWinners<T extends DuelsRatingWithUsersInfo>(rating: readonly T[], winners: readonly T[]) {
-    // Get the month in a genitive case.
-    const month = this.#datetimeFormatter.formatToParts(new Date()).find((part) => part.type === "month")!.value;
+    // Get the previous month name in genitive case.
+    const month = this.#datetimeFormatter
+      .formatToParts(dayjs().subtract(1, "month").toDate())
+      .find((part) => part.type === "month")!.value;
 
     const ratingMessage = this.#botI18n.t("uk", "message-monthly-rating", {
       month,
