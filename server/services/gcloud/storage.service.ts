@@ -11,14 +11,14 @@ export class GoogleCloudStorageService {
   constructor() {
     const config = useRuntimeConfig();
 
-    if (config.GOOGLE_CLOUD_USE_EMULATORS) {
+    if (config.gcloud.useEmulators) {
       this.#client = new Storage({
-        projectId: config.GOOGLE_CLOUD_PROJECT_ID,
+        projectId: config.gcloud.projectId,
         apiEndpoint: "http://localhost:4443",
       });
     } else {
       this.#client = new Storage({
-        projectId: config.GOOGLE_CLOUD_PROJECT_ID,
+        projectId: config.gcloud.projectId,
       });
     }
 
