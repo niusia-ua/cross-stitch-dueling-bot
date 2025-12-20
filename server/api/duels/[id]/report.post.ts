@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
     additionalInfo: formData.get("additionalInfo"),
   });
 
-  const duelsService = event.context.diContainerScope.resolve("duelsService");
-  return await duelsService.createDuelReport(duelId, user.id, report);
+  const duelReportsService = event.context.diContainerScope.resolve("duelReportsService");
+  return await duelReportsService.createDuelReport(duelId, user.id, report);
 });

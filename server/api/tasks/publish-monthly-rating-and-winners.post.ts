@@ -5,6 +5,6 @@ export default defineEventHandler(async (event) => {
   const gcloudTasksService = event.context.diContainerScope.resolve("gcloudTasksService");
   await gcloudTasksService.validateToken(token);
 
-  const duelsService = event.context.diContainerScope.resolve("duelsService");
-  return await duelsService.publishMonthlyRatingAndWinners();
+  const duelsRatingService = event.context.diContainerScope.resolve("duelsRatingService");
+  return await duelsRatingService.publishMonthlyRatingAndWinners();
 });

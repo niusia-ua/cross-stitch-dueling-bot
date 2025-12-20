@@ -11,7 +11,7 @@ interface Dependencies {
   botI18n: BotI18n;
 }
 
-export class NotificationsService {
+export class TelegramService {
   #botApi: BotApi;
   #botI18n: BotI18n;
 

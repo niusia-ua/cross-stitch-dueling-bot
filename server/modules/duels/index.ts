@@ -1,2 +1,2 @@
 export * from "./duels.repository.js";
-export * from "./users.repository.js";
+export * from "./duels.service.js";

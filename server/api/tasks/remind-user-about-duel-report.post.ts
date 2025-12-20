@@ -10,6 +10,6 @@ export default defineEventHandler(async (event) => {
     DuelReportSchema.pick({ duelId: true, userId: true }).parseAsync,
   );
 
-  const duelsService = event.context.diContainerScope.resolve("duelsService");
-  return await duelsService.sendDuelReportReminder(duelId, userId);
+  const duelReportsService = event.context.diContainerScope.resolve("duelReportsService");
+  return await duelReportsService.sendDuelReportReminder(duelId, userId);
 });
