@@ -1,4 +1,4 @@
 export default defineEventHandler(async (event) => {
-  const duelsService = event.context.diContainerScope.resolve("duelsService");
-  return await duelsService.getDuelsRating();
+  const duelsRatingService = event.context.diContainerScope.resolve("duelsRatingService");
+  return await duelsRatingService.getDuelsRating();
 });

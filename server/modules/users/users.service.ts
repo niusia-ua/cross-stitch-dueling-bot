@@ -1,14 +1,9 @@
-import type { UsersRepository } from "~~/server/repositories/";
+import type { UsersRepository } from "./users.repository.js";
 
-interface Dependencies {
-  usersRepository: UsersRepository;
-}
-
-/** User service for managing user-related operations. */
 export class UsersService {
   #usersRepository: UsersRepository;
 
-  constructor({ usersRepository }: Dependencies) {
+  constructor({ usersRepository }: ServiceDependencies) {
     this.#usersRepository = usersRepository;
   }
 

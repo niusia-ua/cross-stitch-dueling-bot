@@ -1,7 +1,7 @@
 import { snakeCase } from "es-toolkit";
 import type { ValueExpression } from "slonik";
 
-import { sql } from "./sql.js";
+import type { SqlTag } from "./index.js";
 
 /**
  * Generates a SQL fragment for a partial update statement.
@@ -9,7 +9,7 @@ import { sql } from "./sql.js";
  * @param data - An object where keys are column names (they will be automatically converted to the `snake_case`) and values are the values to set.
  * @returns A SQL fragment for the UPDATE statement.
  */
-export function partialUpdateSet(data: Record<string, ValueExpression>) {
+export function partialUpdateSet(sql: SqlTag, data: Record<string, ValueExpression>) {
   return sql.join(
     Object.entries(data).map(([key, value]) => sql.fragment`${sql.identifier([snakeCase(key)])} = ${value}`),
     sql.fragment`,`,

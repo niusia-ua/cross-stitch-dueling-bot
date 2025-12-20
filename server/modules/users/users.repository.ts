@@ -1,14 +1,12 @@
-import { sql, partialUpdateSet, type DatabasePool } from "~~/server/database/";
-
-interface Dependencies {
-  pool: DatabasePool;
-}
+import { partialUpdateSet, type DatabasePool, type SqlTag } from "~~/server/database/";
 
 export class UsersRepository {
-  #pool: DatabasePool;
+  #db: DatabasePool;
+  #sql: SqlTag;
 
-  constructor({ pool }: Dependencies) {
-    this.#pool = pool;
+  constructor({ db, sql }: RepositoryDependencies) {
+    this.#db = db;
+    this.#sql = sql;
   }
 
   /**
@@ -16,7 +14,7 @@ export class UsersRepository {
    * @returns All users with their settings.
    */
   async getAllUsersWithSettings() {
-    return await this.#pool.any(sql.type(UserAvailableForDuelSchema)`
+    return await this.#db.any(this.#sql.type(UserAvailableForDuelSchema)`
       SELECT u.id, u.fullname, u.photo_url, us.stitches_rate
       FROM users u
       JOIN user_settings us ON us.user_id = u.id
@@ -25,13 +23,13 @@ export class UsersRepository {
   }
 
   async createUser(id: number, user: Omit<UserData, "active">, settings: UserSettingsData) {
-    return await this.#pool.transaction(async (tx) => {
-      const u = await tx.one(sql.type(UserSchema)`
+    return await this.#db.transaction(async (tx) => {
+      const u = await tx.one(this.#sql.type(UserSchema)`
         INSERT INTO users (id, username, fullname, photo_url)
         VALUES (${id}, ${user.username}, ${user.fullname}, ${user.photoUrl})
         RETURNING *
       `);
-      const s = await tx.one(sql.type(UserSettingsSchema)`
+      const s = await tx.one(this.#sql.type(UserSettingsSchema)`
         INSERT INTO user_settings (user_id, stitches_rate, participates_in_weekly_random_duels)
         VALUES (${id}, ${settings.stitchesRate}, ${settings.participatesInWeeklyRandomDuels})
         RETURNING *
@@ -41,7 +39,7 @@ export class UsersRepository {
   }
 
   async getUserAndSettings(userId: number) {
-    return await this.#pool.maybeOne(sql.type(UserAndSettingsSchema)`
+    return await this.#db.maybeOne(this.#sql.type(UserAndSettingsSchema)`
       SELECT
         row_to_json(u) AS user,
         row_to_json(s) AS settings
@@ -52,7 +50,7 @@ export class UsersRepository {
   }
 
   async getUserIdAndFullname(userId: number) {
-    return await this.#pool.maybeOne(sql.type(UserIdAndFullnameSchema)`
+    return await this.#db.maybeOne(this.#sql.type(UserIdAndFullnameSchema)`
       SELECT id, fullname
       FROM users
       WHERE id = ${userId}
@@ -60,15 +58,15 @@ export class UsersRepository {
   }
 
   async updateUser(id: number, data: Partial<UserData>) {
-    return await this.#pool.one(sql.type(UserSchema)`
+    return await this.#db.one(this.#sql.type(UserSchema)`
       UPDATE users
-      SET ${partialUpdateSet({
+      SET ${partialUpdateSet(this.#sql, {
         ...data,
         // When updating the user, we set the active field to DEFAULT if not provided.
         // That is, the user account will become active if it was previously inactive.
-        active: data.active ?? sql.fragment`DEFAULT`,
+        active: data.active ?? this.#sql.fragment`DEFAULT`,
         // Also, we set deleted_at to NULL to ensure the user is not considered deleted.
-        deletedAt: sql.fragment`NULL`,
+        deletedAt: this.#sql.fragment`NULL`,
       })}
       WHERE id = ${id}
       RETURNING *
@@ -76,16 +74,16 @@ export class UsersRepository {
   }
 
   async updateUserSettings(id: number, data: Partial<UserSettingsData>) {
-    return await this.#pool.one(sql.type(UserSettingsSchema)`
+    return await this.#db.one(this.#sql.type(UserSettingsSchema)`
       UPDATE user_settings
-      SET ${partialUpdateSet(data)}
+      SET ${partialUpdateSet(this.#sql, data)}
       WHERE user_id = ${id}
       RETURNING *
     `);
   }
 
   async getUsersForWeeklyRandomDuels() {
-    return await this.#pool.many(sql.type(
+    return await this.#db.many(this.#sql.type(
       UserIdAndFullnameSchema.merge(UserSettingsSchema.pick({ stitchesRate: true })),
     )`
       SELECT u.id, u.fullname, us.stitches_rate
