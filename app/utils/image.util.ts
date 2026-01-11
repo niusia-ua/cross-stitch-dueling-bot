@@ -1,5 +1,7 @@
 import { optimizeImage } from "wasm-image-optimization";
 
+const MAX_DIMENSION = 1920;
+
 export class ImageCompressionError extends Error {
   readonly fileName: string;
 
@@ -14,10 +16,12 @@ export class ImageCompressionError extends Error {
 export async function compressImage(file: File): Promise<File> {
   try {
     const { width, height } = await getImageDimensions(file);
+    const ratio = Math.min(1, MAX_DIMENSION / Math.max(width, height));
+
     const compressed = await optimizeImage({
       image: await file.arrayBuffer(),
-      width: Math.min(width, 1920),
-      height: Math.min(height, 1920),
+      width: Math.round(width * ratio),
+      height: Math.round(height * ratio),
       quality: 80,
       format: "jpeg",
     });
