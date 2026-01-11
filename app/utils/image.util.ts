@@ -13,10 +13,11 @@ export class ImageCompressionError extends Error {
 
 export async function compressImage(file: File): Promise<File> {
   try {
+    const { width, height } = await getImageDimensions(file);
     const compressed = await optimizeImage({
       image: await file.arrayBuffer(),
-      width: 1920,
-      height: 1920,
+      width: Math.min(width, 1920),
+      height: Math.min(height, 1920),
       quality: 80,
       format: "jpeg",
     });
@@ -33,4 +34,24 @@ export async function compressImage(file: File): Promise<File> {
     if (error instanceof ImageCompressionError) throw error;
     throw new ImageCompressionError(`Failed to compress image`, file.name, { cause: error });
   }
+}
+
+function getImageDimensions(file: File) {
+  return new Promise<{ width: number; height: number }>((resolve, reject) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const dimensions = {
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      };
+
+      URL.revokeObjectURL(img.src);
+
+      resolve(dimensions);
+    };
+
+    img.onerror = (err) => reject(err.toString());
+  });
 }
