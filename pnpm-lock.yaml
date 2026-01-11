@@ -86,6 +86,9 @@ importers:
       vue-router:
         specifier: 4.6.4
         version: 4.6.4(vue@3.5.26(typescript@5.9.3))
+      wasm-image-optimization:
+        specifier: 1.4.3
+        version: 1.4.3
       zod:
         specifier: 3.25.76
         version: 3.25.76
@@ -4779,6 +4782,11 @@ packages:
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
+  mkdirp@3.0.1:
+    resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
 
@@ -6797,6 +6805,9 @@ packages:
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
+  wasm-image-optimization@1.4.3:
+    resolution: {integrity: sha512-vYQtMPGm98U/rTg3BnCZWrpRjV8Y0hD8CWR4NIrgLzeDqsIh2nrzJu9RmrGDX6NIC5q9rBRdkjQ/wmeRKWh2RQ==}
+
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
@@ -6838,6 +6849,9 @@ packages:
 
   wordwrap@1.0.0:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
+
+  worker-lib@2.0.8:
+    resolution: {integrity: sha512-nMx5ut10AaJZ1jf/4OJmIae9vvRP+Q134tWZ6h/TAjDhSeIHaRPH9SCuN0Wmacs3nZMZNzEQEA7hCGiQ68cHTg==}
 
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
@@ -11948,6 +11962,8 @@ snapshots:
 
   mitt@3.0.1: {}
 
+  mkdirp@3.0.1: {}
+
   mlly@1.8.0:
     dependencies:
       acorn: 8.15.0
@@ -14216,6 +14232,11 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
+  wasm-image-optimization@1.4.3:
+    dependencies:
+      mkdirp: 3.0.1
+      worker-lib: 2.0.8
+
   web-streams-polyfill@3.3.3: {}
 
   web-worker@1.2.0: {}
@@ -14246,6 +14267,8 @@ snapshots:
   word-wrap@1.2.5: {}
 
   wordwrap@1.0.0: {}
+
+  worker-lib@2.0.8: {}
 
   wrap-ansi@7.0.0:
     dependencies:

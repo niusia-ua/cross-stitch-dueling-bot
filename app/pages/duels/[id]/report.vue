@@ -25,6 +25,8 @@
             />
           </UFormField>
 
+          <UCheckbox v-model="enableImageCompression" :label="$t('form-field-compress-images-label')" />
+
           <UFormField name="stitches" :label="$t('form-field-stitches-label')">
             <UInputNumber
               v-model="report.stitches"
@@ -83,6 +85,7 @@
   const toast = useToast();
   const fluent = useFluent();
 
+  const enableImageCompression = ref(true);
   const report = reactive<DuelReportRequest>({
     photos: [],
     stitches: 0,
@@ -91,7 +94,12 @@
 
   async function handleSubmit(e: FormSubmitEvent<DuelReportRequest>) {
     try {
-      await DuelsApi.sendDuelReport(Number(route.params.id), e.data);
+      const photos = enableImageCompression.value
+        ? await Promise.all(e.data.photos.map((photo) => compressImage(photo)))
+        : e.data.photos;
+
+      await DuelsApi.sendDuelReport(Number(route.params.id), { ...e.data, photos });
+
       toast.add({
         color: "success",
         title: fluent.$t("message-success-title"),
@@ -99,6 +107,16 @@
       });
       router.push("/duels");
     } catch (error) {
+      if (error instanceof ImageCompressionError) {
+        console.error("Image compression failed:", error);
+        toast.add({
+          color: "error",
+          title: fluent.$t("message-error-title"),
+          description: fluent.$t("message-error-description-image-compression-failed", { fileName: error.fileName }),
+        });
+        return;
+      }
+
       if (error instanceof FetchError) {
         const data = (error as ApiError).data?.data;
 
@@ -170,6 +188,8 @@ page-title = Звіт дуелі
 form-field-photos-label = Фото прогресу
 form-field-photos-description = Натисніть, щоб завантажити фото
 
+form-field-compress-images-label = Стиснути зображення перед надсиланням
+
 form-field-stitches-label = Кількість стібків
 
 form-field-additional-info-label = Додаткова інформація
@@ -185,6 +205,9 @@ message-error-description-duel-not-found = Дуель не знайдено.
 message-error-description-not-participant = Ви не можете надіслати звіт, оскільки не берете участь у цій дуелі.
 message-error-description-duel-report-not-allowed = Вам не дозволено надсилати звіт цієї дуелі.
 message-error-description-duel-not-active = Дуель вже завершена.
+message-error-description-image-compression-failed =
+  Не вдалося стиснути зображення "{ $fileName }".
+  Спробуйте ще раз або вимкніть стиснення зображень.
 message-error-description-unknown =
   Не вдалося надіслати звіт дуелі: { $error }.
   Будь ласка, спробуйте ще раз.
