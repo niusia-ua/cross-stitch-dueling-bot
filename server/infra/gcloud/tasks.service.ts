@@ -106,6 +106,19 @@ export class GoogleCloudTasksService {
   }
 
   /**
+   * Schedules a task to delete report images.
+   * @param duelId The ID of the duel whose report images should be deleted.
+   */
+  async scheduleReportImagesCleanup(duelId: number) {
+    await this.#createTask(
+      "report-images-cleanup",
+      "delete-report-images",
+      { id: duelId },
+      { delay: this.#config.public.reportImagesCleanupDelay },
+    );
+  }
+
+  /**
    * Validates an ID token for authorized endpoints.
    * @param idToken The ID token to validate.
    * @returns A promise that resolves to the decoded token if valid, or rejects with an error.
@@ -121,6 +134,7 @@ export class GoogleCloudTasksService {
       "remind-user-about-duel-report",
       "create-weekly-random-duels",
       "publish-monthly-rating-and-winners",
+      "delete-report-images",
     ];
     return await this.#oauthClient.verifyIdToken({
       idToken,

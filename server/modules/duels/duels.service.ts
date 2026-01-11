@@ -157,7 +157,9 @@ export class DuelsService {
 
     await this.#duelsRepository.completeDuel(duel.id, winner?.id);
     await this.#duelsRatingService.refreshRating();
+
     await this.#telegramService.postDuelResults(codeword, participants, reports, photos, winner);
-    await this.#gcloudStorageService.deleteDuelReportPhotos(duel.id);
+
+    await this.#gcloudTasksService.scheduleReportImagesCleanup(duel.id);
   }
 }
