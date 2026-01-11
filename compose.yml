@@ -30,6 +30,8 @@ services:
       - projects/cross-stitch-dueling-bot/locations/local/queues/duel-completion
       - -queue
       - projects/cross-stitch-dueling-bot/locations/local/queues/duel-report-reminder
+      - -queue
+      - projects/cross-stitch-dueling-bot/locations/local/queues/report-images-cleanup
 
     ports:
       - 8123:8123

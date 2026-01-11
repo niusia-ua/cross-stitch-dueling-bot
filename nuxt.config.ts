@@ -88,6 +88,8 @@ export default defineNuxtConfig({
         HOUR * 23, // 1 hour before the deadline.
         HOUR * 23 + MINUTE * 45, // 15 minutes before the deadline.
       ],
+
+      reportImagesCleanupDelay: DAY * 3,
     },
   },
 
