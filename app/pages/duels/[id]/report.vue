@@ -155,28 +155,7 @@
       toast.add({
         color: "error",
         title: fluent.$t("message-error-title"),
-        description: fluent.$t("message-error-description-unknown", {
-          error: error instanceof Error ? error.message : String(error),
-        }),
-        actions: [
-          {
-            label: "Copy Error",
-            color: "neutral",
-            variant: "outline",
-            async onClick(e) {
-              e?.stopPropagation();
-              try {
-                const errorDetails =
-                  error instanceof Error
-                    ? `${error.message}\n\n${error.stack || "No stack trace available"}`
-                    : String(error);
-                await navigator.clipboard.writeText(errorDetails);
-              } catch (error) {
-                console.error("Failed to copy error to clipboard:", error);
-              }
-            },
-          },
-        ],
+        description: fluent.$t("message-error-description-unknown"),
       });
     }
   }
@@ -209,6 +188,6 @@ message-error-description-image-compression-failed =
   Не вдалося стиснути зображення "{ $fileName }".
   Спробуйте ще раз або вимкніть стиснення зображень.
 message-error-description-unknown =
-  Не вдалося надіслати звіт дуелі: { $error }.
+  Не вдалося надіслати звіт дуелі.
   Будь ласка, спробуйте ще раз.
 </fluent>
