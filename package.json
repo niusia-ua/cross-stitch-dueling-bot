@@ -68,7 +68,7 @@
     "@vue/eslint-config-prettier": "10.2.0",
     "eslint": "9.39.2",
     "eslint-plugin-yml": "1.19.1",
-    "node-pg-migrate": "9.0.0-alpha.5",
+    "node-pg-migrate": "9.0.0-alpha.6",
     "prettier": "3.7.4",
     "prettier-plugin-sql": "0.19.2",
     "semantic-release": "25.0.2",
