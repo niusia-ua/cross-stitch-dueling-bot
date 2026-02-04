@@ -118,8 +118,8 @@ importers:
         specifier: 1.19.1
         version: 1.19.1(eslint@9.39.2(jiti@2.6.1))
       node-pg-migrate:
-        specifier: 9.0.0-alpha.5
-        version: 9.0.0-alpha.5(pg@8.18.0)
+        specifier: 9.0.0-alpha.6
+        version: 9.0.0-alpha.6(pg@8.16.3)
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -5108,8 +5108,8 @@ packages:
   node-mock-http@1.0.4:
     resolution: {integrity: sha512-8DY+kFsDkNXy1sJglUfuODx1/opAGJGyrTuFqEoN90oRc2Vk0ZbD4K2qmKXBBEhZQzdKHIVfEJpDU8Ak2NJEvQ==}
 
-  node-pg-migrate@9.0.0-alpha.5:
-    resolution: {integrity: sha512-JmZcFqgIW/9GHZHzipCO1G3mq73B4e9gJdb/tZTBS3S7ILbzJzb7/xQfXwAMv94IdFea257Bu7nToTOybX1Wug==}
+  node-pg-migrate@9.0.0-alpha.6:
+    resolution: {integrity: sha512-wuPBYI/H5P+VyT2zHtSbKDVtRZB8fSFa79A75Bs7lliz/gW5Ppj2dLJXzAfyjT5A9UGC3LZ8YZehhtWiu/Rw0Q==}
     engines: {node: '>=20.11.0'}
     hasBin: true
     peerDependencies:
@@ -12482,7 +12482,7 @@ snapshots:
 
   node-mock-http@1.0.4: {}
 
-  node-pg-migrate@9.0.0-alpha.5(pg@8.18.0):
+  node-pg-migrate@9.0.0-alpha.6(pg@8.16.3):
     dependencies:
       glob: 13.0.0
       jiti: 2.6.1
