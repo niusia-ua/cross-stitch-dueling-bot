@@ -209,7 +209,7 @@ export class TelegramService {
     // Post each report.
     await Promise.allSettled(
       zip(participants, reports).flatMap<Promise<Message | Message[]>>(([user, report], i) => {
-        if (!report || report.stitches === 0) {
+        if (!report) {
           return [
             // Send a message about the lack of report.
             this.#sendGroupMessage(this.#botI18n.t("uk", "message-duel-no-report", { user: mentionUser(user) }), {

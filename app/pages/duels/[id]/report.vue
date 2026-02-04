@@ -15,7 +15,7 @@
         @submit="handleSubmit"
       >
         <div class="grow space-y-2 overflow-y-auto">
-          <UFormField name="photos" :label="$t('form-field-photos-label')">
+          <UFormField required name="photos" :label="$t('form-field-photos-label')">
             <UFileUpload
               v-model="report.photos"
               multiple
@@ -27,7 +27,7 @@
 
           <UCheckbox v-model="enableImageCompression" :label="$t('form-field-compress-images-label')" />
 
-          <UFormField name="stitches" :label="$t('form-field-stitches-label')">
+          <UFormField required name="stitches" :label="$t('form-field-stitches-label')">
             <UInputNumber
               v-model="report.stitches"
               orientation="vertical"
@@ -37,11 +37,7 @@
             />
           </UFormField>
 
-          <UFormField
-            name="additionalInfo"
-            :label="$t('form-field-additional-info-label')"
-            :hint="$t('form-field-additional-info-hint')"
-          >
+          <UFormField name="additionalInfo" :label="$t('form-field-additional-info-label')">
             <UTextarea v-model="report.additionalInfo" autoresize class="w-full" />
           </UFormField>
         </div>
@@ -172,7 +168,6 @@ form-field-compress-images-label = Стиснути зображення пер�
 form-field-stitches-label = Кількість стібків
 
 form-field-additional-info-label = Додаткова інформація
-form-field-additional-info-hint = Необов'язково
 
 label-send-duel-report = Надіслати звіт
 
