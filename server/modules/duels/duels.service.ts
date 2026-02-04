@@ -126,7 +126,7 @@ export class DuelsService {
       codeword,
       pairs.map((pair) => pair.map((user) => user.id)),
     );
-    const deadline = dayjs(duels[0].startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
+    const deadline = dayjs(duels[0]!.startedAt).add(this.#config.public.duelPeriod, "milliseconds").toDate();
 
     await this.#telegramService.announceWeeklyRandomDuels(codeword, deadline, pairs);
     await Promise.all(
@@ -153,7 +153,7 @@ export class DuelsService {
     // Determine the winner based on the reports.
     const highestScore = Math.max(...reports.filter((r) => r !== null).map((r) => r.stitches));
     const winnerIndex = sample(reports.map((r, i) => (r?.stitches === highestScore ? i : -1)).filter((i) => i !== -1));
-    const winner = winnerIndex !== undefined ? participants[winnerIndex] : null;
+    const winner = winnerIndex !== undefined ? participants[winnerIndex]! : null;
 
     await this.#duelsRepository.completeDuel(duel.id, winner?.id);
     await this.#duelsRatingService.refreshRating();

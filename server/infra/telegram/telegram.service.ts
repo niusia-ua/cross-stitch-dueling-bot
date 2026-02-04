@@ -167,7 +167,7 @@ export class TelegramService {
         const message = this.#botI18n.t("uk", "message-weekly-random-duels-started", {
           codeword,
           deadline: formattedDeadline,
-          pair: mentionedPairs[i],
+          pair: mentionedPairs[i]!,
         });
         return pair.map((user) => this.#sendPrivateMessage(user.id, message));
       }),
@@ -231,7 +231,7 @@ export class TelegramService {
             additionalInfo: report.additionalInfo ?? "",
           },
         );
-        const media = photos[i].map((buffer, i) => {
+        const media = photos[i]!.map((buffer, i) => {
           return InputMediaBuilder.photo(new InputFile(buffer), {
             // Attach a caption only to the first photo.
             // This way, the caption will be shown for the entire album.

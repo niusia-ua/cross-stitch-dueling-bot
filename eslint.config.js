@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
 import yml from "eslint-plugin-yml";
-import yamlEslintParser from "yaml-eslint-parser";
 import vuePrettierEslintConfig from "@vue/eslint-config-prettier/skip-formatting";
 
 import withNuxt from "./.nuxt/eslint.config.mjs";
@@ -14,10 +13,9 @@ const ignores = readFileSync(fileURLToPath(new URL(".prettierignore", import.met
 
 export default withNuxt(
   // YAML validation.
-  yml.configs["flat/standard"],
   {
     files: ["compose.yml", "pnpm-workspace.yaml", ".github/**/*.yml"],
-    languageOptions: { parser: yamlEslintParser },
+    extends: [yml.configs.recommended],
     rules: {
       "yml/no-empty-mapping-value": "off",
     },
