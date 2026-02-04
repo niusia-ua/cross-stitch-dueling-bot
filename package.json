@@ -62,7 +62,6 @@
   "devDependencies": {
     "@iconify-json/lucide": "1.2.87",
     "@nuxt/eslint": "1.13.0",
-    "@nuxt/test-utils": "3.23.0",
     "@types/mime-types": "3.0.1",
     "@types/telegram-web-app": "9.1.1",
     "@vue/eslint-config-prettier": "10.2.0",

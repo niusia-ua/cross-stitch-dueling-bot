@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   telemetry: { enabled: false },
 
-  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@nuxt/ui", "unplugin-fluent-vue/nuxt", "nuxt-auth-utils"],
+  modules: ["@nuxt/eslint", "@nuxt/ui", "unplugin-fluent-vue/nuxt", "nuxt-auth-utils"],
   imports: {
     presets: [
       { from: "fluent-vue", imports: ["useFluent"] },
