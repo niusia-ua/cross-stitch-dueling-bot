@@ -66,7 +66,7 @@
     "@types/telegram-web-app": "9.1.1",
     "@vue/eslint-config-prettier": "10.2.0",
     "eslint": "9.39.2",
-    "eslint-plugin-yml": "1.19.1",
+    "eslint-plugin-yml": "3.0.0",
     "node-pg-migrate": "9.0.0-alpha.6",
     "prettier": "3.8.1",
     "prettier-plugin-sql": "0.19.2",
@@ -75,7 +75,6 @@
     "tailwindcss": "4.1.18",
     "typescript": "5.9.3",
     "unplugin-fluent-vue": "1.4.1",
-    "vue-tsc": "3.2.4",
-    "yaml-eslint-parser": "2.0.0"
+    "vue-tsc": "3.2.4"
   }
 }
