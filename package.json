@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "name": "cross-stitch-dueling-bot",
-  "packageManager": "pnpm@10.28.2",
+  "packageManager": "pnpm@10.30.2",
   "engines": {
     "node": ">=24.0.0"
   },
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@fluent/bundle": "0.19.1",
-    "@google-cloud/storage": "7.18.0",
+    "@google-cloud/storage": "7.19.0",
     "@google-cloud/tasks": "6.2.1",
     "@grammyjs/auto-retry": "2.0.2",
     "@grammyjs/i18n": "1.1.2",
@@ -40,30 +40,30 @@
     "@tanstack/vue-table": "8.21.3",
     "@telegram-apps/init-data-node": "2.0.10",
     "@vueuse/core": "13.9.0",
-    "awilix": "12.0.5",
+    "awilix": "13.0.0",
     "dayjs": "1.11.19",
-    "dotenv": "17.2.3",
+    "dotenv": "17.3.1",
     "es-toolkit": "1.44.0",
-    "fluent-vue": "3.8.1",
+    "fluent-vue": "3.8.2",
     "google-auth-library": "10.5.0",
     "google-gax": "5.0.6",
-    "grammy": "1.39.3",
+    "grammy": "1.40.0",
     "h3": "1.15.5",
     "mime-types": "3.0.2",
-    "nuxt": "4.3.0",
-    "nuxt-auth-utils": "0.5.28",
+    "nuxt": "4.3.1",
+    "nuxt-auth-utils": "0.5.29",
     "ofetch": "1.5.1",
-    "slonik": "48.10.0",
-    "vue": "3.5.27",
+    "slonik": "48.10.3",
+    "vue": "3.5.28",
     "vue-router": "4.6.4",
-    "wasm-image-optimization": "1.4.5",
+    "wasm-image-optimization": "1.4.6",
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "1.2.87",
-    "@nuxt/eslint": "1.13.0",
+    "@iconify-json/lucide": "1.2.93",
+    "@nuxt/eslint": "1.15.1",
     "@types/mime-types": "3.0.1",
-    "@types/telegram-web-app": "9.1.1",
+    "@types/telegram-web-app": "9.1.2",
     "@vue/eslint-config-prettier": "10.2.0",
     "eslint": "9.39.2",
     "eslint-plugin-yml": "3.0.0",
@@ -75,6 +75,6 @@
     "tailwindcss": "4.1.18",
     "typescript": "5.9.3",
     "unplugin-fluent-vue": "1.4.1",
-    "vue-tsc": "3.2.4"
+    "vue-tsc": "3.2.5"
   }
 }
