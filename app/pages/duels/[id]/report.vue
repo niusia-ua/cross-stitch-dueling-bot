@@ -38,7 +38,7 @@
           </UFormField>
 
           <UFormField name="additionalInfo" :label="$t('form-field-additional-info-label')">
-            <UTextarea v-model="report.additionalInfo" autoresize class="w-full" />
+            <UTextarea v-model="report.additionalInfo!" autoresize class="w-full" />
           </UFormField>
         </div>
 
