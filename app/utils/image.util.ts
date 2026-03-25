@@ -26,16 +26,9 @@ export async function compressImage(file: File): Promise<File> {
       format: "jpeg",
     });
 
-    if (compressed === undefined) {
-      throw new ImageCompressionError(`Failed to compress image`, file.name);
-    }
-
-    const blob = new Blob([compressed], { type: "image/jpeg" });
-    const fileName = file.name.replace(/\.[^.]+$/, ".jpg");
-
-    return new File([blob], fileName, { type: "image/jpeg" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new File([compressed.data as any], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" });
   } catch (error) {
-    if (error instanceof ImageCompressionError) throw error;
     throw new ImageCompressionError(`Failed to compress image`, file.name, { cause: error });
   }
 }
