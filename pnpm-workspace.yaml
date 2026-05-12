@@ -1,8 +1,10 @@
-allowBuilds:
-  '@parcel/watcher': set this to true or false
-  esbuild: set this to true or false
-  protobufjs: set this to true or false
-  unrs-resolver: set this to true or false
-  vue-demi: set this to true or false
-minimumReleaseAge: 1440
 saveExact: true
+
+minimumReleaseAge: 1440
+
+allowBuilds:
+  "@parcel/watcher": false
+  "esbuild": false
+  "protobufjs": false
+  "unrs-resolver": false
+  "vue-demi": false
