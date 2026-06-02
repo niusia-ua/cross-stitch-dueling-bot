@@ -78,8 +78,8 @@ importers:
         specifier: 1.5.1
         version: 1.5.1
       slonik:
-        specifier: 48.14.1
-        version: 48.14.1
+        specifier: 49.8.0
+        version: 49.8.0
       vue:
         specifier: 3.5.34
         version: 3.5.34(typescript@5.9.3)
@@ -116,7 +116,7 @@ importers:
         version: 3.3.2(eslint@10.3.0(jiti@2.7.0))
       node-pg-migrate:
         specifier: 9.0.0-alpha.8
-        version: 9.0.0-alpha.8(pg@8.20.0)
+        version: 9.0.0-alpha.8(pg@8.21.0)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -1803,34 +1803,34 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@slonik/driver@48.14.1':
-    resolution: {integrity: sha512-2KkB01AEI7jVjYg9oQGifV5TAYTm/qXyskZ/oWVqZoFaa6Y5wHIZOa4FojIABMS28FnSpw0gT6Rhwew9S/GUEQ==}
+  '@slonik/driver@49.8.0':
+    resolution: {integrity: sha512-/7cWWnEkYQMY6Jy/wLL0mtAlQmfw0pOd/4aYdyBVRmfbAaVHxbMhU6XdE1Drg2yvLUH1TecQs/mKBshRzsVUNw==}
     engines: {node: '>=24'}
     peerDependencies:
       zod: ^3.25 || ^4
 
-  '@slonik/errors@48.14.1':
-    resolution: {integrity: sha512-94Ja73smb0NKqgfXdcoCsNUvQVJWS0Yufo3mNnyxSyjGWM53OWXqL5QuyrSnK8hH4Ue/++eRnmc9ql+4q9rLXQ==}
+  '@slonik/errors@49.8.0':
+    resolution: {integrity: sha512-Ww+IGsKn2xwgqO56cNg80bFdVBgg4GwCv84eykZukxB2HYGFCPtA/xW04hrpo8uS9IQB+VF/cQzfNUpHndJvgQ==}
     engines: {node: '>=24'}
 
-  '@slonik/pg-driver@48.14.1':
-    resolution: {integrity: sha512-yeFa3sIwWAU52C1oUncnNAh7M/URaOIBmWCXp2hMnmFv8hExOYW+fkyjskmmldL04bjDoQd456GPIRXIwLypiA==}
-    engines: {node: '>=24'}
-    peerDependencies:
-      zod: ^3.25 || ^4
-
-  '@slonik/sql-tag@48.14.1':
-    resolution: {integrity: sha512-9n8kbCfGz0eGZCoNsNhesRwGKVQ3drUJ+FrHZ4obWwtCT5LtMm426VE0Nky0PsfmpZxLMMdLJfhzBNQ7Kf9xCQ==}
-    engines: {node: '>=24'}
-
-  '@slonik/types@48.14.1':
-    resolution: {integrity: sha512-CGZKIkeYsjV+taNxh6WkgHGmY2TKfpU1/D+SApu734QgZh9JCzUr41AgZYYjEl0I6vWqAmlCgnhQMORehfBoGQ==}
+  '@slonik/pg-driver@49.8.0':
+    resolution: {integrity: sha512-pV73XQnU1GDGscoiuidyf+L6I4jsHw5sTsd5xCo0meWHvOWDoHzHgVoRaSljcN42PNPCLOFkE5kPaezey9564g==}
     engines: {node: '>=24'}
     peerDependencies:
       zod: ^3.25 || ^4
 
-  '@slonik/utilities@48.14.1':
-    resolution: {integrity: sha512-8COapDBA36MJIqcUX/rcVMlyoaYaFbqdDySSRLwbEyJ1L/HjkxZy9WvGEPgqR2iem7MFy/t68ocoSfP2IN+TMw==}
+  '@slonik/sql-tag@49.8.0':
+    resolution: {integrity: sha512-Ju/RJbeOpMrvUgCYDQskkE/ZTFVkxqXxZpsC2HvFvGUeHnxNoCE7sTNYnUWT3oI924RQImI/VVMvG8YEhDBexw==}
+    engines: {node: '>=24'}
+
+  '@slonik/types@49.8.0':
+    resolution: {integrity: sha512-hYY0AEZC2WYLBYx197BLeUjdnm7mkj3GA04I6JQr3yjF/+vsfH1U5KcFeC6j0k2Bg0dkTmoSu3Xcly8zL3ntWA==}
+    engines: {node: '>=24'}
+    peerDependencies:
+      zod: ^3.25 || ^4
+
+  '@slonik/utilities@49.8.0':
+    resolution: {integrity: sha512-RhF35KC5XNvVw3yQyq+ym+CgWT8goUTJATP52avt4MgPb117urH8lDmUr/O0yah9SkGcmUt0qamBzMyJGBcEaQ==}
     engines: {node: '>=24'}
     peerDependencies:
       zod: ^3.25 || ^4
@@ -3641,6 +3641,9 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
 
+  eventemitter3@5.0.4:
+    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
+
   events-universal@1.0.1:
     resolution: {integrity: sha512-LUd5euvbMLpwOF8m6ivPCbhQeSiYVNb8Vs0fQ8QjXo0JTkEHpz8pxdQf0gStltaPpw0Cca8b39KxvK9cfKRiAw==}
 
@@ -5002,10 +5005,6 @@ packages:
     resolution: {integrity: sha512-5b0R4txpzjPWVw/cXXUResoD4hb6U/x9BH08L7nw+GN1sezDzPdxeRvpc9c433fZhBan/wusjbCsqwqm4EIBIQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  p-limit@6.2.0:
-    resolution: {integrity: sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA==}
-    engines: {node: '>=18'}
-
   p-locate@2.0.0:
     resolution: {integrity: sha512-nQja7m7gSKuewoVRen45CtVfODR3crN3goVQ0DDZ9N3yHxgpkuBhZqsaiotSQRrADUrne346peY7kT3TSACykg==}
     engines: {node: '>=4'}
@@ -5022,6 +5021,10 @@ packages:
     resolution: {integrity: sha512-tkAQEw8ysMzmkhgw8k+1U/iPhWNhykKnSk4Rd5zLoPJCuJaGRPo6YposrZgaxHKzDHdDWWZvE/Sk7hsL2X/CpQ==}
     engines: {node: '>=18'}
 
+  p-queue@9.3.0:
+    resolution: {integrity: sha512-7NED7xhQ74Ngp4JP/2e0VZHp7vSWfJfqeiR92jPgxsz6m0Se4P03YoTKa9dDXyZ3r6P616gUXttrB6nnHYKang==}
+    engines: {node: '>=20'}
+
   p-reduce@3.0.0:
     resolution: {integrity: sha512-xsrIUgI0Kn6iyDYm9StOpOeK29XM1aboGji26+QEortiFST1hGZaUQOLhtEbqHErPpGW/aSz6allwK2qcptp0Q==}
     engines: {node: '>=12'}
@@ -5029,6 +5032,10 @@ packages:
   p-timeout@6.1.4:
     resolution: {integrity: sha512-MyIV3ZA/PmyBN/ud8vV9XzwTrNtR4jFrObymZYnZqMmW0zA8Z17vnT0rBgFE/TlohB+YCHqXMgZzb3Csp49vqg==}
     engines: {node: '>=14.16'}
+
+  p-timeout@7.0.1:
+    resolution: {integrity: sha512-AxTM2wDGORHGEkPCt8yqxOTMgpfbEHqF51f/5fJCmwFC3C/zNcGT63SymH2ttOAaiIws2zVg4+izQCjrakcwHg==}
+    engines: {node: '>=20'}
 
   p-try@1.0.0:
     resolution: {integrity: sha512-U1etNYuMJoIz3ZXSrrySFjsXQTWOx2/jdi86L+2pRvph/qMKL6sbcCYdH23fqsbm8TH2Gn0OybpT4eSFlCVHww==}
@@ -5122,14 +5129,14 @@ packages:
   perfect-debounce@2.1.0:
     resolution: {integrity: sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g==}
 
-  pg-cloudflare@1.3.0:
-    resolution: {integrity: sha512-6lswVVSztmHiRtD6I8hw4qP/nDm1EJbKMRhf3HCYaqud7frGysPv7FYJ5noZQdhQtN2xJnimfMtvQq21pdbzyQ==}
+  pg-cloudflare@1.4.0:
+    resolution: {integrity: sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==}
 
-  pg-connection-string@2.12.0:
-    resolution: {integrity: sha512-U7qg+bpswf3Cs5xLzRqbXbQl85ng0mfSV/J0nnA31MCLgvEaAo7CIhmeyrmJpOr7o+zm0rXK+hNnT5l9RHkCkQ==}
+  pg-connection-string@2.13.0:
+    resolution: {integrity: sha512-EMnU9E2fSULdsbErBbMaXJvFeD9B4+nPcM3f+4lsiCR0BHLPrLVjv3DbyM2hgQQviKJaTWIRRTjKjWlHg3p2ig==}
 
-  pg-cursor@2.19.0:
-    resolution: {integrity: sha512-J5cF1MUz7LRJ9emOqF/06QjabMHMZy587rSPF0UuA8rCwKeeYl2co8Pp+6k5UU9YrAYHMzWkLxilfZB0hqsWWw==}
+  pg-cursor@2.20.0:
+    resolution: {integrity: sha512-HP/EbUafheaUOs7DxlG6tda/rhmsX2hCTJJJ+gCnhljGyNEs6pBHddbNuomlW3DqEhP3zYD+GqBWkYnJPIZ4tA==}
     peerDependencies:
       pg: ^8
 
@@ -5141,16 +5148,16 @@ packages:
     resolution: {integrity: sha512-BM/Thnrw5jm2kKLE5uJkXqqExRUY/toLHda65XgFTBTFYZyopbKjBe29Ii3RbkvlsMoFwD+tHeGaCjjv0gHlyw==}
     engines: {node: '>=4'}
 
-  pg-pool@3.13.0:
-    resolution: {integrity: sha512-gB+R+Xud1gLFuRD/QgOIgGOBE2KCQPaPwkzBBGC9oG69pHTkhQeIuejVIk3/cnDyX39av2AxomQiyPT13WKHQA==}
+  pg-pool@3.14.0:
+    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
     peerDependencies:
       pg: '>=8.0'
 
-  pg-protocol@1.13.0:
-    resolution: {integrity: sha512-zzdvXfS6v89r6v7OcFCHfHlyG/wvry1ALxZo4LqgUoy7W9xhBDMaqOuMiF3qEV45VqsN6rdlcehHrfDtlCPc8w==}
+  pg-protocol@1.14.0:
+    resolution: {integrity: sha512-n5taZ1kO3s9ngDTVxsEznOqCyToTgz0FLuPq0B33COy5pPpuWJpY3/2oRBVETuOgzdqRXfWpM9HIhp2LBBT1BA==}
 
-  pg-query-stream@4.14.0:
-    resolution: {integrity: sha512-B1LLxgqngAATPciOPYYKyaQfsw5wyP6BZq6nHqQOC5QaaEBsfW/0OBwWUga+knCAqENMeoow9I8Zgi2m3P9rWw==}
+  pg-query-stream@4.15.0:
+    resolution: {integrity: sha512-hyCs0PaOyCWqC90N9vyHL2wVNyR3OjnqFrLvgX74Pyh0JihTKUywpPyhKnuVp9TCCcGz7Fc9LdtxoBU+3nv10A==}
     peerDependencies:
       pg: ^8
 
@@ -5162,8 +5169,8 @@ packages:
     resolution: {integrity: sha512-o2XFanIMy/3+mThw69O8d4n1E5zsLhdO+OPqswezu7Z5ekP4hYDqlDjlmOpYMbzY2Br0ufCwJLdDIXeNVwcWFg==}
     engines: {node: '>=10'}
 
-  pg@8.20.0:
-    resolution: {integrity: sha512-ldhMxz2r8fl/6QkXnBD3CR9/xg694oT6DZQ2s6c/RI28OjtSOpxnPrUCGOBJ46RCUxcWdx3p6kw/xnDHjKvaRA==}
+  pg@8.21.0:
+    resolution: {integrity: sha512-AUP1EYJuHraQGsVoCQVIcM7TEJVGtDzxWtGFZd8rds9d+CCXlU5Js1rYgfLNvxy9iJrpHjGrRjoi/3BT9fRyiA==}
     engines: {node: '>= 16.0.0'}
     peerDependencies:
       pg-native: '>=3.0.1'
@@ -5649,8 +5656,8 @@ packages:
     resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
-  roarr@7.21.4:
-    resolution: {integrity: sha512-qvfUKCrpPzhWmQ4NxRYnuwhkI5lwmObhBU06BCK/lpj6PID9nL4Hk6XDwek2foKI+TMaV+Yw//XZshGF2Lox/Q==}
+  roarr@7.21.5:
+    resolution: {integrity: sha512-nvelZ4llbfodVanR/gG17H8jpnqgyPX01c4ekQYfoghjEKvAXn7aPPToVG8ngyxf4qtvTC1O5AxQe5PysnF4xg==}
     engines: {node: '>=18.0'}
 
   rollup-plugin-visualizer@6.0.11:
@@ -5797,8 +5804,8 @@ packages:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
     engines: {node: '>=14.16'}
 
-  slonik@48.14.1:
-    resolution: {integrity: sha512-kqr4FKJnJTrghG9nbIxY8N+6mG1kdEGZEPDAQKui3/Hwr2DsDCd2sngV8QTTivrWUyqeOk6qx0gqcKpD7PONfw==}
+  slonik@49.8.0:
+    resolution: {integrity: sha512-PPOqH5sejTlr4dRvOCVSnBKkBbNz47HjFzKrYJF44CFlNSf3UEpexwVrMmCfPIXRCDAGGj78WvzusSzYtg7cZw==}
     engines: {node: '>=24'}
 
   slugify@1.6.6:
@@ -6135,6 +6142,10 @@ packages:
 
   type-fest@5.6.0:
     resolution: {integrity: sha512-8ZiHFm91orbSAe2PSAiSVBVko18pbhbiB3U9GglSzF/zCGkR+rxpHx6sEMCUm4kxY4LjDIUGgCfUMtwfZfjfUA==}
+    engines: {node: '>=20'}
+
+  type-fest@5.7.0:
+    resolution: {integrity: sha512-1URUxUqfHFM1c+zfSPsa3gnkO7Aq21qyH75SIduNYz4SzY964rn1X2vCMQaHSHhktiw+0kPa2iyb6PUpXqB6Vg==}
     engines: {node: '>=20'}
 
   type-level-regexp@0.1.17:
@@ -8566,53 +8577,53 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@slonik/driver@48.14.1(zod@4.4.3)':
+  '@slonik/driver@49.8.0(zod@4.4.3)':
     dependencies:
-      '@slonik/types': 48.14.1(zod@4.4.3)
-      '@slonik/utilities': 48.14.1(zod@4.4.3)
-      roarr: 7.21.4
+      '@slonik/types': 49.8.0(zod@4.4.3)
+      '@slonik/utilities': 49.8.0(zod@4.4.3)
+      roarr: 7.21.5
       serialize-error: 12.0.0
       strict-event-emitter-types: 2.0.0
       zod: 4.4.3
 
-  '@slonik/errors@48.14.1(zod@4.4.3)':
+  '@slonik/errors@49.8.0(zod@4.4.3)':
     dependencies:
-      '@slonik/types': 48.14.1(zod@4.4.3)
+      '@slonik/types': 49.8.0(zod@4.4.3)
     transitivePeerDependencies:
       - zod
 
-  '@slonik/pg-driver@48.14.1(zod@4.4.3)':
+  '@slonik/pg-driver@49.8.0(zod@4.4.3)':
     dependencies:
-      '@slonik/driver': 48.14.1(zod@4.4.3)
-      '@slonik/errors': 48.14.1(zod@4.4.3)
-      '@slonik/sql-tag': 48.14.1
-      '@slonik/types': 48.14.1(zod@4.4.3)
-      '@slonik/utilities': 48.14.1(zod@4.4.3)
-      pg: 8.20.0
-      pg-query-stream: 4.14.0(pg@8.20.0)
+      '@slonik/driver': 49.8.0(zod@4.4.3)
+      '@slonik/errors': 49.8.0(zod@4.4.3)
+      '@slonik/sql-tag': 49.8.0
+      '@slonik/types': 49.8.0(zod@4.4.3)
+      '@slonik/utilities': 49.8.0(zod@4.4.3)
+      pg: 8.21.0
+      pg-query-stream: 4.15.0(pg@8.21.0)
       pg-types: 4.1.0
       postgres-array: 3.0.4
       zod: 4.4.3
     transitivePeerDependencies:
       - pg-native
 
-  '@slonik/sql-tag@48.14.1':
+  '@slonik/sql-tag@49.8.0':
     dependencies:
-      '@slonik/errors': 48.14.1(zod@4.4.3)
-      '@slonik/types': 48.14.1(zod@4.4.3)
-      roarr: 7.21.4
+      '@slonik/errors': 49.8.0(zod@4.4.3)
+      '@slonik/types': 49.8.0(zod@4.4.3)
+      roarr: 7.21.5
       safe-stable-stringify: 2.5.0
       serialize-error: 12.0.0
       zod: 4.4.3
 
-  '@slonik/types@48.14.1(zod@4.4.3)':
+  '@slonik/types@49.8.0(zod@4.4.3)':
     dependencies:
       zod: 4.4.3
 
-  '@slonik/utilities@48.14.1(zod@4.4.3)':
+  '@slonik/utilities@49.8.0(zod@4.4.3)':
     dependencies:
-      '@slonik/errors': 48.14.1(zod@4.4.3)
-      '@slonik/types': 48.14.1(zod@4.4.3)
+      '@slonik/errors': 49.8.0(zod@4.4.3)
+      '@slonik/types': 49.8.0(zod@4.4.3)
       zod: 4.4.3
 
   '@speed-highlight/core@1.2.14': {}
@@ -10033,7 +10044,7 @@ snapshots:
 
   dot-prop@10.1.0:
     dependencies:
-      type-fest: 5.6.0
+      type-fest: 5.7.0
 
   dot-prop@5.3.0:
     dependencies:
@@ -10433,6 +10444,8 @@ snapshots:
   etag@1.8.1: {}
 
   event-target-shim@5.0.1: {}
+
+  eventemitter3@5.0.4: {}
 
   events-universal@1.0.1:
     dependencies:
@@ -11643,11 +11656,11 @@ snapshots:
 
   node-mock-http@1.0.4: {}
 
-  node-pg-migrate@9.0.0-alpha.8(pg@8.20.0):
+  node-pg-migrate@9.0.0-alpha.8(pg@8.21.0):
     dependencies:
       glob: 13.0.6
       jiti: 2.6.1
-      pg: 8.20.0
+      pg: 8.21.0
       yargs: 18.0.0
 
   node-releases@2.0.36: {}
@@ -12011,10 +12024,6 @@ snapshots:
     dependencies:
       yocto-queue: 1.2.2
 
-  p-limit@6.2.0:
-    dependencies:
-      yocto-queue: 1.2.2
-
   p-locate@2.0.0:
     dependencies:
       p-limit: 1.3.0
@@ -12029,9 +12038,16 @@ snapshots:
 
   p-map@7.0.4: {}
 
+  p-queue@9.3.0:
+    dependencies:
+      eventemitter3: 5.0.4
+      p-timeout: 7.0.1
+
   p-reduce@3.0.0: {}
 
   p-timeout@6.1.4: {}
+
+  p-timeout@7.0.1: {}
 
   p-try@1.0.0: {}
 
@@ -12109,29 +12125,29 @@ snapshots:
 
   perfect-debounce@2.1.0: {}
 
-  pg-cloudflare@1.3.0:
+  pg-cloudflare@1.4.0:
     optional: true
 
-  pg-connection-string@2.12.0: {}
+  pg-connection-string@2.13.0: {}
 
-  pg-cursor@2.19.0(pg@8.20.0):
+  pg-cursor@2.20.0(pg@8.21.0):
     dependencies:
-      pg: 8.20.0
+      pg: 8.21.0
 
   pg-int8@1.0.1: {}
 
   pg-numeric@1.0.2: {}
 
-  pg-pool@3.13.0(pg@8.20.0):
+  pg-pool@3.14.0(pg@8.21.0):
     dependencies:
-      pg: 8.20.0
+      pg: 8.21.0
 
-  pg-protocol@1.13.0: {}
+  pg-protocol@1.14.0: {}
 
-  pg-query-stream@4.14.0(pg@8.20.0):
+  pg-query-stream@4.15.0(pg@8.21.0):
     dependencies:
-      pg: 8.20.0
-      pg-cursor: 2.19.0(pg@8.20.0)
+      pg: 8.21.0
+      pg-cursor: 2.20.0(pg@8.21.0)
 
   pg-types@2.2.0:
     dependencies:
@@ -12151,15 +12167,15 @@ snapshots:
       postgres-interval: 3.0.0
       postgres-range: 1.1.4
 
-  pg@8.20.0:
+  pg@8.21.0:
     dependencies:
-      pg-connection-string: 2.12.0
-      pg-pool: 3.13.0(pg@8.20.0)
-      pg-protocol: 1.13.0
+      pg-connection-string: 2.13.0
+      pg-pool: 3.14.0(pg@8.21.0)
+      pg-protocol: 1.14.0
       pg-types: 2.2.0
       pgpass: 1.0.5
     optionalDependencies:
-      pg-cloudflare: 1.3.0
+      pg-cloudflare: 1.4.0
 
   pgpass@1.0.5:
     dependencies:
@@ -12544,7 +12560,7 @@ snapshots:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 8.0.0
       parse-json: 8.3.0
-      type-fest: 5.6.0
+      type-fest: 5.7.0
       unicorn-magic: 0.3.0
 
   read-pkg@9.0.1:
@@ -12670,7 +12686,7 @@ snapshots:
     dependencies:
       glob: 10.5.0
 
-  roarr@7.21.4:
+  roarr@7.21.5:
     dependencies:
       fast-printf: 1.6.10
       safe-stable-stringify: 2.5.0
@@ -12869,19 +12885,19 @@ snapshots:
 
   slash@5.1.0: {}
 
-  slonik@48.14.1:
+  slonik@49.8.0:
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@slonik/driver': 48.14.1(zod@4.4.3)
-      '@slonik/errors': 48.14.1(zod@4.4.3)
-      '@slonik/pg-driver': 48.14.1(zod@4.4.3)
-      '@slonik/sql-tag': 48.14.1
-      '@slonik/utilities': 48.14.1(zod@4.4.3)
+      '@slonik/driver': 49.8.0(zod@4.4.3)
+      '@slonik/errors': 49.8.0(zod@4.4.3)
+      '@slonik/pg-driver': 49.8.0(zod@4.4.3)
+      '@slonik/sql-tag': 49.8.0
+      '@slonik/utilities': 49.8.0(zod@4.4.3)
       '@standard-schema/spec': 1.1.0
       iso8601-duration: 2.1.3
-      p-limit: 6.2.0
+      p-queue: 9.3.0
       postgres-interval: 4.0.2
-      roarr: 7.21.4
+      roarr: 7.21.5
       serialize-error: 12.0.0
       strict-event-emitter-types: 2.0.0
       zod: 4.4.3
@@ -13216,6 +13232,10 @@ snapshots:
   type-fest@4.41.0: {}
 
   type-fest@5.6.0:
+    dependencies:
+      tagged-tag: 1.0.0
+
+  type-fest@5.7.0:
     dependencies:
       tagged-tag: 1.0.0
 
